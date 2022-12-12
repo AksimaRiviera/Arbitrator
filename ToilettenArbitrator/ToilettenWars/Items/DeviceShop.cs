@@ -6,10 +6,13 @@ namespace ToilettenArbitrator.ToilettenWars.Items
 {
     public class DeviceShop
     {
+        public const string SHOP_NAME = "SHIT SHOP";
+        private string _itemID;
         private List<Item> AllItems;
         private List<ItemCard> itemCards;
 
-        public Item OneItem { get; }
+        public string WhatItemBought { set => _itemID = value; }
+        public Item PurchasedItem => GetItem();
         public string ShopInfo => ShopCreate();
 
         public DeviceShop()
@@ -30,7 +33,9 @@ namespace ToilettenArbitrator.ToilettenWars.Items
 
         private string ShopCreate()
         {
-            StringBuilder ShopLog = new StringBuilder("ВАС ПРИВЕТСТВУЕТ\r\n\n\r    <b>SHIT SHOP</b>\r\n\r\nВ асортементе:\r\n\r\n");
+            StringBuilder ShopLog = new StringBuilder("ВАС ПРИВЕТСТВУЕТ\r\n\n\r" + 
+            $"    <b>{SHOP_NAME}</b>\r\n\r\nВ асортементе:\r\n\r\n");
+
             int count = 1;
 
             ShopLog.AppendLine($"Чем ударить:{Environment.NewLine}");
@@ -75,29 +80,11 @@ namespace ToilettenArbitrator.ToilettenWars.Items
 
             return ShopLog.ToString();
         }
-        //public string ShopInfo(ItemsType type)
-        //{
-        //    switch (type)
-        //    {
-        //        case ItemsType.Weapon:
-        //            break;
-        //        case ItemsType.Armor:
-        //            break;
-        //        case ItemsType.Shield:
-        //            break;
-        //        case ItemsType.Helmet:
-        //            break;
-        //        case ItemsType.Boots:
-        //            break;
-        //        case ItemsType.Gloves:
-        //            break;
-        //        case ItemsType.HealPotion:
-        //            break;
-        //        case ItemsType.OtherPotion:
-        //            break;
-        //        default:
-        //            break;
-        //    }
-        //}
+
+        private Item GetItem()
+        {
+            return AllItems.Find(product => product.ItemID.Contains(_itemID));
+        }
+
     }
 }
