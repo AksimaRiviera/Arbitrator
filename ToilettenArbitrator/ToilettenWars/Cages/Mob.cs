@@ -9,11 +9,11 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
         protected float _damage;
         protected float _defence;
         protected float _hitPoints;
-        protected float _expirience;
-        protected long _cash;
         protected int _positionX;
         protected int _positionY;
         protected LootBox _lootBox;
+        protected AgeRanks _ageRank;
+        protected LevelRanks _levelRank;
 
         public string Id => _id;
         public string Name => _name;
@@ -22,6 +22,7 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
         public Mob(MobCard card)
         {
             _id = card.Id;
+            _name = card.Name;
             string[] data;
 
             data = card.Data.Split("|");
@@ -29,9 +30,19 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
             _damage = (float)card.Attack;
             _defence = (float)card.Defence;
             _hitPoints = (float)card.HitPoints;
-            _expirience = float.Parse(data[3]);
+            _positionX = new SilverDice().GetCoordinate;
+            _positionY = new SilverDice().GetCoordinate;
         }
 
         public abstract bool AddDamage(float damage, out LootBox Loot);
+
+        private class Namenator
+        {
+            
+            public Namenator()
+            {
+                
+            }
+        }
     }
 }

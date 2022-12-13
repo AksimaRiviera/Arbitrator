@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "OriFn1KbBkXBZowoO6enLKp08YqGlr3zmIfvxccDDCTIn/MSPKaDANwOSCTYtlPS0zSRn/bBv/M3n8uogEGJBA==",
+  "dgSpecHash": "FyHL618fLolWFXf7sSdHIxUbIa6eqQNM+JnC3Wr6Q8UXAvH72EKLe7I1zCwa3Mio2Tkj3ku5S2vcJSmp8mSzQw==",
   "success": true,
-  "projectFilePath": "F:\\GitProjects\\Bots\\ToilettenArbitrator\\ToilettenArbitrator.csproj",
+  "projectFilePath": "F:\\GitProjects\\Arbitrator\\ToilettenArbitrator\\ToilettenArbitrator.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\AKSIMA\\.nuget\\packages\\humanizer.core\\2.8.26\\humanizer.core.2.8.26.nupkg.sha512",
     "C:\\Users\\AKSIMA\\.nuget\\packages\\microsoft.csharp\\4.5.0\\microsoft.csharp.4.5.0.nupkg.sha512",

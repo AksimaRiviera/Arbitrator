@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "F:\\GitProjects\\Bots\\ToilettenArbitrator\\ToilettenArbitrator.csproj": {}
+    "F:\\GitProjects\\Arbitrator\\ToilettenArbitrator\\ToilettenArbitrator.csproj": {}
   },
   "projects": {
-    "F:\\GitProjects\\Bots\\ToilettenArbitrator\\ToilettenArbitrator.csproj": {
+    "F:\\GitProjects\\Arbitrator\\ToilettenArbitrator\\ToilettenArbitrator.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "F:\\GitProjects\\Bots\\ToilettenArbitrator\\ToilettenArbitrator.csproj",
+        "projectUniqueName": "F:\\GitProjects\\Arbitrator\\ToilettenArbitrator\\ToilettenArbitrator.csproj",
         "projectName": "ToilettenArbitrator",
-        "projectPath": "F:\\GitProjects\\Bots\\ToilettenArbitrator\\ToilettenArbitrator.csproj",
+        "projectPath": "F:\\GitProjects\\Arbitrator\\ToilettenArbitrator\\ToilettenArbitrator.csproj",
         "packagesPath": "C:\\Users\\AKSIMA\\.nuget\\packages\\",
-        "outputPath": "F:\\GitProjects\\Bots\\ToilettenArbitrator\\obj\\",
+        "outputPath": "F:\\GitProjects\\Arbitrator\\ToilettenArbitrator\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "F:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
