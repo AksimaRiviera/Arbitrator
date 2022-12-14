@@ -185,6 +185,17 @@ namespace ToilettenArbitrator.ToilettenWars
             }
         }
 
+        public void PayFromProduct(long heroCash)
+        {
+            BankCard card = new BankCard();
+            using (MembersDataContext MDC = new MembersDataContext())
+            {
+                card.SecondCell += heroCash;
+                MDC.Update(card);
+                MDC.SaveChanges();
+            }
+        }
+
         private class ProfileInfo
         {
             private ProfileCard _Profile;

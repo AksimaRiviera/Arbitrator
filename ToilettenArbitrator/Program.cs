@@ -61,12 +61,10 @@ else
 
 async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
 {
-
     if (update.Type != UpdateType.Message)
         return;
     if (update.Message!.Type != MessageType.Text)
         return;
-
 
     chatID = update.Message.Chat.Id;
     messageID = update.Message.MessageId;
@@ -95,7 +93,6 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
     millisecond = update.Message.Date.Millisecond;
 
     //new LogsConstructor().ConsoleEcho(update, LogsConstructor.SaveLogs.Save);
-
 
     if (messageText != null
                 && int.Parse(day.ToString()) >= day

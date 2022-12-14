@@ -20,6 +20,7 @@ namespace ToilettenArbitrator.Brain
         private Arena arena, botArena;
         private ToiletRoom Room;
         private DeviceShop Shop;
+        private ShitBank Bank;
 
         private Hero hero, enemy;
         private List<HeroCard> heroes;
@@ -69,7 +70,6 @@ namespace ToilettenArbitrator.Brain
             messageText = update.Message.Text;
 
             userID = update.Message.From.Id;
-
         }
 
         public async void SynapseAnswer()
@@ -77,6 +77,17 @@ namespace ToilettenArbitrator.Brain
             using (ToilettenArbitrator.MembersDataContext MemberArchive = new ToilettenArbitrator.MembersDataContext())
             {
                 heroes = MemberArchive.HeroCards.ToList();
+            }
+            
+            if(new ToiletRoom(userName, firstName, lastName).SuchHeroExist())
+            {
+                await _botClient.SendTextMessageAsync(
+                    chatId: chatID,
+                    text: "Ты кто такой ЕСТЬ?",
+                    parseMode: ParseMode.Html,
+                    cancellationToken: _cancellationToken);
+                
+                return;
             }
 
             if (heroes.Find(name => name.Name.Contains(userName)) == null)
@@ -173,11 +184,17 @@ namespace ToilettenArbitrator.Brain
 
             if (messageText.ToLower().Contains("/buy"))
             {
+                Bank = new ShitBank();
+
                 hero = new Hero(heroes.Find(name => name.Name.Contains(userName.ToLower())));
-                hero.AddItem(new Item(messageText.Substring(4)));
+
+                Item item = new Item(messageText.Substring(4));
+                
+                Bank.PayFromProduct(hero.GetMoney(item.Coast));
+
+                hero.AddItem(item);
 
                 LogsConstructor.WhatInMessage(messageText.Substring(4), "Что вводишь в Hero.AddItem");
-
 
                 // Не забудь отнять денег у игрока
                 // Так же добавлять вещь через магазин,
@@ -192,7 +209,6 @@ namespace ToilettenArbitrator.Brain
                     cancellationToken: _cancellationToken);
 
                 new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
-
             }
 
             if (messageText.Contains("/upstat"))

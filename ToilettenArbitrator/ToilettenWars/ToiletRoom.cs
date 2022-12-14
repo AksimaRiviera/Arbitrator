@@ -8,7 +8,7 @@ namespace ToilettenArbitrator.ToilettenWars
         private Hero _hero;
 
         private Random random = new Random();
-        private string _message;
+        private string _message, _fullName, _userName, _firstName, _lastName;
 
         private string[] _startMessageConstruct = new string[] {
             "В конвульсиях ", "На подкашивающихся ногах ",
@@ -36,7 +36,6 @@ namespace ToilettenArbitrator.ToilettenWars
 
         public ToiletRoom(string userName, string firstName, string secondName)
         {
-
             using (MembersDataContext MemberArchive = new MembersDataContext())
             {
                 heroes = MemberArchive.HeroCards.ToList();
@@ -55,6 +54,12 @@ namespace ToilettenArbitrator.ToilettenWars
             {
                 _hero = new Hero(heroes.Find(name => name.Name.Contains(secondName.ToLower())));
             }
+
+            if (userName == null) _userName = firstName;
+            if (firstName == null) _firstName = userName;
+            if (secondName == null) _lastName = userName;
+            
+            _fullName = $"{_userName}|{_firstName}|{_lastName}";
         }
 
         public string GO(int[] coordinates, Hero.Directions directions)
@@ -172,6 +177,18 @@ namespace ToilettenArbitrator.ToilettenWars
                     default:
                         return "По итогу, что растягиваем?";
                 }
+            }
+        }
+
+        public bool SuchHeroExist()
+        {
+            if(heroes.Find(player => player.Name.Contains(_fullName)) != null)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
             }
         }
     }

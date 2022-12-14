@@ -33,6 +33,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         public int ID => _id;
         public string Name => _name;
 
+
         public int Level => _level;
         public float LevelExpirience => _levelExpirience;
         public Ranks Rank => _rank;
@@ -82,10 +83,26 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         public override bool AddItem(Item item)
         {
             int emptyCellsCount = 0;
-            for (int i = 0; i < _inventory.Length; i++) if (string.IsNullOrEmpty(_inventory[i])) emptyCellsCount++;
-            if (emptyCellsCount == 0) return false;
-            else _inventory[_inventory.Length - emptyCellsCount] = item.ItemID;
-            return true;
+            using MembersDataContext MDC = new MembersDataContext();
+            for (int i = 0; i < _inventory.Length; i++)
+            {
+                if (string.IsNullOrEmpty(_inventory[i]))
+                {
+                    emptyCellsCount++;
+                }
+            }
+            
+            if (emptyCellsCount == 0)
+            {
+                return false;
+            }
+            else
+            {
+                _inventory[_inventory.Length - emptyCellsCount] = item.ItemID;
+                _card.Inventory = $"e|e|e|e|e|e|e|e|e|e|e|{item.ItemID}";
+                return true;
+            }
+
         }
 
         protected override float ClearAttack()
@@ -204,6 +221,17 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
             MDC.Update(_card);
             MDC.SaveChanges();
+        }
+
+        public long GetMoney(long itemPrice)
+        {
+            if(_money < itemPrice)
+            {
+                return 0;
+            }
+
+            _money -= itemPrice;
+            return itemPrice;
         }
 
         public bool UpdateCharacteristics(Hero.Characteristics characteristics)
