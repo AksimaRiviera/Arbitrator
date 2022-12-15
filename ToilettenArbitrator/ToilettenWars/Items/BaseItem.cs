@@ -29,12 +29,7 @@
 
         public BaseItem(ItemCard card)
         {
-            _ID = card.Id;
-            _itemID = card.ItemId;
-            _Name = card.Name;
-            _Description = card.Description;
-            _Coast = card.Cash;
-            _Options = card.Options.Split("|");
+            ApplySettings(card);
         }
 
         public BaseItem(string itemID)
@@ -52,7 +47,17 @@
 
             if (_itemCard == null) return;
 
-            new Item(_itemCard);
+            ApplySettings(_itemCard);
+        }
+
+        private void ApplySettings(ItemCard card)
+        {
+            _ID = card.Id;
+            _itemID = card.ItemId;
+            _Name = card.Name;
+            _Description = card.Description;
+            _Coast = card.Cash;
+            _Options = card.Options.Split("|");
         }
     }
 }

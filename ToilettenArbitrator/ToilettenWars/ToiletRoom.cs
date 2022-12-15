@@ -152,6 +152,15 @@ namespace ToilettenArbitrator.ToilettenWars
             return _message;
         }
 
+        public string HeroBagInfo()
+        {
+            _message = "";
+
+            _message = $"{_hero.}";
+            return _message;
+
+        }
+
         public string HeroStatUpdate(Hero.Characteristics characteristics)
         {
             if (_hero.FreePoints == 0)

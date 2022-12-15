@@ -1,4 +1,5 @@
-﻿using ToilettenArbitrator.ToilettenWars.Items;
+﻿using System.Security.Cryptography;
+using ToilettenArbitrator.ToilettenWars.Items;
 
 namespace ToilettenArbitrator.ToilettenWars.Person
 {
@@ -86,7 +87,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             using MembersDataContext MDC = new MembersDataContext();
             for (int i = 0; i < _inventory.Length; i++)
             {
-                if (string.IsNullOrEmpty(_inventory[i]))
+                if (_inventory[i].ToLower().Contains("e"))
                 {
                     emptyCellsCount++;
                 }
@@ -99,10 +100,11 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             else
             {
                 _inventory[_inventory.Length - emptyCellsCount] = item.ItemID;
-                _card.Inventory = $"e|e|e|e|e|e|e|e|e|e|e|{item.ItemID}";
+                _card.Inventory += $"|{item.ItemID}";
+                MDC.Update(_card);
+                MDC.SaveChanges();
                 return true;
             }
-
         }
 
         protected override float ClearAttack()
@@ -225,12 +227,17 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
         public long GetMoney(long itemPrice)
         {
-            if(_money < itemPrice)
+            using MembersDataContext MDC = new MembersDataContext();
+            if (_money < itemPrice)
             {
                 return 0;
             }
-
             _money -= itemPrice;
+
+            _card.Money = _money;
+
+            MDC.Update(_card);
+            MDC.SaveChanges();
             return itemPrice;
         }
 

@@ -185,30 +185,41 @@ namespace ToilettenArbitrator.Brain
             if (messageText.ToLower().Contains("/buy"))
             {
                 Bank = new ShitBank();
+                
+                Shop = new DeviceShop();
+                Shop.WhatItemBought = messageText.Substring(4);
 
                 hero = new Hero(heroes.Find(name => name.Name.Contains(userName.ToLower())));
 
-                Item item = new Item(messageText.Substring(4));
-                
-                Bank.PayFromProduct(hero.GetMoney(item.Coast));
+                Bank.PayFromProduct(hero.GetMoney(Shop.PurchasedItem.Coast));
 
-                hero.AddItem(item);
+                if (hero.AddItem(Shop.PurchasedItem))
+                {
+                    LogsConstructor.WhatInMessage(messageText.Substring(4), "Что вводишь в Hero.AddItem");
 
-                LogsConstructor.WhatInMessage(messageText.Substring(4), "Что вводишь в Hero.AddItem");
+                    // Не забудь отнять денег у игрока
+                    // Так же добавлять вещь через магазин,
+                    // а не прикастовывая новый предмет из воздуха
+                    // Так же не забудь записывать деньги в Банк
+                    // Который тоже необходимо создать
 
-                // Не забудь отнять денег у игрока
-                // Так же добавлять вещь через магазин,
-                // а не прикастовывая новый предмет из воздуха
-                // Так же не забудь записывать деньги в Банк
-                // Который тоже необходимо создать
+                    await _botClient.SendTextMessageAsync(
+                        chatId: ChatID,
+                        text: "С обновкой!!!",
+                        parseMode: ParseMode.Html,
+                        cancellationToken: _cancellationToken);
 
-                await _botClient.SendTextMessageAsync(
-                    chatId: ChatID,
-                    text: "С обновкой!!!",
-                    parseMode: ParseMode.Html,
-                    cancellationToken: _cancellationToken);
+                    new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
+                }
+                else
+                {
+                    await _botClient.SendTextMessageAsync(
+                        chatId: ChatID,
+                        text: "Твой рюкзак полон!!!",
+                        parseMode: ParseMode.Html,
+                        cancellationToken: _cancellationToken);
 
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
+                }
             }
 
             if (messageText.Contains("/upstat"))
