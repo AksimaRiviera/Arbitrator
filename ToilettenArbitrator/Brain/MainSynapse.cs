@@ -123,7 +123,7 @@ namespace ToilettenArbitrator.Brain
                             Position = $"{new SilverDice().GetCoordinate}.{new SilverDice().GetCoordinate}.5",
                             Expirience = "0|0",
                             Dirty = "0",
-                            Inventory = "E",
+                            Inventory = "e|e|e|e|e|e|e|e|e|e|e",
                             EntryDate = $"{year}.{month}.{day}/{hour}:{minute}:{second}",
                             TimersOne = $"E",
                             TimersTwo = $"E",
@@ -159,18 +159,6 @@ namespace ToilettenArbitrator.Brain
                 new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
 
             }
-
-
-            //if (hero.Name == null)
-            //{
-            //    await _botClient.SendTextMessageAsync(
-            //        chatId: ChatID,
-            //        text: "Ты вообще кто такой ЕСТЬ?",
-            //        parseMode: ParseMode.Html,
-            //        cancellationToken: _cancellationToken);
-            //
-            //    new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
-            //}
 
             if (messageText.ToLower().Contains("/buy"))
             {
@@ -226,21 +214,6 @@ namespace ToilettenArbitrator.Brain
 
                 new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
             }
-
-
-            //switch (_update.InlineQuery.Query.ToLower())
-            //{
-            //    case "toxic+1":
-            //        answer = $"Записываю{Environment.NewLine}{Room.HeroStatUpdate(Hero.Characteristics.Toxic)}";
-            //        await _botClient.SendTextMessageAsync(
-            //            chatId: chatID,
-            //            text: answer,
-            //            parseMode: ParseMode.Html,
-            //            replyMarkup: new ReplyKeyboardRemove(),
-            //            cancellationToken: _cancellationToken);
-            //    default:
-            //        break;
-            //}
 
             if (messageText.ToLower().Contains("токсичность +1"))
             {
@@ -396,12 +369,6 @@ namespace ToilettenArbitrator.Brain
                 Room = new ToiletRoom(userName, firstName, lastName);
                 answer = Room.GO(coordinates: null, directions: ToilettenArbitrator.ToilettenWars.Person.Hero.Directions.North);
 
-                //await _botClient.AnswerCallbackQueryAsync(
-                //    callbackQueryId: _update.CallbackQuery.Id,
-                //    text: answer,
-                //    showAlert: true,
-                //    cancellationToken: _cancellationToken);
-
                 answerMessage = await _botClient.SendTextMessageAsync(
                    chatId: chatID,
                    text: answer,
@@ -418,12 +385,6 @@ namespace ToilettenArbitrator.Brain
                 Room = new ToiletRoom(userName, firstName, lastName);
                 answer = Room.GO(coordinates: null, directions: ToilettenArbitrator.ToilettenWars.Person.Hero.Directions.West);
 
-                //await _botClient.AnswerCallbackQueryAsync(
-                //    callbackQueryId: _update.CallbackQuery.Id,
-                //    text: answer,
-                //    showAlert: true,
-                //    cancellationToken: _cancellationToken);
-
                 await _botClient.SendTextMessageAsync(
                     chatId: chatID,
                     text: answer,
@@ -439,12 +400,6 @@ namespace ToilettenArbitrator.Brain
                 Room = new ToiletRoom(userName, firstName, lastName);
                 answer = Room.GO(coordinates: null, directions: ToilettenArbitrator.ToilettenWars.Person.Hero.Directions.East);
 
-                //await _botClient.AnswerCallbackQueryAsync(
-                //    callbackQueryId: _update.CallbackQuery.Id,
-                //    text: answer,
-                //    showAlert: true,
-                //    cancellationToken: _cancellationToken);
-
                 await _botClient.SendTextMessageAsync(
                     chatId: chatID,
                     text: answer,
@@ -459,12 +414,6 @@ namespace ToilettenArbitrator.Brain
             {
                 Room = new ToiletRoom(userName, firstName, lastName);
                 answer = Room.GO(coordinates: null, directions: ToilettenArbitrator.ToilettenWars.Person.Hero.Directions.South);
-
-                //await _botClient.AnswerCallbackQueryAsync(
-                //    callbackQueryId: _update.CallbackQuery.Id,
-                //    text: answer,
-                //    showAlert: true,
-                //    cancellationToken: _cancellationToken);
 
                 await _botClient.SendTextMessageAsync(
                     chatId: chatID,
