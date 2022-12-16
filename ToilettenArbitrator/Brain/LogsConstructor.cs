@@ -10,10 +10,7 @@ namespace ToilettenArbitrator.Brain
         private static StreamReader logReader;
         private static int membersValue;
 
-        private static string logLine, logPath = $"F:\\WinFormsApp" +
-            $"\\Bot_TA" +
-            $"\\ToilettenArbitrator" +
-            $"\\ToilettenArbitrator" +
+        private static string logLine, logPath = $"{Environment.CurrentDirectory}" +
             $"\\Brain" +
             $"\\LogsData" +
             string.Format("{0:d}", DateTime.Now) + "_IML.txt";
@@ -31,10 +28,9 @@ namespace ToilettenArbitrator.Brain
 
             logWriter.WriteLine($"[ - - - ЛОГ НАЧАТ - - - ]{Environment.NewLine}" +
                 string.Format("[ {0} ] /", DateTime.Now) +
-                $"{Environment.NewLine}[ - - - - - - - - - - - ]" +
-                $"{Environment.NewLine}[ - - - Количество игроков - - - ]" +
-                $"{Environment.NewLine}[ - - - ( {membersValue} ) - - - ]" +
-                $"{Environment.NewLine}[ - - - - - - - - - - - ]");
+                $"{Environment.NewLine}[ - - Количество игроков - - ]" +
+                $"{Environment.NewLine}[ >>> {membersValue} <<< ]" +
+                $"{Environment.NewLine}[ - - - - - - - - ]");
 
             logWriter.Close();
             logStream.Close();

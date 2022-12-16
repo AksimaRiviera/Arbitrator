@@ -33,44 +33,41 @@ namespace ToilettenArbitrator.ToilettenWars
         private string Attack()
         {
             hero = new Hero(heroes.Find(name => name.Name.Contains(heroName)));
+
+            if(heroes.Find(person => person.Name.Contains(enemyName)) == null) return "Твоего противника не существует";
+
             enemy = new Hero(heroes.Find(name => name.Name.Contains(enemyName)));
 
-            if (heroes.Find(name => name.Name.Contains(enemyName)) != null)
+            if (string.IsNullOrEmpty(attackNotification) || string.IsNullOrWhiteSpace(attackNotification)) attackNotification = "";
+
+            float clearDamage;
+            float atk = hero.Attack, def = enemy.Defence;
+
+            if (atk >= def)
             {
-                if (string.IsNullOrEmpty(attackNotification) || string.IsNullOrWhiteSpace(attackNotification)) attackNotification = "";
+                clearDamage = atk - def;
 
-                float clearDamage;
-                float atk = hero.Attack, def = enemy.Defence;
+                enemy.AddDamage(clearDamage, out expirience, out cash);
 
-                if (atk >= def)
-                {
-                    clearDamage = atk - def;
+                hero.ChangeLevelExpirience((float)Math.Round(expirience, 2));
+                hero.TakeMoney(cash);
 
-                    enemy.AddDamage(clearDamage, out expirience, out cash);
-
-                    hero.ChangeLevelExpirience((float)Math.Round(expirience, 2));
-                    hero.TakeMoney(cash);
-
-                    attackNotification = @$"&#9888 ACHTUNG &#9888{Environment.NewLine}" +
-                        $"@{hero.Name} " + "&#9876" + $" {enemy.Name}{Environment.NewLine}{Environment.NewLine}" +
-                        $"<i><b>Статистика боя</b></i>{Environment.NewLine}" +
-                        $"@{enemy.Name} {helloSynapse.GettingVerb} " +
-                        $"{string.Format("{0:f2}", clearDamage)} урона{Environment.NewLine}" +
-                        $"{string.Format("{0:f2}", atk)} - " +
-                        $"{string.Format("{0:f2}", def)} = " +
-                        $"{string.Format("{0:f2}", clearDamage)}{Environment.NewLine}" +
-                        $"@{hero.Name} получает {string.Format("{0:f2}", expirience)} опыта и {cash} ГовноТенге";
-                    return attackNotification;
-                }
-                else
-                {
-                    return "Урон абсорбирован!";
-                }
+                attackNotification = @$"&#9888 ACHTUNG &#9888{Environment.NewLine}" +
+                    $"@{hero.Name} " + "&#9876" + $" {enemy.Name}{Environment.NewLine}{Environment.NewLine}" +
+                    $"<i><b>Статистика боя</b></i>{Environment.NewLine}" +
+                    $"@{enemy.Name} {helloSynapse.GettingVerb} " +
+                    $"{string.Format("{0:f2}", clearDamage)} урона{Environment.NewLine}" +
+                    $"{string.Format("{0:f2}", atk)} - " +
+                    $"{string.Format("{0:f2}", def)} = " +
+                    $"{string.Format("{0:f2}", clearDamage)}{Environment.NewLine}" +
+                    $"@{hero.Name} получает {string.Format("{0:f2}", expirience)} опыта и {cash} ГовноТенге";
+                return attackNotification;
             }
             else
             {
-                return "Твоего противника не существует";
+                return "Урон абсорбирован!";
             }
+                
         }
     }
 }
