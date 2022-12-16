@@ -90,16 +90,6 @@ namespace ToilettenArbitrator.Brain
                 return;
             }
 
-            if (heroes.Find(name => name.Name.Contains(userName)) == null)
-            {
-                answer = "Ты кто такой?";
-                await _botClient.SendTextMessageAsync(
-                    chatId: chatID,
-                    text: answer,
-                    parseMode: ParseMode.Html,
-                    cancellationToken: _cancellationToken);
-            }
-
             if (messageText.ToLower().Contains("/createhero"))
             {
                 SilverDice money = new SilverDice();
@@ -228,7 +218,7 @@ namespace ToilettenArbitrator.Brain
                     $"А-а-а-а-а, давай раскинем пару характеристик!!!";
 
                 await _botClient.SendTextMessageAsync(
-                    chatId: userID,
+                    chatId: chatID,
                     text: answer,
                     parseMode: ParseMode.Html,
                     replyMarkup: CharacteristicsUpdateButtons,
@@ -258,7 +248,7 @@ namespace ToilettenArbitrator.Brain
 
                 answer = $"Записываю{Environment.NewLine}{Room.HeroStatUpdate(Hero.Characteristics.Toxic)}";
                 await _botClient.SendTextMessageAsync(
-                    chatId: userID,
+                    chatId: chatID,
                     text: answer,
                     parseMode: ParseMode.Html,
                     replyMarkup: new ReplyKeyboardRemove(),
@@ -392,7 +382,7 @@ namespace ToilettenArbitrator.Brain
                 answer = "Куда направимся?";
 
                 await _botClient.SendTextMessageAsync(
-                    chatId: userID,
+                    chatId: chatID,
                     text: answer,
                     parseMode: ParseMode.Html,
                     replyMarkup: DestinationButtons,
@@ -413,7 +403,7 @@ namespace ToilettenArbitrator.Brain
                 //    cancellationToken: _cancellationToken);
 
                 answerMessage = await _botClient.SendTextMessageAsync(
-                   chatId: userID,
+                   chatId: chatID,
                    text: answer,
                    parseMode: ParseMode.Html,
                    replyMarkup: new ReplyKeyboardRemove(),
@@ -435,7 +425,7 @@ namespace ToilettenArbitrator.Brain
                 //    cancellationToken: _cancellationToken);
 
                 await _botClient.SendTextMessageAsync(
-                    chatId: userID,
+                    chatId: chatID,
                     text: answer,
                     parseMode: ParseMode.Html,
                     replyMarkup: new ReplyKeyboardRemove(),
@@ -456,7 +446,7 @@ namespace ToilettenArbitrator.Brain
                 //    cancellationToken: _cancellationToken);
 
                 await _botClient.SendTextMessageAsync(
-                    chatId: userID,
+                    chatId: chatID,
                     text: answer,
                     parseMode: ParseMode.Html,
                     replyMarkup: new ReplyKeyboardRemove(),
@@ -477,7 +467,7 @@ namespace ToilettenArbitrator.Brain
                 //    cancellationToken: _cancellationToken);
 
                 await _botClient.SendTextMessageAsync(
-                    chatId: userID,
+                    chatId: chatID,
                     text: answer,
                     parseMode: ParseMode.Html,
                     replyMarkup: new ReplyKeyboardRemove(),
@@ -486,7 +476,83 @@ namespace ToilettenArbitrator.Brain
                 new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
             }
 
+            if (messageText.ToLower().Contains("/inventory"))
+            {
+                hero = new Hero(heroes.Find(person => person.Name.Contains(userName)));
+                answer = $"Cумка @{hero.Name}" +
+                    $"{Environment.NewLine}содержит:{Environment.NewLine}";
 
+                List<Item> heroBag = new List<Item>();
+
+                for (int i = 0; i < hero.Inventory.Length; i++)
+                {
+                    heroBag.Add(new Item(hero.Inventory[i]));
+                }
+
+                for (int i = 0; i < hero.Inventory.Length; i++)
+                {
+                    answer += $"{i}. {heroBag[i].Name}";
+
+                    switch (heroBag[i].Type)
+                    {
+                        case ToilettenWars.Items.Types.ItemsType.Weapon:
+                            answer += $"{Environment.NewLine}<b>оружие</b>" + $"Экипировать?{Environment.NewLine}/equip{heroBag[i].ItemID}{Environment.NewLine}"; 
+                            break;
+                        case ToilettenWars.Items.Types.ItemsType.Armor:
+                            answer += $"{Environment.NewLine}<b>броня</b>" + $"Экипировать?{Environment.NewLine}/equip{heroBag[i].ItemID}{Environment.NewLine}";
+                            break;
+                        case ToilettenWars.Items.Types.ItemsType.Shield:
+                            answer += $"{Environment.NewLine}<b>щит</b>" + $"Экипировать?{Environment.NewLine}/equip{heroBag[i].ItemID}{Environment.NewLine}";
+                            break;
+                        case ToilettenWars.Items.Types.ItemsType.Helmet:
+                            answer += $"{Environment.NewLine}<b>шляпа</b>" + $"Экипировать?{Environment.NewLine}/equip{heroBag[i].ItemID}{Environment.NewLine}";
+                            break;
+                        case ToilettenWars.Items.Types.ItemsType.Boots:
+                            answer += $"{Environment.NewLine}<b>тапки</b>" + $"Экипировать?{Environment.NewLine}/equip{heroBag[i].ItemID}{Environment.NewLine}";
+                            break;
+                        case ToilettenWars.Items.Types.ItemsType.Gloves:
+                            answer += $"{Environment.NewLine}<b>варежки</b>" + $"Экипировать?{Environment.NewLine}/equip{heroBag[i].ItemID}{Environment.NewLine}";
+                            break;
+                        case ToilettenWars.Items.Types.ItemsType.HealPotion:
+                            answer += $"{Environment.NewLine}<b>чистящее средство</b>" + $"Использовать?{Environment.NewLine}/use{heroBag[i].ItemID}{Environment.NewLine}";
+                            break;
+                        case ToilettenWars.Items.Types.ItemsType.OtherPotion:
+                            answer += $"{Environment.NewLine}<b>какая-то химия, можно пить</b>" + $"Использовать?{Environment.NewLine}/use{heroBag[i].ItemID}{Environment.NewLine}";
+                            break;
+                        default:
+                            answer += "чё это такое я сам не знаю";
+                            break;
+                    }
+                }
+                await _botClient.SendTextMessageAsync(
+                    chatId: chatID,
+                    text: answer,
+                    parseMode: ParseMode.Html,
+                    cancellationToken: _cancellationToken);
+
+                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
+            }
+
+            if (messageText.ToLower().Contains("/use"))
+            {
+                hero = new Hero(heroes.Find(person => person.Name.Contains(userName)));
+
+                answer = string.Empty;
+                answer = $"Ты применил{Environment.NewLine}{new Item(messageText.Substring(4)).Name}{Environment.NewLine}" +
+                    $"{new Item(messageText.Substring(4)).Description}{Environment.NewLine}";
+
+                hero.UsePotion(messageText.Substring(4));
+
+                answer += $"Ты стал чище на: {new HealingPotion(messageText.Substring(4)).EffectValue}";
+
+                await _botClient.SendTextMessageAsync(
+                        chatId: chatID,
+                        text: answer,
+                        parseMode: ParseMode.Html,
+                        cancellationToken: _cancellationToken);
+
+                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
+            }
         }
 
         private InlineKeyboardMarkup StatUpButtons = new InlineKeyboardMarkup(new[]

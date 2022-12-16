@@ -76,6 +76,8 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         public Armor Shield => _shield;
         public Armor Helmet => _helmet;
 
+        public string[] Inventory => _inventory; 
+
         public Hero(HeroCard card) : base(card)
         {
 
@@ -107,9 +109,50 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             }
         }
 
+        public bool EquipItem(string ItemId)
+        {
+            int inventoryCell = 0;
+
+            for (inventoryCell = 0; inventoryCell < _inventory.Length; inventoryCell++)
+            {
+                if (_inventory[inventoryCell] == ItemId)
+                {
+                    _inventory[inventoryCell] = "e";
+                    continue;
+                }
+            }
+
+            HealingPotion potion = new HealingPotion(ItemId);
+
+            _dirty -= potion.EffectValue;
+
+            return true;
+
+        }
+
+        public bool UsePotion(string ItemId)
+        {
+            int inventoryCell = 0;
+
+            for (inventoryCell = 0; inventoryCell < _inventory.Length; inventoryCell++)
+            {
+                if (_inventory[inventoryCell] == ItemId)
+                {
+                    _inventory[inventoryCell] = "e";
+                    continue;
+                }
+            }
+
+            HealingPotion potion = new HealingPotion(ItemId);
+
+            _dirty -= potion.EffectValue;
+
+            return true;
+        }
+
         protected override float ClearAttack()
         {
-            if (Weapon != null) return Weapon.RealDamage + BaseAttack();
+            if (Weapon.Name != "Ничего") return Weapon.RealDamage + BaseAttack();
             else return BaseAttack() + new SilverDice().HandDamage;
         }
 

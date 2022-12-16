@@ -13,7 +13,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         internal const float BASE_RANK_ATK_BIAS = 0.2f;
         internal const float BASE_ACCUMULATION_MOD = 0.2f;
         internal const float EXPIRIENCE_FACTOR = 0.1f;
-        internal const int EXPIRIENCE_LEVEL_FACTOR = 15;
+        internal const int EXPIRIENCE_LEVEL_FACTOR = 10;
         internal const float GUANO_METABOLISM_FACTOR = 0.18f;
         internal const float GUANO_STOMACH_FACTOR = 0.25f;
         internal const int ROOM_MIN = 0;
