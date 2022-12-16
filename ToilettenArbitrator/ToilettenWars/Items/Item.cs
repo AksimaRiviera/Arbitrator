@@ -14,6 +14,7 @@ namespace ToilettenArbitrator.ToilettenWars.Items
 
         public Item() : base()
         {
+
         }
 
         public Item(ItemCard card) : base(card)
@@ -25,6 +26,7 @@ namespace ToilettenArbitrator.ToilettenWars.Items
         {
             WhatType();
         }
+
 
         protected virtual void WhatType()
         {

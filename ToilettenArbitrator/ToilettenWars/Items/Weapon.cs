@@ -32,6 +32,7 @@ namespace ToilettenArbitrator.ToilettenWars.Items
             if (base.Type != ItemsType.Weapon) return;
         }
 
+
         private float DamageCalculate()
         {
             if (_Options == null) { return 0.0f; }

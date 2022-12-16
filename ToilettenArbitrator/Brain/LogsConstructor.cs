@@ -7,14 +7,15 @@ namespace ToilettenArbitrator.Brain
     {
         private static FileStream logStream;
         private static StreamWriter logWriter;
-        private static StreamReader logReader;
         private static int membersValue;
 
-        private static string logLine, logPath = $"{Environment.CurrentDirectory}" +
+        private static string logLine, logPath = $"F:\\GitProjects" +
+            $"\\Arbitrator" +
+            $"\\ToilettenArbitrator" +
             $"\\Brain" +
             $"\\LogsData" +
             string.Format("{0:d}", DateTime.Now) + "_IML.txt";
-
+        //F:\GitProjects\Arbitrator\ToilettenArbitrator\Brain
 
         static LogsConstructor()
         {

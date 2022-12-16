@@ -25,17 +25,10 @@ namespace ToilettenArbitrator.Brain
         private Hero hero, enemy;
         private List<HeroCard> heroes;
 
-        private List<string> BadWords;
-
-        private InlineKeyboardMarkup _inlineKeyboard;
-        private ReplyKeyboardMarkup _replyKeyboard;
         private Message answerMessage;
 
         public WhatKeyboardNeed WhatKeyboard { get; }
         public string Answer => answer;
-
-        public InlineKeyboardMarkup InlineKeyboard => _inlineKeyboard;
-        public ReplyKeyboardMarkup ReplyKeyboard => _replyKeyboard;
 
         public long ChatID => chatID;
 
@@ -431,48 +424,8 @@ namespace ToilettenArbitrator.Brain
                 answer = $"Cумка @{hero.Name}" +
                     $"{Environment.NewLine}содержит:{Environment.NewLine}";
 
-                List<Item> heroBag = new List<Item>();
+                answer += hero.InventoryData();
 
-                for (int i = 0; i < hero.Inventory.Length; i++)
-                {
-                    heroBag.Add(new Item(hero.Inventory[i]));
-                }
-
-                for (int i = 0; i < hero.Inventory.Length; i++)
-                {
-                    answer += $"{i}. {heroBag[i].Name}";
-
-                    switch (heroBag[i].Type)
-                    {
-                        case ToilettenWars.Items.Types.ItemsType.Weapon:
-                            answer += $"{Environment.NewLine}<b>оружие</b>" + $"Экипировать?{Environment.NewLine}/equip{heroBag[i].ItemID}{Environment.NewLine}"; 
-                            break;
-                        case ToilettenWars.Items.Types.ItemsType.Armor:
-                            answer += $"{Environment.NewLine}<b>броня</b>" + $"Экипировать?{Environment.NewLine}/equip{heroBag[i].ItemID}{Environment.NewLine}";
-                            break;
-                        case ToilettenWars.Items.Types.ItemsType.Shield:
-                            answer += $"{Environment.NewLine}<b>щит</b>" + $"Экипировать?{Environment.NewLine}/equip{heroBag[i].ItemID}{Environment.NewLine}";
-                            break;
-                        case ToilettenWars.Items.Types.ItemsType.Helmet:
-                            answer += $"{Environment.NewLine}<b>шляпа</b>" + $"Экипировать?{Environment.NewLine}/equip{heroBag[i].ItemID}{Environment.NewLine}";
-                            break;
-                        case ToilettenWars.Items.Types.ItemsType.Boots:
-                            answer += $"{Environment.NewLine}<b>тапки</b>" + $"Экипировать?{Environment.NewLine}/equip{heroBag[i].ItemID}{Environment.NewLine}";
-                            break;
-                        case ToilettenWars.Items.Types.ItemsType.Gloves:
-                            answer += $"{Environment.NewLine}<b>варежки</b>" + $"Экипировать?{Environment.NewLine}/equip{heroBag[i].ItemID}{Environment.NewLine}";
-                            break;
-                        case ToilettenWars.Items.Types.ItemsType.HealPotion:
-                            answer += $"{Environment.NewLine}<b>чистящее средство</b>" + $"Использовать?{Environment.NewLine}/use{heroBag[i].ItemID}{Environment.NewLine}";
-                            break;
-                        case ToilettenWars.Items.Types.ItemsType.OtherPotion:
-                            answer += $"{Environment.NewLine}<b>какая-то химия, можно пить</b>" + $"Использовать?{Environment.NewLine}/use{heroBag[i].ItemID}{Environment.NewLine}";
-                            break;
-                        default:
-                            answer += "чё это такое я сам не знаю";
-                            break;
-                    }
-                }
                 await _botClient.SendTextMessageAsync(
                     chatId: chatID,
                     text: answer,

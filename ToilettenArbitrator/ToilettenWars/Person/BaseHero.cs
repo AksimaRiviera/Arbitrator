@@ -7,44 +7,47 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         internal HeroCard _card;
 
         internal const int EQUIPMENT_VOLUME = 10;
+        internal const int INVENTORY_DEFAULT_VOLUME = 4;
+        internal const int ROOM_MIN = 0;
+        internal const int ROOM_MAX = 200;
+        internal const int HP_FACTOR = 10;
+        internal const int EXPIRIENCE_LEVEL_FACTOR = 10;
         internal const float BASE_DEFENCE_MOD = 0.02f;
         internal const float MAIN_FACTOR = 1.0f;
         internal const float BASE_RANK_ATK_FACTOR = 0.9f;
         internal const float BASE_RANK_ATK_BIAS = 0.2f;
         internal const float BASE_ACCUMULATION_MOD = 0.2f;
         internal const float EXPIRIENCE_FACTOR = 0.1f;
-        internal const int EXPIRIENCE_LEVEL_FACTOR = 10;
         internal const float GUANO_METABOLISM_FACTOR = 0.18f;
         internal const float GUANO_STOMACH_FACTOR = 0.25f;
-        internal const int ROOM_MIN = 0;
-        internal const int ROOM_MAX = 200;
-        internal const int HP_FACTOR = 10;
 
         internal Weapon _weapon;
         internal Armor _armor, _shield, _helmet;
+        
+        protected Ranks _rank;
+
+        protected List<Item> _equipment = new List<Item>(EQUIPMENT_VOLUME);
+        protected List<Item> _inventory;
 
         protected int _id;
-        protected string _name;
-
         protected int _level;
-        protected float _levelExpirience;
-
-        protected Ranks _rank;
-        protected float _rankExpirience;
-
         protected int _toxic;
         protected int _fats;
         protected int _stomach;
         protected int _metabolism;
         protected int _freePoints;
-
-        protected float _dirty;
-        protected int[] _position = new int[3];
         protected int _movementPoints;
+
+        protected int[] _position = new int[3];
+
         protected long _money;
 
-        protected string[] _equipment = new string[EQUIPMENT_VOLUME];
-        protected string[] _inventory;
+        protected string _name;
+        protected string _rankDescription;
+
+        protected float _levelExpirience;
+        protected float _rankExpirience;
+        protected float _dirty;
 
         public float MaximumDirty => (float)Math.Round((float)((_fats * 5) + (_level * 3)), 2); // Максимальный уровень загрязнения (то есть здоровья)
 
@@ -113,50 +116,49 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                     _rank = Ranks.Slap;
                     break;
             }
-
             BagSorter(bag);
         }
         private void BagSorter(string[] bag)
         {
             if (bag[0].ToLower() == "e")
             {
-                _inventory = new string[5];
+                _inventory = new List<Item>(INVENTORY_DEFAULT_VOLUME);
 
-                for (int i = 0; i < _inventory.Length; i++)
+                for (int i = 0; i < _inventory.Capacity; i++)
                 {
-                    _inventory[i] = "e";
+                    _inventory.Add(new Item());
                 }
                 for (int i = 0; i < EQUIPMENT_VOLUME; i++)
                 {
-                    _equipment[i] = "e";
+                    _equipment.Add(new Item());
                 }
             }
             else
             {
-                _inventory = new string[int.Parse(bag[0])];
+                _inventory = new List<Item>(int.Parse(bag[0]));
 
                 for (int i = 1; i < 11; i++)
                 {
-                    _equipment[i - 1] = bag[i];
+                    _equipment.Add(new Item(bag[i]));
                 }
 
                 for (int i = 11; i < bag.Length; i++)
                 {
-                    _inventory[i - 11] = bag[i];
+                    _inventory.Add(new Item(bag[i]));
                 }
             }
 
-            if (_equipment[0].ToLower().Contains("e")) _weapon = new Weapon();
-            else { _weapon = new Weapon(_equipment[0]); }
+            if (_equipment[0].Name.ToLower().Contains("ничего")) _weapon = new Weapon();
+            else { _weapon = new Weapon(_equipment[0].ItemID); }
 
-            if (_equipment[1].ToLower().Contains("e")) { _armor = new Armor(); }
-            else { _armor = new Armor(_equipment[1]); }
+            if (_equipment[1].Name.ToLower().Contains("ничего")) { _armor = new Armor(); }
+            else { _armor = new Armor(_equipment[1].ItemID); }
 
-            if (_equipment[2].ToLower().Contains("e")) { _shield = new Armor(); }
-            else { _shield = new Armor(_equipment[2]); }
+            if (_equipment[2].Name.ToLower().Contains("ничего")) { _shield = new Armor(); }
+            else { _shield = new Armor(_equipment[2].ItemID); }
 
-            if (_equipment[3].ToLower().Contains("e")) { _helmet = new Armor(); }
-            else { _helmet = new Armor(_equipment[3]); }
+            if (_equipment[3].Name.ToLower().Contains("ничего")) { _helmet = new Armor(); }
+            else { _helmet = new Armor(_equipment[3].ItemID); }
         }
         protected float BaseAttack()
         {

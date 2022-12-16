@@ -33,7 +33,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
         public int ID => _id;
         public string Name => _name;
-
+        public string RankDescription => _rankDescription;
 
         public int Level => _level;
         public float LevelExpirience => _levelExpirience;
@@ -76,7 +76,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         public Armor Shield => _shield;
         public Armor Helmet => _helmet;
 
-        public string[] Inventory => _inventory; 
+        public List<Item> Inventory => _inventory; 
 
         public Hero(HeroCard card) : base(card)
         {
@@ -87,9 +87,10 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         {
             int emptyCellsCount = 0;
             using MembersDataContext MDC = new MembersDataContext();
-            for (int i = 0; i < _inventory.Length; i++)
+
+            for (int i = 0; i < _inventory.Count; i++)
             {
-                if (_inventory[i].ToLower().Contains("e"))
+                if (_inventory[i].Name.ToLower().Contains("ничего"))
                 {
                     emptyCellsCount++;
                 }
@@ -101,7 +102,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             }
             else
             {
-                _inventory[_inventory.Length - emptyCellsCount] = item.ItemID;
+                _inventory[_inventory.Count - emptyCellsCount] = new Item(item.ItemID);
                 _card.Inventory += $"|{item.ItemID}";
                 MDC.Update(_card);
                 MDC.SaveChanges();
@@ -113,11 +114,11 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         {
             int inventoryCell = 0;
 
-            for (inventoryCell = 0; inventoryCell < _inventory.Length; inventoryCell++)
+            for (inventoryCell = 0; inventoryCell < _inventory.Count; inventoryCell++)
             {
-                if (_inventory[inventoryCell] == ItemId)
+                if (_inventory[inventoryCell].ItemID == ItemId)
                 {
-                    _inventory[inventoryCell] = "e";
+                    _inventory.Remove(_inventory[inventoryCell]);
                     continue;
                 }
             }
@@ -134,11 +135,11 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         {
             int inventoryCell = 0;
 
-            for (inventoryCell = 0; inventoryCell < _inventory.Length; inventoryCell++)
+            for (inventoryCell = 0; inventoryCell < _inventory.Count; inventoryCell++)
             {
-                if (_inventory[inventoryCell] == ItemId)
+                if (_inventory[inventoryCell].ItemID == ItemId)
                 {
-                    _inventory[inventoryCell] = "e";
+                    _inventory.Remove(_inventory[inventoryCell]);
                     continue;
                 }
             }
@@ -158,7 +159,8 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
         protected override float ClearDefence()
         {
-            return BaseDefense() + Armor.Defence + Shield.Defence + Helmet.Defence;
+
+            return BaseDefense(); //Armor.Defence + Shield.Defence + Helmet.Defence;
         }
 
         public void ChangeLevelExpirience(float expirience)
@@ -312,6 +314,61 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             MDC.SaveChanges();
 
             return true;
+        }
+        
+        public string InventoryData()
+        {
+            string data = string.Empty;
+
+            for (int i = 11; i < Inventory.Capacity; i++)
+            {
+                if (Inventory[i].Type == ToilettenWars.Items.Types.ItemsType.Weapon)
+                {
+                    data += $"{i - 10}. {Inventory[i].Name}";
+                    data += $"{Environment.NewLine}<b>оружие</b>" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                }
+                else if (Inventory[i].Type == ToilettenWars.Items.Types.ItemsType.Armor)
+                {
+                    data += $"{i - 10}. {Inventory[i].Name}";
+                    data += $"{Environment.NewLine}<b>броня</b>" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                }
+                else if (Inventory[i].Type == ToilettenWars.Items.Types.ItemsType.Shield)
+                {
+                    data += $"{i - 10}. {Inventory[i].Name}";
+                    data += $"{Environment.NewLine}<b>щит</b>" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                }
+                else if (Inventory[i].Type == ToilettenWars.Items.Types.ItemsType.Helmet)
+                {
+                    data += $"{i - 10}. {Inventory[i].Name}";
+                    data += $"{Environment.NewLine}<b>шляпа</b>" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                }
+                else if (Inventory[i].Type == ToilettenWars.Items.Types.ItemsType.Boots)
+                {
+                    data += $"{i - 10}. {Inventory[i].Name}";
+                    data += $"{Environment.NewLine}<b>тапки</b>" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                }
+                else if (Inventory[i].Type == ToilettenWars.Items.Types.ItemsType.Gloves)
+                {
+                    data += $"{i - 10}. {Inventory[i].Name}";
+                    data += $"{Environment.NewLine}<b>варежки</b>" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                }
+                else if (Inventory[i].Type == ToilettenWars.Items.Types.ItemsType.HealPotion)
+                {
+                    data += $"{i - 10}. {Inventory[i].Name}";
+                    data += $"{Environment.NewLine}<b>чистящее средство</b>" + $"Использовать?{Environment.NewLine}/use{Inventory[i].ItemID}{Environment.NewLine}";
+                }
+                else if (Inventory[i].Type == ToilettenWars.Items.Types.ItemsType.OtherPotion)
+                {
+                    data += $"{i - 10}. {Inventory[i].Name}";
+                    data += $"{Environment.NewLine}<b>какая-то химия, можно пить</b>" + $"Использовать?{Environment.NewLine}/use{Inventory[i].ItemID}{Environment.NewLine}";
+                }
+                else
+                {
+                    data += "Я вообще не знаю что это. Где ты это взял?...";
+                }
+            }
+
+            return data;
         }
     }
 } 

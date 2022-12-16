@@ -8,8 +8,6 @@ using ToilettenArbitrator.ToilettenWars.Person;
 
 var Arbitrator = new TelegramBotClient("5146908025:AAE5lkcA_2UqMi2Rl4eiN3f8Z6MgAwpABk8");
 
-Hero hero;
-
 int year, month, day, hour, minute, second, millisecond;
 
 long chatID = 0;
