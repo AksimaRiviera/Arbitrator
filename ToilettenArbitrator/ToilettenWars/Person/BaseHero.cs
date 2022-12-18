@@ -45,6 +45,8 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         protected string _name;
         protected string _rankDescription;
 
+        protected string[] bag;
+
         protected float _levelExpirience;
         protected float _rankExpirience;
         protected float _dirty;
@@ -62,7 +64,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             string[] AtributesArr = Card.Atributes.Split(".");
             string[] PosArr = Card.Position.Split(".");
             string[] ExpArr = Card.Expirience.Split("|");
-            string[] bag = Card.Inventory.Split("|");
+            bag = Card.Inventory.Split("|");
 
             _name = NameArr[0];
 
@@ -148,7 +150,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                 }
             }
 
-            if (_equipment[0].Name.ToLower().Contains("ничего")) _weapon = new Weapon();
+            if (_equipment[0].Name.ToLower().Contains("ничего") || _equipment[0].Description.ToLower().Contains("e")) _weapon = new Weapon();
             else { _weapon = new Weapon(_equipment[0].ItemID); }
 
             if (_equipment[1].Name.ToLower().Contains("ничего")) { _armor = new Armor(); }

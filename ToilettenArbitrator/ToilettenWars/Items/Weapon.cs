@@ -18,6 +18,9 @@ namespace ToilettenArbitrator.ToilettenWars.Items
 
         public Weapon() : base()
         {
+            _Name = "Ничего";
+            _Description = "e";
+            _Coast = 0;
         }
 
         public Weapon(ItemCard card) : base(card)

@@ -27,7 +27,6 @@ namespace ToilettenArbitrator.ToilettenWars.Items
             WhatType();
         }
 
-
         protected virtual void WhatType()
         {
             if (_Options == null) return;

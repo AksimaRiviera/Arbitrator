@@ -85,25 +85,53 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
         public override bool AddItem(Item item)
         {
-            int emptyCellsCount = 0;
+            int count = 0;
             using MembersDataContext MDC = new MembersDataContext();
 
             for (int i = 0; i < _inventory.Count; i++)
             {
-                if (_inventory[i].Name.ToLower().Contains("ничего"))
+                if (_inventory[i].Name.ToLower().Contains("ничего") == false)
                 {
-                    emptyCellsCount++;
+                    count++;
+                }
+                else
+                {
+                    _inventory[i] = item;
+                    break;
                 }
             }
-            
-            if (emptyCellsCount == 0)
+
+            if (count == _inventory.Count)
             {
                 return false;
             }
             else
             {
-                _inventory[_inventory.Count - emptyCellsCount] = new Item(item.ItemID);
-                _card.Inventory += $"|{item.ItemID}";
+                _card.Inventory = $"{bag[0]}";
+
+                for (int i = 0; i < _equipment.Capacity; i++)
+                {
+                    if (_equipment[i].Name.ToLower().Contains("ничего"))
+                    {
+                        _card.Inventory += $"|{_equipment[i].Description}";
+                    }
+                    else
+                    {
+                        _card.Inventory += $"|{_equipment[i].ItemID}";
+                    }
+                }
+                for (int i = 0; i < _inventory.Capacity; i++)
+                {
+                    if (_inventory[i].Name.ToLower().Contains("ничего"))
+                    {
+                        _card.Inventory += $"|{_inventory[i].Description}";
+                    }
+                    else
+                    {
+                        _card.Inventory += $"|{_inventory[i].ItemID}";
+                    }
+                }
+
                 MDC.Update(_card);
                 MDC.SaveChanges();
                 return true;
@@ -320,51 +348,60 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         {
             string data = string.Empty;
 
-            for (int i = 11; i < Inventory.Capacity; i++)
+            for (int i = 0; i < Inventory.Capacity; i++)
             {
-                if (Inventory[i].Type == ToilettenWars.Items.Types.ItemsType.Weapon)
+                if (Inventory[i].Name.ToLower() != "ничего")
                 {
-                    data += $"{i - 10}. {Inventory[i].Name}";
-                    data += $"{Environment.NewLine}<b>оружие</b>" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
-                }
-                else if (Inventory[i].Type == ToilettenWars.Items.Types.ItemsType.Armor)
-                {
-                    data += $"{i - 10}. {Inventory[i].Name}";
-                    data += $"{Environment.NewLine}<b>броня</b>" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
-                }
-                else if (Inventory[i].Type == ToilettenWars.Items.Types.ItemsType.Shield)
-                {
-                    data += $"{i - 10}. {Inventory[i].Name}";
-                    data += $"{Environment.NewLine}<b>щит</b>" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
-                }
-                else if (Inventory[i].Type == ToilettenWars.Items.Types.ItemsType.Helmet)
-                {
-                    data += $"{i - 10}. {Inventory[i].Name}";
-                    data += $"{Environment.NewLine}<b>шляпа</b>" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
-                }
-                else if (Inventory[i].Type == ToilettenWars.Items.Types.ItemsType.Boots)
-                {
-                    data += $"{i - 10}. {Inventory[i].Name}";
-                    data += $"{Environment.NewLine}<b>тапки</b>" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
-                }
-                else if (Inventory[i].Type == ToilettenWars.Items.Types.ItemsType.Gloves)
-                {
-                    data += $"{i - 10}. {Inventory[i].Name}";
-                    data += $"{Environment.NewLine}<b>варежки</b>" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
-                }
-                else if (Inventory[i].Type == ToilettenWars.Items.Types.ItemsType.HealPotion)
-                {
-                    data += $"{i - 10}. {Inventory[i].Name}";
-                    data += $"{Environment.NewLine}<b>чистящее средство</b>" + $"Использовать?{Environment.NewLine}/use{Inventory[i].ItemID}{Environment.NewLine}";
-                }
-                else if (Inventory[i].Type == ToilettenWars.Items.Types.ItemsType.OtherPotion)
-                {
-                    data += $"{i - 10}. {Inventory[i].Name}";
-                    data += $"{Environment.NewLine}<b>какая-то химия, можно пить</b>" + $"Использовать?{Environment.NewLine}/use{Inventory[i].ItemID}{Environment.NewLine}";
+                    switch (Inventory[i].Type)
+                    {
+                        case Items.Types.ItemsType.Weapon:
+                            data += $"{i + 1}. {new Weapon(Inventory[i].ItemID).Name}";
+                            data += $"{Environment.NewLine}<b>оружие</b>{Environment.NewLine}" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                            break;
+
+                        case Items.Types.ItemsType.Armor:
+                            data += $"{i + 1}. {new Armor(Inventory[i].ItemID).Name}";
+                            data += $"{Environment.NewLine}<b>броня</b>{Environment.NewLine}" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                            break;
+
+                        case Items.Types.ItemsType.Shield:
+                            data += $"{i + 1}. {new Armor(Inventory[i].ItemID).Name}";
+                            data += $"{Environment.NewLine}<b>щит</b>{Environment.NewLine}" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                            break;
+
+                        case Items.Types.ItemsType.Helmet:
+                            data += $"{i + 1}. {new Armor(Inventory[i].ItemID).Name}";
+                            data += $"{Environment.NewLine}<b>шляпа</b> {Environment.NewLine}" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                            break;
+
+                        case Items.Types.ItemsType.Boots:
+                            data += $"{i + 1}. {Inventory[i].Name}";
+                            data += $"{Environment.NewLine}<b>тапки</b> {Environment.NewLine}" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                            break;
+
+                        case Items.Types.ItemsType.Gloves:
+                            data += $"{i + 1}. {Inventory[i].Name}";
+                            data += $"{Environment.NewLine}<b>варежки</b> {Environment.NewLine}" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                            break;
+
+                        case Items.Types.ItemsType.HealPotion:
+                            data += $"{i + 1}. {new HealingPotion(Inventory[i].ItemID).Name}";
+                            data += $"{Environment.NewLine}<b>чистящее средство</b> {Environment.NewLine}" + $"Использовать?{Environment.NewLine}/use{Inventory[i].ItemID}{Environment.NewLine}";
+                            break;
+
+                        case Items.Types.ItemsType.OtherPotion:
+                            data += $"{i + 1}. {Inventory[i].Name}";
+                            data += $"{Environment.NewLine}<b>какая-то химия, можно пить</b> {Environment.NewLine}" + $"Использовать?{Environment.NewLine}/use{Inventory[i].ItemID}{Environment.NewLine}";
+                            break;
+
+                        default:
+                            data += "Я вообще не знаю что это. Где ты это взял?...";
+                            break;
+                    }
                 }
                 else
                 {
-                    data += "Я вообще не знаю что это. Где ты это взял?...";
+                    continue;
                 }
             }
 

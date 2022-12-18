@@ -17,7 +17,7 @@
         public BaseItem()
         {
             _Name = "Ничего";
-            _Description = "";
+            _Description = "e";
             _Coast = 0;
             /*
              *     ! ВНИМАНИЕ !
@@ -43,11 +43,21 @@
 
             if (_itemCards == null) return;
 
-            _itemCard = _itemCards.Find(i => i.ItemId.Contains(itemID));
+            if (itemID == "e")
+            {
+                _Name = "Ничего";
+                _Description = "e";
+                _Coast = 0;
+                return;
+            }
+            else
+            {
+                _itemCard = _itemCards.Find(i => i.ItemId.Contains(itemID));
 
-            if (_itemCard == null) return;
+                if (_itemCard == null) return;
 
-            ApplySettings(_itemCard);
+                ApplySettings(_itemCard);
+            }
         }
 
         private void ApplySettings(ItemCard card)

@@ -116,7 +116,7 @@ namespace ToilettenArbitrator.Brain
                             Position = $"{new SilverDice().GetCoordinate}.{new SilverDice().GetCoordinate}.5",
                             Expirience = "0|0",
                             Dirty = "0",
-                            Inventory = "e|e|e|e|e|e|e|e|e|e|e",
+                            Inventory = "e|e|e|e|e|e|e|e|e|e|e|e|e|e|e",
                             EntryDate = $"{year}.{month}.{day}/{hour}:{minute}:{second}",
                             TimersOne = $"E",
                             TimersTwo = $"E",
@@ -421,6 +421,7 @@ namespace ToilettenArbitrator.Brain
             if (messageText.ToLower().Contains("/inventory"))
             {
                 hero = new Hero(heroes.Find(person => person.Name.Contains(userName)));
+                
                 answer = $"Cумка @{hero.Name}" +
                     $"{Environment.NewLine}содержит:{Environment.NewLine}";
 
