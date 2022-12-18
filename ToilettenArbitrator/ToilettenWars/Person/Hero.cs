@@ -1,5 +1,6 @@
 ﻿using System.Security.Cryptography;
 using ToilettenArbitrator.ToilettenWars.Items;
+using ToilettenArbitrator.ToilettenWars.Items.Types;
 
 namespace ToilettenArbitrator.ToilettenWars.Person
 {
@@ -161,22 +162,71 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
         public bool UsePotion(string ItemId)
         {
-            int inventoryCell = 0;
-
-            for (inventoryCell = 0; inventoryCell < _inventory.Count; inventoryCell++)
+            if (_inventory.Find(item => item.ItemID.Contains(ItemId)) == null)
             {
-                if (_inventory[inventoryCell].ItemID == ItemId)
-                {
-                    _inventory.Remove(_inventory[inventoryCell]);
-                    continue;
-                }
+                return false;
             }
+            else
+            {
+                _inventory.Remove(_inventory.First(item => item.ItemID.Contains(ItemId)));
 
-            HealingPotion potion = new HealingPotion(ItemId);
+                HealingPotion potion = new HealingPotion(ItemId);
 
-            _dirty -= potion.EffectValue;
+                if (potion.PotionType == PotionType.Healing)
+                {
+                    if (_dirty < potion.EffectValue)
+                    {
+                        _dirty = 0;
+                    }
+                    else
+                    {
+                        _dirty -= potion.EffectValue;
+                    }
+                }
+                else
+                {
+                    if (_dirty < potion.EffectValue)
+                    {
+                        _dirty = 0;
+                    }
+                    else
+                    {
+                        _dirty -= _dirty * potion.EffectValue;
+                    }
+                }
 
-            return true;
+                using MembersDataContext MDC = new MembersDataContext();
+
+                _card.Inventory = $"{bag[0]}";
+
+                for (int i = 0; i < _equipment.Capacity; i++)
+                {
+                    if (_equipment[i].Name.ToLower().Contains("ничего"))
+                    {
+                        _card.Inventory += $"|{_equipment[i].Description}";
+                    }
+                    else
+                    {
+                        _card.Inventory += $"|{_equipment[i].ItemID}";
+                    }
+                }
+                for (int i = 0; i < _inventory.Capacity; i++)
+                {
+                    if (_inventory[i].Name.ToLower().Contains("ничего"))
+                    {
+                        _card.Inventory += $"|{_inventory[i].Description}";
+                    }
+                    else
+                    {
+                        _card.Inventory += $"|{_inventory[i].ItemID}";
+                    }
+                }
+
+                _card.Dirty = $"{_dirty}";
+                MDC.Update(_card);
+                MDC.SaveChanges();
+                return true;
+            }
         }
 
         protected override float ClearAttack()
@@ -348,7 +398,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         {
             string data = string.Empty;
 
-            for (int i = 0; i < Inventory.Capacity; i++)
+            for (int i = 0; i < Inventory.Count; i++)
             {
                 if (Inventory[i].Name.ToLower() != "ничего")
                 {

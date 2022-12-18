@@ -23,7 +23,10 @@ namespace ToilettenArbitrator.ToilettenWars.Items
 
         public HealingPotion(string itemID) : base(itemID)
         {
+            if (base.Type != ItemsType.HealPotion) return;
+            if (_Options[1].Contains("1")) _potionType = PotionType.Regenerative;
 
+            _effectValue = float.Parse(_Options[2]);
         }
     }
 }
