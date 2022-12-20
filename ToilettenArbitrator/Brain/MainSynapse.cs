@@ -10,6 +10,8 @@ namespace ToilettenArbitrator.Brain
 {
     public class MainSynapse
     {
+        private MembersDataContext MDC = new MembersDataContext();
+
         private HelloSynapse Hi = new HelloSynapse();
 
         private int year, month, day, hour, minute, second, millisecond, messageID;
@@ -63,6 +65,8 @@ namespace ToilettenArbitrator.Brain
             messageText = update.Message.Text;
 
             userID = update.Message.From.Id;
+
+            heroes = MDC.HeroCards.ToList();
         }
 
         public async void SynapseAnswer()
@@ -116,7 +120,7 @@ namespace ToilettenArbitrator.Brain
                             Position = $"{new SilverDice().GetCoordinate}.{new SilverDice().GetCoordinate}.5",
                             Expirience = "0|0",
                             Dirty = "0",
-                            Inventory = "e|e|e|e|e|e|e|e|e|e|e|e|e|e|e",
+                            Inventory = "E|E|E|E|E|E|E|E|E|E|E|E|E|E|E",
                             EntryDate = $"{year}.{month}.{day}/{hour}:{minute}:{second}",
                             TimersOne = $"E",
                             TimersTwo = $"E",
@@ -156,9 +160,18 @@ namespace ToilettenArbitrator.Brain
             if (messageText.ToLower().Contains("/buy"))
             {
                 Bank = new ShitBank();
+                heroes = MDC.HeroCards.ToList();
                 
                 Shop = new DeviceShop();
-                Shop.WhatItemBought = messageText.Substring(4);
+                if (messageText.Contains("@ToilettenArbitratorBot"))
+                {
+                    string itemID = messageText.Replace("@ToilettenArbitratorBot", "");
+                    Shop.WhatItemBought = itemID.Substring(4);
+                }
+                else
+                {
+                    Shop.WhatItemBought = messageText.Substring(4);
+                }
 
                 hero = new Hero(heroes.Find(name => name.Name.Contains(userName.ToLower())));
 
@@ -420,7 +433,7 @@ namespace ToilettenArbitrator.Brain
 
             if (messageText.ToLower().Contains("/inventory"))
             {
-                hero = new Hero(heroes.Find(person => person.Name.Contains(userName)));
+                hero = new Hero(heroes.Find(person => person.Name.Contains(userName.ToLower())));
                 
                 answer = $"Cумка @{hero.Name}" +
                     $"{Environment.NewLine}содержит:{Environment.NewLine}";
@@ -438,15 +451,46 @@ namespace ToilettenArbitrator.Brain
 
             if (messageText.ToLower().Contains("/use"))
             {
+                string useItemId = string.Empty;
+
+                if (messageText.Contains("@ToilettenArbitratorBot"))
+                {
+                    useItemId = messageText.Replace("@ToilettenArbitratorBot", "");
+                    useItemId = useItemId.Replace("/use", "");
+                }
+
                 hero = new Hero(heroes.Find(person => person.Name.Contains(userName)));
 
                 answer = string.Empty;
-                answer = $"Ты применил{Environment.NewLine}{new Item(messageText.Substring(4)).Name}{Environment.NewLine}" +
-                    $"{new Item(messageText.Substring(4)).Description}{Environment.NewLine}";
+                answer = $"Ты применил{Environment.NewLine}{new Item(useItemId).Name}{Environment.NewLine}" +
+                    $"{new Item(useItemId).Description}{Environment.NewLine}";
 
-                hero.UsePotion(messageText.Substring(4));
+                hero.UsePotion(useItemId);
 
-                answer += $"Ты стал чище на: {new HealingPotion(messageText.Substring(4)).EffectValue}";
+                answer += $"Ты стал чище на: {new HealingPotion(useItemId).EffectValue}";
+
+                await _botClient.SendTextMessageAsync(
+                        chatId: chatID,
+                        text: answer,
+                        parseMode: ParseMode.Html,
+                        cancellationToken: _cancellationToken);
+
+                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
+            }
+
+            if (messageText.ToLower().Contains("/randomteleport"))
+            {
+                answer = string.Empty;
+
+                hero = new Hero(heroes.Find(person => person.Name.Contains(userName.ToLower())));
+
+                int[] coordinates = new int[2] { new SilverDice().GetCoordinate, new SilverDice().GetCoordinate };
+
+                hero.ChangePosition(directions: default, coordinates);
+
+                answer += $"{Hi.ScreemWords} {Hi.ScreemModulateWords.ToLower()} {hero.Name} переместился " +
+                    $"в точку:{Environment.NewLine}" +
+                    $"Координаты [ X: {hero.PositionX} ] [ Y: {hero.PositionY} ]";
 
                 await _botClient.SendTextMessageAsync(
                         chatId: chatID,

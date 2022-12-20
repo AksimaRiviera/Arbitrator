@@ -14,7 +14,11 @@ namespace ToilettenArbitrator.ToilettenWars.Items
 
         public Item() : base()
         {
-
+            _Name = "ничего";
+            _Options = new string[5] { "0", "0", "0", "0", "0" };
+            _Coast = 0;
+            Type = default;
+            _itemID = "E";
         }
 
         public Item(ItemCard card) : base(card)
@@ -24,7 +28,19 @@ namespace ToilettenArbitrator.ToilettenWars.Items
 
         public Item(string itemID) : base(itemID)
         {
-            WhatType();
+            if(itemID == "E")
+            {
+                _Name = "ничего";
+                _Options = new string[5] { "0", "0", "0", "0", "0" };
+                _Coast = 0;
+                Type = default;
+                _itemID = "E";
+                WhatType();
+            }
+            else
+            {
+                WhatType();
+            }
         }
 
         protected virtual void WhatType()
@@ -65,7 +81,7 @@ namespace ToilettenArbitrator.ToilettenWars.Items
                     break;
 
                 default:
-                    Type = ItemsType.OtherPotion;
+                    Type = default;
                     break;
             }
         }

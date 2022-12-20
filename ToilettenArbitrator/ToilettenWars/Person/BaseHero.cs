@@ -122,7 +122,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         }
         private void BagSorter(string[] bag)
         {
-            if (bag[0].ToLower() == "e")
+            if (bag[0] == "E")
             {
                 _inventory = new List<Item>(INVENTORY_DEFAULT_VOLUME);
 

@@ -17,8 +17,9 @@
         public BaseItem()
         {
             _Name = "Ничего";
-            _Description = "e";
+            _Description = "E";
             _Coast = 0;
+            _itemID = "E";
             /*
              *     ! ВНИМАНИЕ !
              * Объявить сигнатуру _Options необходимо
@@ -43,11 +44,12 @@
 
             if (_itemCards == null) return;
 
-            if (itemID == "e")
+            if (itemID.Contains("E"))
             {
                 _Name = "Ничего";
-                _Description = "e";
+                _Description = "E";
                 _Coast = 0;
+                _itemID = "E";
                 return;
             }
             else

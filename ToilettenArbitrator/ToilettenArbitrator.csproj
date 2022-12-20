@@ -9,7 +9,7 @@
     <EnforceCodeStyleInBuild>False</EnforceCodeStyleInBuild>
     <AnalysisLevel>latest</AnalysisLevel>
     <ApplicationIcon>Resourses\ToilettenWarsICO.ico</ApplicationIcon>
-    <SupportedOSPlatformVersion>7.0.100</SupportedOSPlatformVersion>
+    <SupportedOSPlatformVersion>7.0</SupportedOSPlatformVersion>
     <BaseOutputPath>F:\Program Files\HelmutSchlosser</BaseOutputPath>
     <BaseIntermediateOutputPath>F:\Program Files\HelmutSchlosser\temp</BaseIntermediateOutputPath>
     <Authors>Aksima Riviera</Authors>
@@ -17,7 +17,12 @@
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
-    <Optimize>False</Optimize>
+    <Optimize>True</Optimize>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DebugType>embedded</DebugType>
   </PropertyGroup>
 
   <ItemGroup>

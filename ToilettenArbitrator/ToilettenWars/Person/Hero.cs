@@ -162,6 +162,8 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
         public bool UsePotion(string ItemId)
         {
+            using MembersDataContext MDC = new MembersDataContext();
+
             if (_inventory.Find(item => item.ItemID.Contains(ItemId)) == null)
             {
                 return false;
@@ -195,11 +197,9 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                     }
                 }
 
-                using MembersDataContext MDC = new MembersDataContext();
-
                 _card.Inventory = $"{bag[0]}";
 
-                for (int i = 0; i < _equipment.Capacity; i++)
+                for (int i = 0; i < _equipment.Count; i++)
                 {
                     if (_equipment[i].Name.ToLower().Contains("ничего"))
                     {
@@ -210,7 +210,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                         _card.Inventory += $"|{_equipment[i].ItemID}";
                     }
                 }
-                for (int i = 0; i < _inventory.Capacity; i++)
+                for (int i = 0; i < _inventory.Count; i++)
                 {
                     if (_inventory[i].Name.ToLower().Contains("ничего"))
                     {
@@ -219,6 +219,28 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                     else
                     {
                         _card.Inventory += $"|{_inventory[i].ItemID}";
+                    }
+                }
+
+                if(_inventory.Count < _inventory.Capacity)
+                {
+                    _card.Inventory = string.Empty;
+                    _card.Inventory = $"{bag[0]}";
+
+                    for (int i = 0; i < _equipment.Count; i++)
+                    {
+                        _card.Inventory += $"|{_equipment[i].ItemID}";
+                    }
+                    for (int i = 0; i < _inventory.Capacity; i++)
+                    {
+                        if (_inventory[i] != null)
+                        {
+                            _card.Inventory += $"|{_inventory[i].ItemID}";
+                        }
+                        else
+                        {
+                            _card.Inventory += "|E";
+                        }
                     }
                 }
 
@@ -283,8 +305,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
         public void ChangePosition(Directions directions, int[] coordinates)
         {
-            if (coordinates == null) coordinates = new int[] { 0, 0 };
-
             switch (directions)
             {
                 case Directions.North:
@@ -300,9 +320,15 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                     _position[0] += 1;
                     break;
                 default:
-                    _position = coordinates;
                     break;
             }
+
+            if (coordinates != null)
+            {
+                _position[0] = coordinates[0];
+                _position[1] = coordinates[1];
+            }
+
 
             if (PositionX > ROOM_MAX) _position[0] -= ROOM_MAX;
             if (PositionY > ROOM_MAX) _position[1] -= ROOM_MAX;
@@ -393,12 +419,12 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
             return true;
         }
-        
+
         public string InventoryData()
         {
             string data = string.Empty;
 
-            for (int i = 0; i < Inventory.Count; i++)
+            for (int i = 0; i < _inventory.Count; i++)
             {
                 if (Inventory[i].Name.ToLower() != "ничего")
                 {

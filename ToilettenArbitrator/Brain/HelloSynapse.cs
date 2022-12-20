@@ -31,6 +31,14 @@
             "Дополз ", "Дотошнил ", "Переместился ",
             "Прошлёпал ", "Прошаркал " };
 
+        private string[] _screemWords = new string[] {
+            "С криком", "Булькая", "Причмокивая", "Переливая воду",
+            "Встав в позу буквы Т", "Доставая зайца из шляпы" };
+
+        private string[] _screemModulateWords = new string[] {
+            "Рассыпаясь на атомы", "Превращаясь в песок", "Дезинтегрируясь",
+            "Уменьшившись в размерах"};
+
         private Random random = new Random();
 
         public HelloSynapse()
@@ -40,6 +48,8 @@
         public string Hello => GetHello();
         public string AttackVerb => GetAttackVerb();
         public string GettingVerb => GetGettingVerb();
+        public string ScreemWords => GetScreemWords();
+        public string ScreemModulateWords => GetScreemModulateWords();
 
         private string GetHello()
         {
@@ -54,6 +64,16 @@
         private string GetGettingVerb()
         {
             return _gettingVerbs[new Random().Next(_gettingVerbs.Length)];
+        }
+
+        private string GetScreemWords()
+        {
+            return _screemWords[new Random().Next(_screemWords.Length)];
+        }
+
+        private string GetScreemModulateWords()
+        {
+            return _screemModulateWords[new Random().Next(_screemModulateWords.Length)];
         }
     }
 }
