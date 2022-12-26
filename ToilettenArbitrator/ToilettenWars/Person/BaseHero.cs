@@ -150,16 +150,16 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                 }
             }
 
-            if (_equipment[0].Name == null) _weapon = new Weapon();
+            if (_equipment[0].Name == "ничего") _weapon = new Weapon();
             else { _weapon = new Weapon(_equipment[0].ItemID); }
 
-            if (_equipment[1].Name == null) { _armor = new Armor(); }
+            if (_equipment[1].Name == "ничего") { _armor = new Armor(); }
             else { _armor = new Armor(_equipment[1].ItemID); }
 
-            if (_equipment[2].Name == null) { _shield = new Armor(); }
+            if (_equipment[2].Name == "ничего") { _shield = new Armor(); }
             else { _shield = new Armor(_equipment[2].ItemID); }
 
-            if (_equipment[3].Name == null) { _helmet = new Armor(); }
+            if (_equipment[3].Name == "ничего") { _helmet = new Armor(); }
             else { _helmet = new Armor(_equipment[3].ItemID); }
         }
         protected float BaseAttack()

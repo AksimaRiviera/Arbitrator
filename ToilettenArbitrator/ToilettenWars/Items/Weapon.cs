@@ -41,10 +41,8 @@ namespace ToilettenArbitrator.ToilettenWars.Items
             if (_Options == null) { return 0.0f; }
             else
             {
-                return new Random().Next(
-                int.Parse(_Options[2]) * WEAPON_BASE_MOD,
-                int.Parse(_Options[3]) * WEAPON_BASE_MOD)
-                / WEAPON_BASE_MOD;
+                float a = (new Random().Next((int)(MinDamage * WEAPON_BASE_MOD), (int)(MaxDamage * WEAPON_BASE_MOD))) / WEAPON_BASE_MOD;
+                return a;
             }
         }
 
@@ -52,6 +50,7 @@ namespace ToilettenArbitrator.ToilettenWars.Items
         {
             base.WhatType();
             if(_Options == null) return; 
+
             switch (_Options[1])
             {
                 case "critical":

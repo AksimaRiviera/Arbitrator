@@ -37,6 +37,9 @@ namespace ToilettenArbitrator
             {
                 entity.ToTable("BankCard");
 
+                entity.HasIndex(e => e.Id, "IX_BankCard_ID")
+                    .IsUnique();
+
                 entity.Property(e => e.Id).HasColumnName("ID");
             });
 

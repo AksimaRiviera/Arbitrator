@@ -141,36 +141,120 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
         public bool EquipItem(string ItemId)
         {
-            int inventoryCell = 0;
-
-            for (inventoryCell = 0; inventoryCell < _inventory.Count; inventoryCell++)
+            if(_inventory.Exists(item => item.ItemID.Contains(ItemId)))
             {
-                if (_inventory[inventoryCell].ItemID == ItemId)
+                switch (_inventory.Find(item => item.ItemID.Contains(ItemId)).Type)
                 {
-                    _inventory.Remove(_inventory[inventoryCell]);
-                    continue;
+                    case ItemsType.Weapon:
+                        _equipment[0] = new Item(ItemId);
+                        _inventory[_inventory.FindIndex(item => item.ItemID.Contains(ItemId))] = new Item();
+                        break;
+
+                    case ItemsType.Armor:
+                        _equipment[1] = new Item(ItemId);
+                        _inventory[_inventory.FindIndex(item => item.ItemID.Contains(ItemId))] = new Item();
+                        break;
+
+                    case ItemsType.Shield:
+                        _equipment[2] = new Item(ItemId);
+                        _inventory[_inventory.FindIndex(item => item.ItemID.Contains(ItemId))] = new Item();
+                        break;
+
+                    case ItemsType.Helmet:
+                        _equipment[3] = new Item(ItemId);
+                        _inventory[_inventory.FindIndex(item => item.ItemID.Contains(ItemId))] = new Item();
+                        break;
+
+                    case ItemsType.Boots:
+                        _equipment[4] = new Item(ItemId);
+                        _inventory[_inventory.FindIndex(item => item.ItemID.Contains(ItemId))] = new Item();
+                        break;
+
+                    case ItemsType.Gloves:
+                        _equipment[5] = new Item(ItemId);
+                        _inventory[_inventory.FindIndex(item => item.ItemID.Contains(ItemId))] = new Item();
+                        break;
+
+                    case ItemsType.HealPotion:
+                        break;
+
+                    case ItemsType.OtherPotion:
+                        break;
+
+                    default:
+                        break;
                 }
+
+                _card.Inventory = $"{bag[0]}";
+
+                for (int i = 0; i < _equipment.Count; i++)
+                {
+                    if (_equipment[i].Name.ToLower().Contains("ничего"))
+                    {
+                        _card.Inventory += $"|{_equipment[i].Description}";
+                    }
+                    else
+                    {
+                        _card.Inventory += $"|{_equipment[i].ItemID}";
+                    }
+                }
+                for (int i = 0; i < _inventory.Count; i++)
+                {
+                    if (_inventory[i].Name.ToLower().Contains("ничего"))
+                    {
+                        _card.Inventory += $"|{_inventory[i].Description}";
+                    }
+                    else
+                    {
+                        _card.Inventory += $"|{_inventory[i].ItemID}";
+                    }
+                }
+
+                if (_inventory.Count < _inventory.Capacity)
+                {
+                    _card.Inventory = string.Empty;
+                    _card.Inventory = $"{bag[0]}";
+
+                    for (int i = 0; i < _equipment.Count; i++)
+                    {
+                        _card.Inventory += $"|{_equipment[i].ItemID}";
+                    }
+                    for (int i = 0; i < _inventory.Capacity; i++)
+                    {
+                        if (_inventory[i].Name != "ничего")
+                        {
+                            _card.Inventory += $"|{_inventory[i].ItemID}";
+                        }
+                        else
+                        {
+                            _card.Inventory += "|E";
+                        }
+                    }
+                }
+
+                using MembersDataContext MDC = new MembersDataContext();
+
+                _card.Dirty = $"{_dirty}";
+                MDC.Update(_card);
+                MDC.SaveChanges();
+                return true;
+
             }
-
-            HealingPotion potion = new HealingPotion(ItemId);
-
-            _dirty -= potion.EffectValue;
-
-            return true;
-
+            else
+            {
+                return false;
+            }
         }
 
         public bool UsePotion(string ItemId)
         {
-            using MembersDataContext MDC = new MembersDataContext();
-
-            if (_inventory.Find(item => item.ItemID.Contains(ItemId)) == null)
+            if (_inventory.Exists(item => item.ItemID.Contains(ItemId)) == false)
             {
                 return false;
             }
             else
             {
-                _inventory.Remove(_inventory.First(item => item.ItemID.Contains(ItemId)));
+                _inventory[_inventory.FindIndex(item => item.ItemID.Contains(ItemId))] = new Item();
 
                 HealingPotion potion = new HealingPotion(ItemId);
 
@@ -231,9 +315,9 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                     {
                         _card.Inventory += $"|{_equipment[i].ItemID}";
                     }
-                    for (int i = 0; i < _inventory.Capacity; i++)
+                    for (int i = 0; i < _inventory.Capacity ; i++)
                     {
-                        if (_inventory[i] != null)
+                        if (_inventory[i].Name != "ничего")
                         {
                             _card.Inventory += $"|{_inventory[i].ItemID}";
                         }
@@ -244,6 +328,8 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                     }
                 }
 
+                using MembersDataContext MDC = new MembersDataContext();
+
                 _card.Dirty = $"{_dirty}";
                 MDC.Update(_card);
                 MDC.SaveChanges();
@@ -253,14 +339,14 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
         protected override float ClearAttack()
         {
-            if (Weapon.Name != "Ничего") return Weapon.RealDamage + BaseAttack();
+            if (Weapon.Name != "ничего") return Weapon.RealDamage + BaseAttack();
             else return BaseAttack() + new SilverDice().HandDamage;
         }
 
         protected override float ClearDefence()
         {
-
-            return BaseDefense(); //Armor.Defence + Shield.Defence + Helmet.Defence;
+            if (Armor.Name != "ничего") return Armor.Defence + BaseDefense();
+            else return BaseDefense();
         }
 
         public void ChangeLevelExpirience(float expirience)
@@ -431,43 +517,52 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                     switch (Inventory[i].Type)
                     {
                         case Items.Types.ItemsType.Weapon:
-                            data += $"{i + 1}. {new Weapon(Inventory[i].ItemID).Name}";
-                            data += $"{Environment.NewLine}<b>оружие</b>{Environment.NewLine}" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                            data += $"{Environment.NewLine}{i + 1}. {new Weapon(Inventory[i].ItemID).Name} ";
+                            data += $"(<b>оружие: {new Weapon(Inventory[i].ItemID).MinDamage} - {new Weapon(Inventory[i].ItemID).MaxDamage}</b>) / " +
+                                $"{new Weapon(Inventory[i].ItemID).CriticalFactor}" +
+                                $"{Environment.NewLine}" + $"<i>Экипировать?</i> /equip{Inventory[i].ItemID}{Environment.NewLine}";
                             break;
 
                         case Items.Types.ItemsType.Armor:
-                            data += $"{i + 1}. {new Armor(Inventory[i].ItemID).Name}";
-                            data += $"{Environment.NewLine}<b>броня</b>{Environment.NewLine}" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                            data += $"{Environment.NewLine}{i + 1}. {new Armor(Inventory[i].ItemID).Name} ";
+                            data += $"(<b>броня: {new Armor(Inventory[i].ItemID).Defence}</b>){Environment.NewLine}" + 
+                                $"<i>Экипировать?</i> /equip{Inventory[i].ItemID}{Environment.NewLine}";
                             break;
 
                         case Items.Types.ItemsType.Shield:
-                            data += $"{i + 1}. {new Armor(Inventory[i].ItemID).Name}";
-                            data += $"{Environment.NewLine}<b>щит</b>{Environment.NewLine}" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                            data += $"{Environment.NewLine}{i + 1}. {new Armor(Inventory[i].ItemID).Name} ";
+                            data += $"(<b>щит: {new Armor(Inventory[i].ItemID).Defence}</b>){Environment.NewLine}" + 
+                                $"<i>Экипировать?</i> /equip{Inventory[i].ItemID}{Environment.NewLine}";
                             break;
 
                         case Items.Types.ItemsType.Helmet:
-                            data += $"{i + 1}. {new Armor(Inventory[i].ItemID).Name}";
-                            data += $"{Environment.NewLine}<b>шляпа</b> {Environment.NewLine}" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                            data += $"{Environment.NewLine}{i + 1}. {new Armor(Inventory[i].ItemID).Name} ";
+                            data += $"(<b>шляпа: {new Armor(Inventory[i].ItemID).Defence}</b>){Environment.NewLine}" + 
+                                $"<i>Экипировать?</i> /equip{Inventory[i].ItemID}{Environment.NewLine}";
                             break;
 
                         case Items.Types.ItemsType.Boots:
-                            data += $"{i + 1}. {Inventory[i].Name}";
-                            data += $"{Environment.NewLine}<b>тапки</b> {Environment.NewLine}" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                            data += $"{Environment.NewLine}{i + 1}. {Inventory[i].Name} ";
+                            data += $"(<b>тапки: {new Armor(Inventory[i].ItemID).Defence}</b>){Environment.NewLine}" + 
+                                $"<i>Экипировать?</i> /equip{Inventory[i].ItemID}{Environment.NewLine}";
                             break;
 
                         case Items.Types.ItemsType.Gloves:
-                            data += $"{i + 1}. {Inventory[i].Name}";
-                            data += $"{Environment.NewLine}<b>варежки</b> {Environment.NewLine}" + $"Экипировать?{Environment.NewLine}/equip{Inventory[i].ItemID}{Environment.NewLine}";
+                            data += $"{Environment.NewLine}{i + 1}. {Inventory[i].Name} ";
+                            data += $"(<b>варежки: {new Armor(Inventory[i].ItemID).Defence}</b>){Environment.NewLine}" + 
+                                $"<i>Экипировать?</i> /equip{Inventory[i].ItemID}{Environment.NewLine}";
                             break;
 
                         case Items.Types.ItemsType.HealPotion:
-                            data += $"{i + 1}. {new HealingPotion(Inventory[i].ItemID).Name}";
-                            data += $"{Environment.NewLine}<b>чистящее средство</b> {Environment.NewLine}" + $"Использовать?{Environment.NewLine}/use{Inventory[i].ItemID}{Environment.NewLine}";
+                            data += $"{Environment.NewLine}{i + 1}. {new HealingPotion(Inventory[i].ItemID).Name} ";
+                            data += $"(<b>чистящее средство: {new HealingPotion(Inventory[i].ItemID).EffectValue}</b>){Environment.NewLine}" + 
+                                $"<i>Использовать?</i> /use{Inventory[i].ItemID}{Environment.NewLine}";
                             break;
 
                         case Items.Types.ItemsType.OtherPotion:
-                            data += $"{i + 1}. {Inventory[i].Name}";
-                            data += $"{Environment.NewLine}<b>какая-то химия, можно пить</b> {Environment.NewLine}" + $"Использовать?{Environment.NewLine}/use{Inventory[i].ItemID}{Environment.NewLine}";
+                            data += $"{Environment.NewLine}{i + 1}. {Inventory[i].Name} ";
+                            data += $"(<b>какая-то химия, можно пить</b>){Environment.NewLine}" + 
+                                $"<i>Использовать?</i> /use{Inventory[i].ItemID}{Environment.NewLine}";
                             break;
 
                         default:

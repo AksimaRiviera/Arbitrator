@@ -191,6 +191,7 @@ namespace ToilettenArbitrator.ToilettenWars
             using (MembersDataContext MDC = new MembersDataContext())
             {
                 card.SecondCell += heroCash;
+                card.Id = 1; // Основная ячеёка банка
                 MDC.Update(card);
                 MDC.SaveChanges();
             }

@@ -117,8 +117,7 @@ Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, Cancell
 
 void GetData()
 {
-
-    Console.WriteLine($"-------------------------------------------------------");
+    Console.WriteLine("{0}-------------------------------------------------------", Environment.NewLine);
     Console.WriteLine($" >>> >>> Дата [ День . Месяц . Год ] {day} . {month} . {year} ");
     Console.WriteLine($" >>> >>> Время [ Час : Минута : Секунда ] {hour} : {minute} : {second}");
     Console.WriteLine("-------------------------------------------------------{0}", Environment.NewLine);
