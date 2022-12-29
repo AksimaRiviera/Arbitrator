@@ -13,10 +13,10 @@ namespace ToilettenArbitrator.Brain
             $"\\Arbitrator" +
             $"\\ToilettenArbitrator" +
             $"\\Brain" +
-            $"\\LogsData" +
+            $"\\LogsData\\" +
             string.Format("{0:d}", DateTime.Now) + "_IML.txt";
         //F:\GitProjects\Arbitrator\ToilettenArbitrator\Brain
-
+        //F:\GitProjects\Arbitrator\ToilettenArbitrator\Brain\LogsData\
         static LogsConstructor()
         {
             using (MembersDataContext MemberArchive = new MembersDataContext())

@@ -162,7 +162,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             if (_equipment[3].Name == "ничего") { _helmet = new Armor(); }
             else { _helmet = new Armor(_equipment[3].ItemID); }
         }
-        protected float BaseAttack()
+        internal float BaseAttack()
         {
             switch (_rank)
             {
@@ -186,7 +186,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                     return _toxic * GuanoAccumulation() * (BASE_RANK_ATK_FACTOR + BASE_RANK_ATK_BIAS);
             }
         }
-        protected float BaseDefense()
+        internal float BaseDefense()
         {
             switch (_rank)
             {

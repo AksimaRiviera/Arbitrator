@@ -9,6 +9,7 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
         public float HitPoints => _hitPoints;
         public int PositionX => _positionX;
         public int PositionY => _positionY;
+        public float MaximumHitPoints => _maximumHitPoints;
 
         public SimpleMob(MobCard card) : base(card)
         {
@@ -21,13 +22,26 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
             
             if (_hitPoints <= 0)
             {
-                if (new SilverDice().Luck(3)) { Loot = new LootBox(LootBox.LootType.Rich); }
+                if (new SilverDice().Luck(12)) { Loot = new LootBox(LootBox.LootType.Rich); }
                 else { Loot = new LootBox(LootBox.LootType.Standart); }
                 return true;
             }
             else
             {
                 Loot = new LootBox();
+                return false;
+            }
+        }
+        public override bool GoCoordinate(int X, int Y)
+        {
+            if (X != null && Y != null)
+            {
+                _positionX = X;
+                _positionY = Y;
+                return true;
+            }
+            else
+            {
                 return false;
             }
         }

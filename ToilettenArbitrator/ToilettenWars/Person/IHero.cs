@@ -34,6 +34,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         void ChangeLevelExpirience(float expirience);
         void ChangeRankExpirience(float expirience);
         void ChangePosition(Hero.Directions directions, int[] coordinates);
-        void AddDamage(float damage, out float expirience, out int cash);
+        bool AddDamage(float damage, out float expirience, out int cash);
+        bool AddDamage(float damage);
     }
 }

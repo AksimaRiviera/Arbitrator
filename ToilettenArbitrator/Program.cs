@@ -1,9 +1,11 @@
-﻿using Telegram.Bot;
+﻿using System.Runtime.CompilerServices;
+using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Extensions.Polling;
 using Telegram.Bot.Types;
 using Telegram.Bot.Types.Enums;
 using ToilettenArbitrator.Brain;
+using ToilettenArbitrator.ToilettenWars;
 using ToilettenArbitrator.ToilettenWars.Person;
 
 var Arbitrator = new TelegramBotClient("5146908025:AAE5lkcA_2UqMi2Rl4eiN3f8Z6MgAwpABk8");
@@ -15,6 +17,7 @@ long userID;
 string messageText, firstName, lastName, userName, enemyName, botName = "ToilettenArbitratorBot";
 
 List<string> UserHeroData = new List<string>();
+Zoo zooMain = new Zoo();
 
 int messageID;
 Message sentMessage;
@@ -99,6 +102,7 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
                 && int.Parse(second.ToString()) >= second - 10)
     {
         MainSynapse mainSynapse = new MainSynapse(botClient, update, cancellationToken);
+        mainSynapse.GetZooInfo(zooMain);
         mainSynapse.SynapseAnswer();
     }
 }

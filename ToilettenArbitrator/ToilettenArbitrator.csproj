@@ -45,8 +45,4 @@
     <PackageReference Include="Xamarin.Forms" Version="5.0.0.2515" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Brain\LogsData\" />
-  </ItemGroup>
-
 </Project>

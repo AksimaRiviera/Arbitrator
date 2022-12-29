@@ -13,7 +13,8 @@ namespace ToilettenArbitrator.ToilettenWars
         private const float DEPOSITE_RETAINED_FUNDS = 0.02f;
         public const string BANK_NAME = "SHIT BANK";
 
-        private long _MainCell;
+        private long _MainCellId;
+        private ulong _MainCell;
         private long _FirstCell;
         private long _SecondCell;
         private long _ThirdCell;
@@ -22,16 +23,18 @@ namespace ToilettenArbitrator.ToilettenWars
 
         private List<ProfileCard> _ProfileCards = new List<ProfileCard>();
         private BankCard _BankData = new BankCard();
+        private BankCard _RoomData = new BankCard();
+        private MembersDataContext MDC = new MembersDataContext();
 
         public bool CellsFull => _isCellsFull;
 
         public ShitBank()
         {
-            using (MembersDataContext MDC = new MembersDataContext())
-            {
-                _BankData = MDC.BankCards.ToList()[0];
-                _ProfileCards = MDC.ProfileCards.ToList();
-            }
+            _BankData = MDC.BankCards.ToList()[0];
+            _RoomData = MDC.BankCards.ToList()[1];
+            _ProfileCards = MDC.ProfileCards.ToList();
+
+            _MainCellId = _BankData.Id;
             _MainCell = _BankData.MainCell;
             _FirstCell = _BankData.FirstCell;
             _SecondCell = _BankData.SecondCell;
@@ -44,7 +47,7 @@ namespace ToilettenArbitrator.ToilettenWars
             ProfileCard profileCard;
             ProfileInfo info;
 
-            _ThirdCell -= HowMuchCash;            
+            _ThirdCell -= HowMuchCash;
 
             if (_ProfileCards.Find(profile => profile.Name.Contains(UserName)) != null)
             {
@@ -56,60 +59,52 @@ namespace ToilettenArbitrator.ToilettenWars
 
                 for (cellNumber = 0; cellNumber < info.IsEmpty.Length;)
                 {
-                    if(info.IsEmpty[cellNumber]) continue;
+                    if (info.IsEmpty[cellNumber]) continue;
                     cellNumber++;
                 }
 
-
-                using (MembersDataContext MDC = new MembersDataContext())
+                switch (cellNumber)
                 {
-                    switch (cellNumber)
-                    {
-                        case 0:
-                        profileCard.Status = $"credit|" + 
+                    case 0:
+                        profileCard.Status = $"credit|" +
                         $"{profileCard.Status.Split("|")[1]}|" +
-                        $"{profileCard.Status.Split("|")[2]}";                            
+                        $"{profileCard.Status.Split("|")[2]}";
                         profileCard.FirstCell = HowMuchCash;
                         break;
 
-                        case 1:
-                        profileCard.Status = $"{profileCard.Status.Split("|")[0]}|" + 
+                    case 1:
+                        profileCard.Status = $"{profileCard.Status.Split("|")[0]}|" +
                         $"credit|" +
-                        $"{profileCard.Status.Split("|")[2]}";                            
+                        $"{profileCard.Status.Split("|")[2]}";
                         profileCard.SecondCell = HowMuchCash;
                         break;
-                        
-                        case 2:
-                        profileCard.Status = $"{profileCard.Status.Split("|")[0]}|" + 
+
+                    case 2:
+                        profileCard.Status = $"{profileCard.Status.Split("|")[0]}|" +
                         $"{profileCard.Status.Split("|")[1]}|" +
-                        $"credit";                            
+                        $"credit";
                         profileCard.ThirdCell = HowMuchCash;
                         break;
-                        
-                        default:
-                        break;
-                    }
 
-                    MDC.Update(profileCard);
-                    MDC.SaveChanges();
+                    default:
+                        break;
                 }
+                info = new ProfileInfo(profileCard);
+                info.SaveProfile();
             }
             else
             {
-                using (MembersDataContext MDC = new MembersDataContext())
+                profileCard = new ProfileCard()
                 {
-                    profileCard = new ProfileCard()
-                    {
-                        Name = UserName,
-                        Status = "credit|none|none",
-                        FirstCell = HowMuchCash,
-                        SecondCell = 0,
-                        ThirdCell = 0
-                    };
-                }
-                
+                    Name = UserName,
+                    Status = "credit|none|none",
+                    FirstCell = HowMuchCash,
+                    SecondCell = 0,
+                    ThirdCell = 0
+                };
+                info = new ProfileInfo(profileCard);
+                info.SaveProfile();
             }
-
             return HowMuchCash;
         }
 
@@ -131,74 +126,65 @@ namespace ToilettenArbitrator.ToilettenWars
 
                 for (cellNumber = 0; cellNumber < info.IsEmpty.Length;)
                 {
-                    if(info.IsEmpty[cellNumber]) continue;
+                    if (info.IsEmpty[cellNumber]) continue;
                     cellNumber++;
                 }
 
-
-                using (MembersDataContext MDC = new MembersDataContext())
+                switch (cellNumber)
                 {
-                    switch (cellNumber)
-                    {
-                        case 0:
-                        profileCard.Status = $"deposite|" + 
+                    case 0:
+                        profileCard.Status = $"deposite|" +
                         $"{profileCard.Status.Split("|")[1]}|" +
-                        $"{profileCard.Status.Split("|")[2]}";                            
+                        $"{profileCard.Status.Split("|")[2]}";
                         profileCard.FirstCell = HowMuchCash;
                         break;
 
-                        case 1:
-                        profileCard.Status = $"{profileCard.Status.Split("|")[0]}|" + 
+                    case 1:
+                        profileCard.Status = $"{profileCard.Status.Split("|")[0]}|" +
                         $"deposite|" +
-                        $"{profileCard.Status.Split("|")[2]}";                            
+                        $"{profileCard.Status.Split("|")[2]}";
                         profileCard.SecondCell = HowMuchCash;
                         break;
-                        
-                        case 2:
-                        profileCard.Status = $"{profileCard.Status.Split("|")[0]}|" + 
+
+                    case 2:
+                        profileCard.Status = $"{profileCard.Status.Split("|")[0]}|" +
                         $"{profileCard.Status.Split("|")[1]}|" +
-                        $"deposite";                            
+                        $"deposite";
                         profileCard.ThirdCell = HowMuchCash;
                         break;
-                        
-                        default:
-                        break;
-                    }
 
-                    MDC.Update(profileCard);
-                    MDC.SaveChanges();
+                    default:
+                        break;
                 }
+                info = new ProfileInfo(profileCard);
+                info.SaveProfile();
             }
             else
             {
-                using (MembersDataContext MDC = new MembersDataContext())
+                profileCard = new ProfileCard()
                 {
-                    profileCard = new ProfileCard()
-                    {
-                        Name = UserName,
-                        Status = "deposite|none|none",
-                        FirstCell = HowMuchCash,
-                        SecondCell = 0,
-                        ThirdCell = 0
-                    };
-                }
+                    Name = UserName,
+                    Status = "deposite|none|none",
+                    FirstCell = HowMuchCash,
+                    SecondCell = 0,
+                    ThirdCell = 0
+                };
+                info = new ProfileInfo(profileCard);
+                info.SaveProfile();
             }
         }
 
         public void PayFromProduct(long heroCash)
         {
-            BankCard card = new BankCard();
-            using (MembersDataContext MDC = new MembersDataContext())
-            {
-                card.SecondCell += heroCash;
-                card.Id = 1; // Основная ячеёка банка
-                MDC.Update(card);
-                MDC.SaveChanges();
-            }
+            _BankData.SecondCell += heroCash;
+            MDC.Update(_BankData);
+            MDC.SaveChanges();
         }
 
         private class ProfileInfo
         {
+            private MembersDataContext MDC = new MembersDataContext();
+
             private ProfileCard _Profile;
             protected internal bool[] IsEmpty => EmptyCells();
             public ProfileInfo(ProfileCard profile)
@@ -218,6 +204,12 @@ namespace ToilettenArbitrator.ToilettenWars
                     else { emptyCells[i] = false; }
                 }
                 return emptyCells;
+            }
+
+            protected internal void SaveProfile()
+            {
+                MDC.Update(_Profile);
+                MDC.SaveChanges();
             }
         }
     }

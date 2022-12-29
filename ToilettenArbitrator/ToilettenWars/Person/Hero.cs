@@ -1,4 +1,5 @@
-﻿using System.Security.Cryptography;
+﻿using Microsoft.Toolkit.Uwp.UI.Controls;
+using System.Security.Cryptography;
 using ToilettenArbitrator.ToilettenWars.Items;
 using ToilettenArbitrator.ToilettenWars.Items.Types;
 
@@ -6,6 +7,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 {
     public class Hero : BaseHero, IHero
     {
+        private MembersDataContext MDC = new MembersDataContext();
         public enum Directions
         {
             North,
@@ -31,6 +33,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         /// <returns><b>BaseHero.BaseAttack + Weapon.Damage</b></returns>
         public float Attack => ClearAttack();
         public float Defence => ClearDefence();
+
 
         public int ID => _id;
         public string Name => _name;
@@ -87,7 +90,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         public override bool AddItem(Item item)
         {
             int count = 0;
-            using MembersDataContext MDC = new MembersDataContext();
 
             for (int i = 0; i < _inventory.Count; i++)
             {
@@ -137,6 +139,21 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                 MDC.SaveChanges();
                 return true;
             }
+        }
+        public void TakeLootBox(LootBox lootBox)
+        {
+            _levelExpirience += lootBox.Expirience;
+            _money += lootBox.Cash;
+            _rankExpirience += lootBox.RankPoints;
+
+            _card.Money = _money;
+
+            _card.Expirience = $"{LevelExpirience}|{RankExpirience}";
+            _card.LevelRank = $"{Level}.{(int)Rank}";
+            _card.Atributes = $"{Toxic}.{Fats}.{Stomach}.{Metabolism}.{FreePoints}";
+
+            MDC.Update(_card);
+            MDC.SaveChanges();
         }
 
         public bool EquipItem(string ItemId)
@@ -232,8 +249,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                     }
                 }
 
-                using MembersDataContext MDC = new MembersDataContext();
-
                 _card.Dirty = $"{_dirty}";
                 MDC.Update(_card);
                 MDC.SaveChanges();
@@ -328,8 +343,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                     }
                 }
 
-                using MembersDataContext MDC = new MembersDataContext();
-
                 _card.Dirty = $"{_dirty}";
                 MDC.Update(_card);
                 MDC.SaveChanges();
@@ -357,8 +370,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                 _level += 1;
                 _freePoints += 1;
 
-                using MembersDataContext MDC = new MembersDataContext();
-
                 _card.Expirience = $"{LevelExpirience}|{RankExpirience}";
                 _card.LevelRank = $"{Level}.{(int)Rank}";
                 _card.Atributes = $"{Toxic}.{Fats}.{Stomach}.{Metabolism}.{FreePoints}";
@@ -370,8 +381,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             {
                 _levelExpirience += expirience;
 
-                using MembersDataContext MDC = new MembersDataContext();
-
                 _card.Expirience = $"{LevelExpirience}|{RankExpirience}";
 
                 MDC.Update(_card);
@@ -381,8 +390,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
         public void ChangeRankExpirience(float expirience)
         {
-            using MembersDataContext MDC = new MembersDataContext();
-
             _card.Expirience = $"{LevelExpirience}|{RankExpirience}";
 
             MDC.Update(_card);
@@ -422,37 +429,70 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             if (PositionX < ROOM_MIN) _position[0] += ROOM_MAX;
             if (PositionY < ROOM_MIN) _position[1] += ROOM_MAX;
 
-            using MembersDataContext MDC = new MembersDataContext();
-
             _card.Position = $"{PositionX}.{PositionY}.{MovementPoints}";
 
             MDC.Update(_card);
             MDC.SaveChanges();
         }
 
-        public void AddDamage(float damage, out float expirience, out int cash)
+        public bool AddDamage(float damage, out float expirience, out int cash)
         {
             expirience = damage * EXPIRIENCE_FACTOR;
             cash = (int)(expirience + damage * 1.2f);
             if (cash < 1) cash = 1;
 
-            if (_dirty + damage > MaximumDirty) _dirty = MaximumDirty;
+            if (_dirty + damage > MaximumDirty)
+            {
+                _dirty = MaximumDirty;
+                _card.Dirty = $"{_dirty}";
 
-            _dirty += damage;
+                MDC.Update(_card);
+                MDC.SaveChanges();
+                return true;
+            }
+            else
+            {
+                _dirty += damage;
+                _card.Dirty = $"{_dirty}";
 
-            using MembersDataContext MDC = new MembersDataContext();
+                MDC.Update(_card);
+                MDC.SaveChanges();
+                return false;
+            }
+        }
 
-            _card.Dirty = $"{_dirty}";
+        public bool AddDamage(float damage)
+        {
+            if (damage - Defence > 0) { damage -= Defence; }
+            else { damage = 0; }
 
-            MDC.Update(_card);
-            MDC.SaveChanges();
+
+            if (_dirty + damage > MaximumDirty)
+            {
+                _dirty = MaximumDirty;
+                _card.Dirty = $"{_dirty}";
+
+                MDC.Update(_card);
+                MDC.SaveChanges();
+                return true;
+            }
+            else
+            {
+                _dirty += damage;
+                _card.Dirty = $"{_dirty}";
+
+                MDC.Update(_card);
+                MDC.SaveChanges();
+                return false;
+            }
+            
         }
 
         public void TakeMoney(long cash)
         {
             _money += cash;
 
-            using MembersDataContext MDC = new MembersDataContext();
+            
 
             _card.Money = _money;
 
@@ -462,7 +502,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
         public long GetMoney(long itemPrice)
         {
-            using MembersDataContext MDC = new MembersDataContext();
             if (_money < itemPrice)
             {
                 return 0;
@@ -496,8 +535,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                     _metabolism += 1;
                     break;
             }
-
-            using MembersDataContext MDC = new MembersDataContext();
 
             _card.Atributes = $"{Toxic}.{Fats}.{Stomach}.{Metabolism}.{FreePoints}";
             MDC.Update(_card);

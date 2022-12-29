@@ -52,7 +52,7 @@ namespace ToilettenArbitrator.ToilettenWars
                     hero.ChangeLevelExpirience((float)Math.Round(expirience, 2));
                     hero.TakeMoney(cash);
 
-                    attackNotification = @$"&#9888 ACHTUNG &#9888{Environment.NewLine}" +
+                    attackNotification = @$"&#9888 <b>A C H T U N G</b> &#9888{Environment.NewLine}" +
                         $"@{hero.Name} " + "&#9876" + $" {enemy.Name}{Environment.NewLine}{Environment.NewLine}" +
                         $"<i><b>Статистика боя</b></i>{Environment.NewLine}" +
                         $"@{enemy.Name} {helloSynapse.GettingVerb} " +
@@ -65,13 +65,13 @@ namespace ToilettenArbitrator.ToilettenWars
                 }
                 else
                 {
-                    clearDamage = atk * 0.2f;
+                    clearDamage = atk * 0.01f;
                     enemy.AddDamage(clearDamage, out expirience, out cash);
 
                     hero.ChangeLevelExpirience((float)Math.Round(expirience, 2));
                     hero.TakeMoney(cash);
 
-                    attackNotification = @$"&#9888 ACHTUNG &#9888{Environment.NewLine}" +
+                    attackNotification = @$"&#9888 <b>A C H T U N G</b> &#9888{Environment.NewLine}" +
                         $"@{hero.Name} " + "&#9876" + $" {enemy.Name}{Environment.NewLine}{Environment.NewLine}" +
                         $"<i><b>Статистика боя</b></i>{Environment.NewLine}" +
                         $"@{enemy.Name} {helloSynapse.GettingVerb} " +

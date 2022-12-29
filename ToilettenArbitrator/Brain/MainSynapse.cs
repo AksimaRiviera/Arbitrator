@@ -5,6 +5,8 @@ using Telegram.Bot.Types.ReplyMarkups;
 using ToilettenArbitrator.ToilettenWars;
 using ToilettenArbitrator.ToilettenWars.Person;
 using ToilettenArbitrator.ToilettenWars.Items;
+using System.ComponentModel;
+using System;
 
 namespace ToilettenArbitrator.Brain
 {
@@ -17,12 +19,13 @@ namespace ToilettenArbitrator.Brain
         private int year, month, day, hour, minute, second, millisecond, messageID;
 
         private long chatID = 0, userID, mainChatID = -1001719641552;
-        private string answer, messageText, firstName, lastName, userName, enemyName, botName = "ToilettenArbitratorBot";
+        private string answer, messageText, firstName, lastName, userName, enemyName, botName = "ToilettenArbitratorBot", _mobName = string.Empty;
 
         private Arena arena, botArena;
         private ToiletRoom Room;
         private DeviceShop Shop;
         private ShitBank Bank;
+        private Zoo zoo;
 
         private Hero hero, enemy;
         private List<HeroCard> heroes;
@@ -448,13 +451,13 @@ namespace ToilettenArbitrator.Brain
             if (messageText.ToLower().Contains("/inventory"))
             {
                 hero = new Hero(heroes.Find(person => person.Name.Contains(userName.ToLower())));
-                
-                answer = $"Cумка @{hero.Name}" +
-                    $"{Environment.NewLine}содержит:{Environment.NewLine}";
 
-                if(hero.InventoryData.Contains(string.IsNullOrEmpty))
+                answer = $"У @{hero.Name} в сумке:" +
+                    $"{Environment.NewLine}";
+
+                if(hero.InventoryData() == string.Empty)
                 {
-                    answer = "ШАРОМ ПОКАТИ";
+                    answer += $"{Environment.NewLine}ШАРОМ ПОКАТИ";
                 }
                 else
                 {
@@ -533,7 +536,7 @@ namespace ToilettenArbitrator.Brain
                     equipItemId = messageText.Replace("/equip", "");
                 }
 
-                hero = new Hero(heroes.Find(person => person.Name.Contains(userName)));
+                hero = new Hero(heroes.Find(person => person.Name.Contains(userName.ToLower())));
 
                 answer = string.Empty;
                 answer = $"Ты применил{Environment.NewLine}{new Item(equipItemId).Name}{Environment.NewLine}" +
@@ -574,6 +577,140 @@ namespace ToilettenArbitrator.Brain
 
                 new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
             }
+
+            if (messageText.ToLower().Contains("/lookaround"))
+            {
+                hero = new Hero(heroes.Find(person => person.Name.Contains(userName.ToLower())));
+                
+                answer = string.Empty;
+
+                zoo.HeroLocated(hero.PositionX, hero.PositionY);
+
+                answer += $"Ты находишься в {zoo.LocationMark} области{Environment.NewLine}Вокруг тебя:{Environment.NewLine}{Environment.NewLine}";
+                answer += zoo.MobsAround;
+
+                await _botClient.SendTextMessageAsync(
+                        chatId: chatID,
+                        text: answer,
+                        parseMode: ParseMode.Html,
+                        cancellationToken: _cancellationToken);
+
+                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
+            }
+
+            if (messageText.ToLower().Contains("/atk"))
+            {
+                _mobName = string.Empty;
+                hero = new Hero(heroes.Find(person => person.Name.Contains(userName.ToLower())));
+                LootBox loot;
+                answer = string.Empty;
+                string battleResult;
+
+                if (messageText.Contains("@ToilettenArbitratorBot"))
+                {
+                    _mobName = messageText.Replace("@ToilettenArbitratorBot", "");
+                    _mobName = _mobName.Replace("/atk", "");
+                }
+                else
+                {
+                    _mobName = messageText.Replace("/atk", "");
+                }
+
+                if (zoo.MobFight(hero, _mobName, out loot, out battleResult))
+                {
+                    answer += $"&#127881 <b>! П О Б Е Д А !</b> &#127881{Environment.NewLine}{Environment.NewLine}";
+                    answer += battleResult + $"был забит оружием \"{hero.Weapon.Name}\"{Environment.NewLine}";
+                    answer += $"{Environment.NewLine}&#128230 <b>НАГРАДА ИЗ КОРОБКИ</b>{Environment.NewLine}" +
+                        $"{loot.Expirience} <i>ОПЫТА</i>{Environment.NewLine}" +
+                        $"{loot.Cash} &#128169{Environment.NewLine}" +
+                        $"{loot.RankPoints} <i>РАНГОВОГО ОПЫТА</i>";
+                    hero.TakeLootBox(loot);
+                }
+                else
+                {
+                    answer += battleResult;
+                }
+
+                await _botClient.SendTextMessageAsync(
+                        chatId: chatID,
+                        text: answer,
+                        parseMode: ParseMode.Html,
+                        cancellationToken: _cancellationToken);
+
+                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
+            }
+
+            if (messageText.ToLower().Contains("/mobinfo"))
+            {
+                answer = string.Empty;
+                _mobName = string.Empty;
+                if (messageText.Contains("@ToilettenArbitratorBot"))
+                {
+                    _mobName = messageText.Replace("@ToilettenArbitratorBot", "");
+                    _mobName = _mobName.Replace("/mobinfo", "");
+                }
+                else
+                {
+                    _mobName = messageText.Replace("/mobinfo", "");
+                }
+
+                answer += zoo.MobInfo(_mobName);
+
+                await _botClient.SendTextMessageAsync(
+                        chatId: chatID,
+                        text: answer,
+                        parseMode: ParseMode.Html,
+                        cancellationToken: _cancellationToken);
+
+                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
+
+            }
+
+            if (messageText.ToLower().Contains("/abouttoilet"))
+            {
+                answer = string.Empty;
+                answer += $"<i><b>Я оставлю это здесь, что-бы ты не забыл</b></i>{Environment.NewLine}" +
+                    $"{Environment.NewLine}" +
+                    $"{Zoo.RED_ZONE} <b>Red Zone</b> {Environment.NewLine}[ X (0, 80) Y (0, 100) ]{Environment.NewLine}" +
+                    $"{Zoo.BLUE_ZONE} <b>Blue Zone</b> {Environment.NewLine}[ X (120, 200) Y (100, 200)]{Environment.NewLine}" +
+                    $"{Zoo.GREEN_ZONE} <b>Green Zone</b> {Environment.NewLine}[ X (80, 200) Y (0, 55) ]{Environment.NewLine}" +
+                    $"{Zoo.BLACK_ZONE} <b>Black Zone</b> {Environment.NewLine}[ X (0, 120) Y (100, 145) ]{Environment.NewLine}" +
+                    $"{Zoo.PURPLE_ZONE} <b>Purple Zone</b> {Environment.NewLine}[ X (0, 120) Y (145, 200) ]{Environment.NewLine}" +
+                    $"{Zoo.WHITE_ZONE} <b>White Zone</b> {Environment.NewLine}[ X (80, 200) Y (55, 100) ]{Environment.NewLine}" +
+                    $"{Environment.NewLine}" +
+                    $"<b>Список команд:</b>{Environment.NewLine}" +
+                    $"/heroinfo - Показать параметры героя{Environment.NewLine}" +
+                    $"/inventory - Чё у меня в сумке?{Environment.NewLine}" +
+                    $"/go - Прогуляться{Environment.NewLine}" +
+                    $"/lookaround - Поглядеть по сторонам{Environment.NewLine}" +
+                    $"/randomteleport - Прыгни куда-нибудь{Environment.NewLine}" +
+                    $"/upstat - Раскачать характеристики{Environment.NewLine}" +
+                    $"/shitshop - Говномагаз{Environment.NewLine}" +
+                    $"/createhero - Создать героя{Environment.NewLine}" +
+                    $"/abouttoilet - Про туалет{Environment.NewLine}" +
+                    $"{Environment.NewLine}" +
+                    $"<b>ХОРОШЕЙ ИГРЫ</b> v.0.1a";
+
+                await _botClient.SendPhotoAsync(
+                    chatId: chatID,
+                    photo: "https://disk.yandex.ru/i/yeCLlgN7UD5RAw",
+                    caption: answer,
+                    parseMode: ParseMode.Html,
+                    cancellationToken: _cancellationToken
+                    );
+
+                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
+
+            }
+            //if (messageText.ToLower().Contains("/cleanroom"))
+            //{
+            //    Bank.;
+            //}
+        }
+
+        public void GetZooInfo(Zoo zoo)
+        {
+            this.zoo = zoo;
         }
 
         private InlineKeyboardMarkup StatUpButtons = new InlineKeyboardMarkup(new[]

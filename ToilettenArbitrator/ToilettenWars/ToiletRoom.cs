@@ -130,25 +130,60 @@ namespace ToilettenArbitrator.ToilettenWars
 
         public string HeroInfo()
         {
+            string _weaponDamageInfo = string.Empty;
+            string _heroLocationMark = string.Empty;
+            if (_hero.Weapon.Name.Contains("ничего"))
+            {
+                _weaponDamageInfo = $"(0,3 - 0,8)";
+            }
+            else
+            {
+                _weaponDamageInfo = $"({string.Format("{0:f2}", _hero.Weapon.MinDamage)} - {string.Format("{0:f2}", _hero.Weapon.MaxDamage)})";
+            }
+
+            switch (Zoo.WhatHeroLocated(_hero.PositionX, _hero.PositionY))
+            {
+                case Zoo.Zones.Red:
+                    _heroLocationMark = "&#128997";
+                    break;
+                case Zoo.Zones.Blue:
+                    _heroLocationMark = "&#128998";
+                    break;
+                case Zoo.Zones.Green:
+                    _heroLocationMark = "&#129001";
+                    break;
+                case Zoo.Zones.Purple:
+                    _heroLocationMark = "&#129002";
+                    break;
+                case Zoo.Zones.Black:
+                    _heroLocationMark = "&#11035";
+                    break;
+                case Zoo.Zones.White:
+                    _heroLocationMark = "&#11036";
+                    break;
+                default:
+                    _heroLocationMark = "&#10071";
+                    break;
+            }
+
             _message = "";
 
-            _message = $"<b>Герой:</b> {_hero.Name}{Environment.NewLine}" +
-                $"<b>Уровень:</b> {_hero.Level}{Environment.NewLine}" +
-                $"[<i>{string.Format("{0:f2}", _hero.LevelExpirience, 2)} / {_hero.MaxLevelExpirience}</i>] " +
-                $"{string.Format("{0:f2}", (_hero.LevelExpirience / _hero.MaxLevelExpirience) * 100)}%{Environment.NewLine}" +
-                $"<b>Ранг:</b> {(int)_hero.Rank}{Environment.NewLine}" +
-                $"{500 - _hero.RankExpirience}{Environment.NewLine}" +
+            _message = $"&#128081 <b>Герой:</b> {_hero.Name}{Environment.NewLine}" +
+                $"&#127793 <b>Уровень:</b> {_hero.Level} " +
+                $"[ <i>{string.Format("{0:f2}", _hero.LevelExpirience, 2)} / {_hero.MaxLevelExpirience}</i> ] {Environment.NewLine}" +
+                $"&#9884 <b>Ранг:</b> {(int)_hero.Rank} " +
+                $"[ {string.Format("{0:F2}", _hero.RankExpirience)} / 500 ]{Environment.NewLine}" +
                 $"{Environment.NewLine}<b>Характеристики:</b>{Environment.NewLine}{Environment.NewLine}" +
                 $"<b>&#129314 Токсичность:</b> {_hero.Toxic}{Environment.NewLine}" +
                 $"<b>&#129480 Жиры:</b> {_hero.Fats}{Environment.NewLine}" +
                 $"<b>&#129325 Чрево:</b> {_hero.Stomach}{Environment.NewLine}" +
                 $"<b>&#129516 Метаболизм:</b> {_hero.Metabolism}{Environment.NewLine}" +
                 $"<b>Свободных очков:</b> {_hero.FreePoints}{Environment.NewLine}{Environment.NewLine}" +
-                $"<b>&#128481 Урон:</b> (0,3 - 0,8) + {string.Format("{0:f2}", _hero.Attack)}{Environment.NewLine}" +
-                $"<b>&#128737 Защита:</b> {string.Format("{0:f2}", _hero.Defence)}{Environment.NewLine}" +
-                $"<b>&#128169 Загрязнённость:</b> {string.Format("{0:f2}", (_hero.Dirty / _hero.MaximumDirty) * 100)}%{Environment.NewLine}" +
-                $"&#128176 <b>{_hero.Money} ГовноТенге</b>" +
-                $"{Environment.NewLine}Координаты{Environment.NewLine}[ X: {_hero.PositionX} ] [ Y: {_hero.PositionY} ]";
+                $"&#128481 <b>{_hero.Weapon.Name}{Environment.NewLine} Урон:</b> {_weaponDamageInfo} + {string.Format("{0:f2}", _hero.BaseAttack())}{Environment.NewLine}" +
+                $"&#128737 <b>{_hero.Armor.Name}{Environment.NewLine} Защита:</b> {string.Format("{0:f2}", _hero.Armor.Defence)} + {string.Format("{0:f2}", _hero.BaseDefense())} = {string.Format("{0:f2}", _hero.Defence)}{Environment.NewLine}" +
+                $"{Environment.NewLine}<b>&#128169 Загрязнённость:</b> {string.Format("{0:f2}", (_hero.Dirty / _hero.MaximumDirty) * 100)}%{Environment.NewLine}" +
+                $"&#128176 <b>{_hero.Money} ГовноТенге</b>{Environment.NewLine}" +
+                $"{Environment.NewLine}Координаты {_heroLocationMark}{Environment.NewLine}[ X: {_hero.PositionX} ] [ Y: {_hero.PositionY} ]";
             return _message;
         }
 

@@ -41,8 +41,7 @@ namespace ToilettenArbitrator.ToilettenWars.Items
             if (_Options == null) { return 0.0f; }
             else
             {
-                float a = (new Random().Next((int)(MinDamage * WEAPON_BASE_MOD), (int)(MaxDamage * WEAPON_BASE_MOD))) / WEAPON_BASE_MOD;
-                return a;
+                return (float)(new Random().Next((int)(MinDamage * WEAPON_BASE_MOD), (int)(MaxDamage * WEAPON_BASE_MOD))) / WEAPON_BASE_MOD;
             }
         }
 
