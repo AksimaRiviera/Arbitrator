@@ -8,6 +8,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
     public class Hero : BaseHero, IHero
     {
         private MembersDataContext MDC = new MembersDataContext();
+        
         public enum Directions
         {
             North,
@@ -415,7 +416,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                 default:
                     break;
             }
-
             if (coordinates != null)
             {
                 _position[0] = coordinates[0];

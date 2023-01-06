@@ -1,6 +1,6 @@
 ﻿namespace ToilettenArbitrator.ToilettenWars
 {
-    internal class SilverDice
+    public class SilverDice
     {
         private Random Dice;
         private double minChange, maxChange, theShot;

@@ -5,6 +5,7 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
 {
     public abstract class Mob
     {
+        private SilverDice _dice = new SilverDice();
         private MembersDataContext MDC = new MembersDataContext();
         private MobCard _card;
         private string _id;
@@ -37,13 +38,26 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
 
         public Mob(string id)
         {
-            //_card = MDC.MobCards.ToArray().Find(m => m.iD.Contains());
-            //ApplySettings(_card);
+            _card = MDC.MobCards.ToArray().Find(m => m.iD.Contains(id));
+            ApplySettings(_card);
         }
 
-        public abstract bool AddDamage(float damage, out LootBox Loot);
-        public abstract bool GoCoordinate(int X, int Y);
+        protected abstract void BossSettings();
 
+        public abstract bool AddDamage(float damage, out LootBox Loot);
+        public bool GoCoordinate(int X, int Y)
+        {
+            if (X != null && Y != null)
+            {
+                _positionX = X;
+                _positionY = Y;
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
         private void ApplySettings(MobCard card)
         {
             _id = card.Id;
@@ -58,6 +72,33 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
             _positionY = new SilverDice().GetCoordinate;
             _data = card.Data.Split('|');
             _description = _data[0];
+        }
+        public void Step()
+        {
+            int _side = _dice.D4;
+            switch (_side) 
+            {
+                case 1:
+                _positionX ++;
+                break;
+
+                case 2:
+                _positionX --;
+                break;
+
+                case 3:
+                _positionY ++;
+                break;
+
+                case 4:
+                _positionY --;
+                break;
+
+                default :
+                _positionX = _positionX;
+                _positionY = _positionY;
+                break;
+           }
         }
     }
 }

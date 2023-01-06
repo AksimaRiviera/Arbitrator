@@ -18,7 +18,9 @@ namespace ToilettenArbitrator.ToilettenWars
         // Blue Zone    [ X (120, 200) Y (100, 200) ]
         MembersDataContext MDC = new MembersDataContext();
 
-        private const float MOBS_POPULATION_FACTOR = 0.6f;
+        private const float MOBS_POPULATION_FACTOR = 0.68f;
+        private const float BOSS_POPULATION_FACTOR = 0.02f;
+
 
         private readonly static int[] RED_ZONE_COORDINATES = new int[5] { 0, 80, 0, 100, 8000 };
         private readonly static int[] BLUE_ZONE_COORDINATES = new int[5] { 120, 200, 100, 200, 8000 };
@@ -26,6 +28,7 @@ namespace ToilettenArbitrator.ToilettenWars
         private readonly static int[] PURPLE_ZONE_COORDINATES = new int[5] { 0, 120, 145, 200, 6600 };
         private readonly static int[] BLACK_ZONE_COORDINATES = new int[5] { 0, 120, 100, 145, 5400 };
         private readonly static int[] WHITE_ZONE_COORDINATES = new int[5] { 80, 200, 55, 100, 5400 };
+
 
         public const string RED_ZONE = "&#128997";
         public const string BLUE_ZONE = "&#128998";
@@ -384,8 +387,8 @@ namespace ToilettenArbitrator.ToilettenWars
                 {
                     _mobsAroundInfo += $"{i + 1}. \"{mobs[i].SubName}\" {mobs[i].Name}{Environment.NewLine}" +
                         $"({mobs[i].HitPoints} / {mobs[i].MaximumHitPoints}) ({mobs[i].PositionX} : {mobs[i].PositionY}){Environment.NewLine}" +
-                        $"[ <b>ATK</b> /atk{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} ] {Environment.NewLine}" +
-                        $"[ <b>INFO</b> /mobinfo{mobs[i].Id} ]{Environment.NewLine}{Environment.NewLine}";
+                        $"<b>[ ATK</b> /atk{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} <b>]</b>{Environment.NewLine}" +
+                        $"<b>[ INFO</b> /mobinfo{mobs[i].Id} <b>]</b>{Environment.NewLine}{Environment.NewLine}";
                 }
                 return _mobsAroundInfo;
             }
@@ -395,8 +398,8 @@ namespace ToilettenArbitrator.ToilettenWars
                 {
                     _mobsAroundInfo += $"{i + 1}. \"{mobs[i].SubName}\" {mobs[i].Name}{Environment.NewLine}" +
                         $"({mobs[i].HitPoints} / {mobs[i].MaximumHitPoints}) ({mobs[i].PositionX} : {mobs[i].PositionY}){Environment.NewLine}" +
-                        $"[ <b>ATK</b> /atk{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} ] {Environment.NewLine}" +
-                        $"[ <b>INFO</b> /mobinfo{mobs[i].Id} ]{Environment.NewLine}{Environment.NewLine}";
+                        $"<b>[ ATK</b> /atk{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} <b>]</b>{Environment.NewLine}" +
+                        $"<b>[ INFO</b> /mobinfo{mobs[i].Id} <b>]</b>{Environment.NewLine}{Environment.NewLine}";
                 }
                 return _mobsAroundInfo;
             }
@@ -405,6 +408,7 @@ namespace ToilettenArbitrator.ToilettenWars
         private void MobsSorter(Zones zones)
         {
             _mobsAround.Clear();
+            
             switch (zones)
             {
                 case Zones.Red:
