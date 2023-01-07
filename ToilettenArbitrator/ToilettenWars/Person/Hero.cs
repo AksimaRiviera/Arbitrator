@@ -156,7 +156,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             MDC.Update(_card);
             MDC.SaveChanges();
         }
-
         public bool EquipItem(string ItemId)
         {
             if(_inventory.Exists(item => item.ItemID.Contains(ItemId)))
@@ -261,7 +260,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                 return false;
             }
         }
-
         public bool UsePotion(string ItemId)
         {
             if (_inventory.Exists(item => item.ItemID.Contains(ItemId)) == false)
@@ -350,19 +348,16 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                 return true;
             }
         }
-
         protected override float ClearAttack()
         {
             if (Weapon.Name != "ничего") return Weapon.RealDamage + BaseAttack();
             else return BaseAttack() + new SilverDice().HandDamage;
         }
-
         protected override float ClearDefence()
         {
             if (Armor.Name != "ничего") return Armor.Defence + BaseDefense();
             else return BaseDefense();
         }
-
         public void ChangeLevelExpirience(float expirience)
         {
             if (_levelExpirience + expirience > MaxLevelExpirience)
@@ -388,7 +383,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                 MDC.SaveChanges();
             }
         }
-
         public void ChangeRankExpirience(float expirience)
         {
             _card.Expirience = $"{LevelExpirience}|{RankExpirience}";
@@ -396,7 +390,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             MDC.Update(_card);
             MDC.SaveChanges();
         }
-
         public void ChangePosition(Directions directions, int[] coordinates)
         {
             switch (directions)
@@ -434,7 +427,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             MDC.Update(_card);
             MDC.SaveChanges();
         }
-
         public bool AddDamage(float damage, out float expirience, out int cash)
         {
             expirience = damage * EXPIRIENCE_FACTOR;
@@ -460,7 +452,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                 return false;
             }
         }
-
         public bool AddDamage(float damage)
         {
             if (damage - Defence > 0) { damage -= Defence; }
@@ -487,7 +478,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             }
             
         }
-
         public void TakeMoney(long cash)
         {
             _money += cash;
@@ -499,7 +489,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             MDC.Update(_card);
             MDC.SaveChanges();
         }
-
         public long GetMoney(long itemPrice)
         {
             if (_money < itemPrice)
@@ -514,7 +503,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             MDC.SaveChanges();
             return itemPrice;
         }
-
         public bool UpdateCharacteristics(Hero.Characteristics characteristics)
         {
             if (FreePoints == 0) return false;
@@ -542,7 +530,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
             return true;
         }
-
         public string InventoryData()
         {
             string data = string.Empty;

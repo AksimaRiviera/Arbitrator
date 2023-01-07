@@ -219,7 +219,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         {
             return MAIN_FACTOR + ((_metabolism * GUANO_METABOLISM_FACTOR) * (_stomach * GUANO_STOMACH_FACTOR));
         }
-
         protected abstract float ClearAttack();
         protected abstract float ClearDefence();
         public abstract bool AddItem(Item item);
