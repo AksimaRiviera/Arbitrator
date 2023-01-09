@@ -22,12 +22,12 @@ namespace ToilettenArbitrator.ToilettenWars
         private const float BOSS_POPULATION_FACTOR = 0.02f;
 
 
-        private readonly static int[] RED_ZONE_COORDINATES = new int[5] { 0, 80, 0, 100, 8000 };
-        private readonly static int[] BLUE_ZONE_COORDINATES = new int[5] { 120, 200, 100, 200, 8000 };
-        private readonly static int[] GREEN_ZONE_COORDINATES = new int[5] { 80, 200, 0, 55, 6600 };
-        private readonly static int[] PURPLE_ZONE_COORDINATES = new int[5] { 0, 120, 145, 200, 6600 };
-        private readonly static int[] BLACK_ZONE_COORDINATES = new int[5] { 0, 120, 100, 145, 5400 };
-        private readonly static int[] WHITE_ZONE_COORDINATES = new int[5] { 80, 200, 55, 100, 5400 };
+        public readonly static int[] RED_ZONE_COORDINATES = new int[5] { 0, 80, 0, 100, 8000 };
+        public readonly static int[] BLUE_ZONE_COORDINATES = new int[5] { 120, 200, 100, 200, 8000 };
+        public readonly static int[] GREEN_ZONE_COORDINATES = new int[5] { 80, 200, 0, 55, 6600 };
+        public readonly static int[] PURPLE_ZONE_COORDINATES = new int[5] { 0, 120, 145, 200, 6600 };
+        public readonly static int[] BLACK_ZONE_COORDINATES = new int[5] { 0, 120, 100, 145, 5400 };
+        public readonly static int[] WHITE_ZONE_COORDINATES = new int[5] { 80, 200, 55, 100, 5400 };
 
 
         public const string RED_ZONE = "&#128997";
@@ -288,7 +288,7 @@ namespace ToilettenArbitrator.ToilettenWars
                         _purpleZoneMobs.RemoveAt(iDMobInList);
                         break;
                     case Zones.Black:
-                        _blueZoneMobs.RemoveAt(iDMobInList);
+                        _blackZoneMobs.RemoveAt(iDMobInList);
                         break;
                     case Zones.White:
                         _whiteZoneMobs.RemoveAt(iDMobInList);
@@ -385,8 +385,8 @@ namespace ToilettenArbitrator.ToilettenWars
             {
                 for (int i = 0; i < 7; i++)
                 {
-                    _mobsAroundInfo += $"{i + 1}. \"{mobs[i].SubName}\" {mobs[i].Name}{Environment.NewLine}" +
-                        $"({mobs[i].HitPoints} / {mobs[i].MaximumHitPoints}) ({mobs[i].PositionX} : {mobs[i].PositionY}){Environment.NewLine}" +
+                    _mobsAroundInfo += $"{i + 1}. <b><i>\"{mobs[i].SubName}\" {mobs[i].Name}</i></b>{Environment.NewLine}" +
+                        $"<i>[ &#10084 ({mobs[i].HitPoints} / {mobs[i].MaximumHitPoints}) ] [ &#129517 ({mobs[i].PositionX} : {mobs[i].PositionY}) ]</i>{Environment.NewLine}" +
                         $"<b>[ ATK</b> /atk{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} <b>]</b>{Environment.NewLine}" +
                         $"<b>[ INFO</b> /mobinfo{mobs[i].Id} <b>]</b>{Environment.NewLine}{Environment.NewLine}";
                 }
@@ -396,8 +396,8 @@ namespace ToilettenArbitrator.ToilettenWars
             {
                 for (int i = 0; i < mobs.Count; i++)
                 {
-                    _mobsAroundInfo += $"{i + 1}. \"{mobs[i].SubName}\" {mobs[i].Name}{Environment.NewLine}" +
-                        $"({mobs[i].HitPoints} / {mobs[i].MaximumHitPoints}) ({mobs[i].PositionX} : {mobs[i].PositionY}){Environment.NewLine}" +
+                    _mobsAroundInfo += $"{i + 1}. <b><i>\"{mobs[i].SubName}\" {mobs[i].Name}</i></b>{Environment.NewLine}" +
+                        $"<i>[ &#10084 ({mobs[i].HitPoints} / {mobs[i].MaximumHitPoints}) ] [ &#129517 ({mobs[i].PositionX} : {mobs[i].PositionY}) ]</i>{Environment.NewLine}" +
                         $"<b>[ ATK</b> /atk{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} <b>]</b>{Environment.NewLine}" +
                         $"<b>[ INFO</b> /mobinfo{mobs[i].Id} <b>]</b>{Environment.NewLine}{Environment.NewLine}";
                 }

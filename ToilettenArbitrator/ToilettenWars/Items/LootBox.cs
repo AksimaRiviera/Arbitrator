@@ -1,4 +1,5 @@
 ﻿using ToilettenArbitrator.ToilettenWars.Items.Interfaces;
+using ToilettenArbitrator.ToilettenWars.Items.Types;
 
 namespace ToilettenArbitrator.ToilettenWars.Items
 {
@@ -8,19 +9,26 @@ namespace ToilettenArbitrator.ToilettenWars.Items
         private const int NON_CASH_FACTOR = 0;
         private const float STANDART_EXP_FACTOR = 1.0f;
         private const int STANDART_CASH_FACTOR = 1;
-        private const float STANDART_EXP_VALUE = 0.05f;
+        private const float STANDART_EXP_VALUE = 0.01f;
         private const int STANDART_CASH_VALUE = 1;
         private const float STANDART_RANK_POINTS = 0.25f;
 
+        private readonly string[] _standartWeaponID = { 
+            "vetosh" };
+
+        private readonly string[] _standartArmorID = { 
+            "rabrob" };
+
+        private float _exp; 
         private float _expFactor;
+        private float _rankPoints;
+
+        private long _cash;
         private int _cashFactor;
 
         private string[] _mobsArgs;
         private List<Item> _itemsForWin;
 
-        private float _exp;
-        private long _cash;
-        private float _rankPoints;
         private List<Item> _items;
         private LootType _type;
 
@@ -44,9 +52,7 @@ namespace ToilettenArbitrator.ToilettenWars.Items
         public LootBox(LootType type, string[] mobArgs)
         {
             _type = type;
-            _mobsArgs = mobArgs;
-            RandomizePrize();
-            RandomizeItems(_mobsArgs);
+            RandomizeItems(mobArgs);
         }
 
         public LootBox(LootType type)
@@ -114,13 +120,16 @@ namespace ToilettenArbitrator.ToilettenWars.Items
 
         }
 
-        private void RandomizeItems(string[] Datas)
+        private void RandomizePrize(string[] mobArgs)
         {
-            _itemsForWin = new List<Item>(int.Parse(Datas[0]));
+            _exp = float.Parse(mobArgs[0]);
+            _cash = long.Parse(mobArgs[1]);
+            _rankPoints = float.Parse(mobArgs[2]);
+            _items = new List<Item>(int.Parse(mobArgs[3]));
 
-            for (int i = 0; i < int.Parse(Datas[0]); i++)
+            for (int i = 0; i < int.Parse(mobArgs[0]); i++)
             {
-                switch (Datas[i + 1])
+                switch (mobArgs[i + 1])
                 {
                     case "1":
                         _itemsForWin.Add(new Item("vlasal"));
@@ -134,7 +143,32 @@ namespace ToilettenArbitrator.ToilettenWars.Items
                         break;
                 }
             }
+        }
 
+        private Item RandomItem(ItemsType type)
+        {
+            switch (type)
+            {
+                case ItemsType.Weapon:
+                    return new Item(_standartWeaponID[new Random().Next(_standartWeaponID.Length)]);
+                
+                case ItemsType.Armor:
+                    return new Item(_standartArmorID[new Random().Next(_standartArmorID.Length)]);
+                case ItemsType.Shield:
+                    return new Item(_standartArmorID[new Random().Next(_standartArmorID.Length)]);
+                case ItemsType.Helmet:
+                    return new Item(_standartArmorID[new Random().Next(_standartArmorID.Length)]);
+                case ItemsType.Boots:
+                    return new Item(_standartArmorID[new Random().Next(_standartArmorID.Length)]);
+                case ItemsType.Gloves:
+                    return new Item(_standartArmorID[new Random().Next(_standartArmorID.Length)]);
+                case ItemsType.HealPotion:
+                    return new Item(_standartArmorID[new Random().Next(_standartArmorID.Length)]);
+                case ItemsType.OtherPotion:
+                    return new Item(_standartArmorID[new Random().Next(_standartArmorID.Length)]);
+                default:
+                    return new Item(_standartArmorID[new Random().Next(_standartArmorID.Length)]);
+            }
         }
     }
 }

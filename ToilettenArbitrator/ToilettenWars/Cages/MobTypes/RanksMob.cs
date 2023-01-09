@@ -11,3 +11,4 @@ public enum LevelRanks
     Experienced = 2,
     Mature = 3
 }
+

@@ -7,6 +7,11 @@
             "Дороу ", "И вам не хворать ", "Моё уважение "
         };
 
+        private string[] _helloSmiles = {
+            "&#129321","&#128521","&#129303","&#128075",
+            "&#128400","&#9996","&#128080","&#10024","&#127881"
+        };
+
         private string[] _gettingVerbs = {
             "получил", "всосал", "сожрал",
             "сглотнул", "принял", "нахватал"
@@ -46,6 +51,7 @@
         }
 
         public string Hello => GetHello();
+        public string HelloSmile => GetHelloSmile();
         public string AttackVerb => GetAttackVerb();
         public string GettingVerb => GetGettingVerb();
         public string ScreemWords => GetScreemWords();
@@ -54,6 +60,11 @@
         private string GetHello()
         {
             return _helloWords[new Random().Next(_helloWords.Length)];
+        }
+
+        private string GetHelloSmile()
+        {
+            return _helloSmiles[new Random().Next(_helloSmiles.Length)];
         }
 
         private string GetAttackVerb()

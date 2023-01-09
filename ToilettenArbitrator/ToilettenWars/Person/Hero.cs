@@ -543,8 +543,8 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                         case Items.Types.ItemsType.Weapon:
                             data += $"{Environment.NewLine}{i + 1}. {new Weapon(Inventory[i].ItemID).Name} ";
                             data += $"(<b>оружие: {new Weapon(Inventory[i].ItemID).MinDamage} - {new Weapon(Inventory[i].ItemID).MaxDamage}</b>) / " +
-                                $"{new Weapon(Inventory[i].ItemID).CriticalFactor}" +
-                                $"{Environment.NewLine}" + $"<i>Экипировать?</i> /equip{Inventory[i].ItemID}{Environment.NewLine}";
+                                $"{new Weapon(Inventory[i].ItemID).CriticalFactor}{Environment.NewLine}" +
+                                $"<i>Экипировать?</i> /equip{Inventory[i].ItemID}{Environment.NewLine}";
                             break;
 
                         case Items.Types.ItemsType.Armor:
@@ -601,6 +601,26 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             }
 
             return data;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="baseDamage"></param>
+        /// <param name="baseWeaponDamage"></param>
+        /// <param name="bonusWeaponDamage"></param>
+        public void FullAttack(out float heroDamage, out float weaponDamage, out float weaponBonus)
+        {
+            heroDamage = ClearAttack();
+            weaponDamage = _weapon.RealDamage;
+            weaponBonus = 0.0f;
+        }
+
+        public void FullDefence(out float heroDefence, out float armorDefence, out float armorBonus)
+        {
+            heroDefence = ClearDefence();
+            armorDefence = _armor.Defence;
+            armorBonus = 0.0f;
         }
     }
 } 

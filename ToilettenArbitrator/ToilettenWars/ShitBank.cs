@@ -23,7 +23,10 @@ namespace ToilettenArbitrator.ToilettenWars
 
         private List<ProfileCard> _ProfileCards = new List<ProfileCard>();
         private BankCard _BankData = new BankCard();
+        
+        // Ячейка в БД, хранит параметр чистоты туалета
         private BankCard _RoomData = new BankCard();
+
         private MembersDataContext MDC = new MembersDataContext();
 
         public bool CellsFull => _isCellsFull;
@@ -181,6 +184,17 @@ namespace ToilettenArbitrator.ToilettenWars
             MDC.SaveChanges();
         }
 
+        public long SellProduct(long productCoast)
+        {
+            productCoast -= (long)(productCoast * 0.12f);
+
+            _BankData.FourthCell -= productCoast;
+
+            MDC.Update(_BankData);
+            MDC.SaveChanges();
+
+            return productCoast;
+        }
         private class ProfileInfo
         {
             private MembersDataContext MDC = new MembersDataContext();

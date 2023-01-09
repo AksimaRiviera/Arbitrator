@@ -6,10 +6,16 @@ namespace ToilettenArbitrator.ToilettenWars.Items
 {
     public class DeviceShop
     {
+
+        private MembersDataContext MemberArchive = new MembersDataContext();
+
         public const string SHOP_NAME = "SHIT SHOP";
+        public const string WSHOP = "/wshop";
+        public const string ASHOP = "/ashop";
+        public const string PSHOP = "/pshop";
         private string _itemID;
-        private List<Item> AllItems;
-        private List<ItemCard> itemCards;
+        private List<Item> _allItems;
+        private List<ItemCard> _itemCards;
 
         public string WhatItemBought { set => _itemID = value; }
         public Item PurchasedItem => GetItem();
@@ -17,16 +23,13 @@ namespace ToilettenArbitrator.ToilettenWars.Items
 
         public DeviceShop()
         {
-            AllItems = new List<Item>();
+            _allItems = new List<Item>();
 
-            using (MembersDataContext MemberArchive = new MembersDataContext())
-            {
-                itemCards = MemberArchive.ItemCards.ToList();
-            }
+            _itemCards = MemberArchive.ItemCards.ToList();
 
-            for (int i = 0; i < itemCards.Count; i++)
+            for (int i = 0; i < _itemCards.Count; i++)
             {
-                AllItems.Add(new Item(itemCards[i]));
+                _allItems.Add(new Item(_itemCards[i]));
             }
 
         }
@@ -34,56 +37,60 @@ namespace ToilettenArbitrator.ToilettenWars.Items
         private string ShopCreate()
         {
             StringBuilder ShopLog = new StringBuilder("ВАС ПРИВЕТСТВУЕТ\r\n\n\r" + 
-            $"    <b>{SHOP_NAME}</b>\r\n\r\nВ асортементе:\r\n\r\n");
+            $"   <b>{SHOP_NAME}</b>\r\n\r\nВ ассортименте:\r\n\r\n");
+
+            ShopLog.AppendLine($"&#128481 >> " + "<b>[ </b>" + WSHOP + "<b> ]</b>" + Environment.NewLine +
+                $"&#128737 >> " + "<b>[ </b>" + ASHOP + "<b> ]</b>" + Environment.NewLine +
+                $"&#128138 >> " + "<b>[ </b>" + PSHOP + "<b> ]</b>" + Environment.NewLine);
 
             int count = 1;
 
             ShopLog.AppendLine($"Чем ударить:{Environment.NewLine}");
 
-            for (int i = 0; i < AllItems.Count; i++)
+            for (int i = 0; i < _allItems.Count; i++)
             {
-                if (AllItems[i].Type != ItemsType.Weapon) continue;
+                if (_allItems[i].Type != ItemsType.Weapon) continue;
 
-                ShopLog.AppendLine($"{count++}. {AllItems[i].Name}{Environment.NewLine}" +
-                    $"Урон: {new Weapon(itemCards[i]).MinDamage} - {new Weapon(itemCards[i]).MaxDamage}" +
-                    $"{Environment.NewLine}{AllItems[i].Coast} Говнотенге{Environment.NewLine}" +
-                    $"/buy{AllItems[i].ItemID}{Environment.NewLine}");
+                ShopLog.AppendLine($"{count++}. {_allItems[i].Name}{Environment.NewLine}" +
+                    $"( &#128176: {_allItems[i].Coast} ){Environment.NewLine}" +
+                    $"<b>[ BUY</b> /buy{_allItems[i].ItemID} <b>]</b>{Environment.NewLine}" +
+                    $"<b>[ INFO</b> /info{_allItems[i].ItemID} <b>]</b>");
             }
 
-            ShopLog.AppendLine($"Чем прикрыться:{Environment.NewLine}");
+            ShopLog.AppendLine($"{Environment.NewLine}Чем прикрыться:{Environment.NewLine}");
             count = 1;
 
-            for (int i = 0; i < AllItems.Count; i++)
+            for (int i = 0; i < _allItems.Count; i++)
             {
-                if (AllItems[i].Type != ItemsType.Armor && AllItems[i].Type != ItemsType.Helmet && AllItems[i].Type != ItemsType.Shield) continue;
-                
-                ShopLog.AppendLine($"{count++}. {AllItems[i].Name}{Environment.NewLine}" +
-                    $"Защита: {new Armor(itemCards[i]).Defence}" +
-                    $"{Environment.NewLine}{AllItems[i].Coast} Говнотенге{Environment.NewLine}" +
-                    $"/buy{AllItems[i].ItemID}{Environment.NewLine}");
+                if (_allItems[i].Type != ItemsType.Armor && _allItems[i].Type != ItemsType.Helmet && _allItems[i].Type != ItemsType.Shield) continue;
+
+                ShopLog.AppendLine($"{count++}. {_allItems[i].Name}{Environment.NewLine}" + 
+                    $"( &#128176: {_allItems[i].Coast} ){Environment.NewLine}" +
+                    $"<b>[ BUY</b> /buy{_allItems[i].ItemID} <b>]</b>{Environment.NewLine}" + 
+                    $"<b>[ INFO</b> /info{_allItems[i].ItemID} <b>]</b>");
             }
 
-            ShopLog.AppendLine($"Чем полечиться:{Environment.NewLine}");
+            ShopLog.AppendLine($"{Environment.NewLine}Чем полечиться:{Environment.NewLine}");
             count = 1;
 
-            for (int i = 0; i < AllItems.Count; i++)
+            for (int i = 0; i < _allItems.Count; i++)
             {
-                if (AllItems[i].Type != ItemsType.HealPotion) continue;
+                if (_allItems[i].Type != ItemsType.HealPotion) continue;
 
-                ShopLog.AppendLine($"{count++}. {AllItems[i].Name}{Environment.NewLine}" +
-                    $"Будеш чище на: {new HealingPotion(itemCards[i]).EffectValue}{Environment.NewLine}" +
-                    $"{AllItems[i].Coast} Говнотенге{Environment.NewLine}" +
-                    $"/buy{AllItems[i].ItemID}{Environment.NewLine}");
+                ShopLog.AppendLine($"{count++}. {_allItems[i].Name}{Environment.NewLine}" +
+                    $"( &#128176: {_allItems[i].Coast} ){Environment.NewLine}" +
+                    $"<b>[ BUY</b> /buy{_allItems[i].ItemID} <b>]</b>{Environment.NewLine}" +
+                    $"<b>[ INFO</b> /info{_allItems[i].ItemID} <b>]</b>");
             }
 
-            ShopLog.AppendLine("<i>SHIT SHOP - ГОВНА НЕ ДЕРЖИМ!</i>");
+            ShopLog.AppendLine("<b><i>SHIT SHOP - ГОВНА НЕ ДЕРЖИМ!</i></b>");
 
             return ShopLog.ToString();
         }
 
         private Item GetItem()
         {
-            return AllItems.Find(product => product.ItemID.Contains(_itemID));
+            return _allItems.Find(product => product.ItemID.Contains(_itemID));
         }
 
     }

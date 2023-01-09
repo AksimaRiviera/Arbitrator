@@ -65,7 +65,7 @@ namespace ToilettenArbitrator.ToilettenWars
         public string GO(int[] coordinates, Hero.Directions directions)
         {
             _message = $"@{_hero.Name} {_startMessageConstruct[random.Next(_startMessageConstruct.Length)].ToLower()}" +
-                $"{_goVerbs[random.Next(_goVerbs.Length)].ToLower()} на 1 шаг";
+                $"{_goVerbs[random.Next(_goVerbs.Length)].ToLower()}";
 
             if (_hero.Dirty > _hero.MaximumDirty)
             {
@@ -79,23 +79,23 @@ namespace ToilettenArbitrator.ToilettenWars
                     {
                         case Hero.Directions.North:
                             _hero.ChangePosition(Hero.Directions.North, coordinates: null);
-                            return _message += $" <b>севернее</b>{Environment.NewLine}" +
-                                $"{Environment.NewLine}Координаты{Environment.NewLine}[ X: {_hero.PositionX} ] [ Y: {_hero.PositionY} ]";
+                            return _message += $" <b><u>севернее</u></b>{Environment.NewLine}" +
+                                $"{Environment.NewLine}<i>Координаты</i>{Environment.NewLine}( X: {_hero.PositionX} Y: {_hero.PositionY} )";
 
                         case Hero.Directions.East:
                             _hero.ChangePosition(Hero.Directions.East, coordinates: null);
-                            return _message += $" <b>восточнее</b>{Environment.NewLine}" +
-                                $"{Environment.NewLine}Координаты{Environment.NewLine}[ X: {_hero.PositionX} ] [ Y: {_hero.PositionY} ]";
+                            return _message += $" <b><u>восточнее</u></b>{Environment.NewLine}" +
+                                $"{Environment.NewLine}<i>Координаты</i>{Environment.NewLine}( X: {_hero.PositionX} Y: {_hero.PositionY} )";
 
                         case Hero.Directions.West:
                             _hero.ChangePosition(Hero.Directions.West, coordinates: null);
-                            return _message += $" <b>западнее</b>{Environment.NewLine}" +
-                                $"{Environment.NewLine}Координаты{Environment.NewLine}[ X: {_hero.PositionX} ] [ Y: {_hero.PositionY} ]";
+                            return _message += $" <b><u>западнее</u></b>{Environment.NewLine}" +
+                                $"{Environment.NewLine}<i>Координаты</i>{Environment.NewLine}( X: {_hero.PositionX} Y: {_hero.PositionY} )";
 
                         case Hero.Directions.South:
                             _hero.ChangePosition(Hero.Directions.South, coordinates: null);
-                            return _message += $" <b>южнее</b>{Environment.NewLine}" +
-                                $"{Environment.NewLine}Координаты{Environment.NewLine}[ X: {_hero.PositionX} ] [ Y: {_hero.PositionY} ]";
+                            return _message += $" <b><u>южнее</u></b>{Environment.NewLine}" +
+                                $"{Environment.NewLine}<i>Координаты</i>{Environment.NewLine}( X: {_hero.PositionX} Y: {_hero.PositionY} )";
 
                         default: return "Ты стоишь на месте";
                     }

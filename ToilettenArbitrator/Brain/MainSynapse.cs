@@ -74,16 +74,13 @@ namespace ToilettenArbitrator.Brain
 
         public async void SynapseAnswer()
         {
-            using (ToilettenArbitrator.MembersDataContext MemberArchive = new ToilettenArbitrator.MembersDataContext())
-            {
-                heroes = MemberArchive.HeroCards.ToList();
-            }
-            
             if(new ToiletRoom(userName, firstName, lastName).SuchHeroExist())
             {
                 await _botClient.SendTextMessageAsync(
                     chatId: chatID,
-                    text: "Ты кто такой ЕСТЬ?",
+                    text: "Ты кто такой ЕСТЬ?" + Environment.NewLine + Environment.NewLine +
+                    $"Создай героя!{Environment.NewLine}" +
+                    $"[ /createhero ]",
                     parseMode: ParseMode.Html,
                     cancellationToken: _cancellationToken);
                 
@@ -298,15 +295,20 @@ namespace ToilettenArbitrator.Brain
 
             }
 
-            if (messageText.ToLower().Contains(botName + " " + "привет") || messageText.ToLower().Contains(botName + " " + "здравствуй"))
+            if (messageText.ToLower().Contains("приве " + botName) || messageText.ToLower().Contains(botName + " " + "здравствуй"))
             {
-                answer = Hi.Hello + firstName + " " + lastName;
-                await _botClient.SendTextMessageAsync(
-                    chatId: chatID,
-                    text: answer,
-                    parseMode: ParseMode.Html,
-                    replyMarkup: new ReplyKeyboardRemove(),
-                    cancellationToken: _cancellationToken);
+                for (int i = 0; i < 2; i++)
+                {
+                    answer = Hi.HelloSmile;
+
+                    await _botClient.SendTextMessageAsync(
+                        chatId: chatID,
+                        text: answer,
+                        parseMode: ParseMode.Html,
+                        replyMarkup: new ReplyKeyboardRemove(),
+                        cancellationToken: _cancellationToken);
+                }
+
                 new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
             }
 
@@ -487,7 +489,7 @@ namespace ToilettenArbitrator.Brain
                     useItemId = messageText.Replace("/use", "");
                 }
 
-                hero = new Hero(heroes.Find(person => person.Name.Contains(userName)));
+                hero = new Hero(heroes.Find(person => person.Name.Contains(userName.ToLower())));
 
                 answer = string.Empty;
                 answer = $"Ты применил{Environment.NewLine}{new Item(useItemId).Name}{Environment.NewLine}" +
@@ -705,6 +707,10 @@ namespace ToilettenArbitrator.Brain
             //if (messageText.ToLower().Contains("/cleanroom"))
             //{
             //    Bank.;
+            //}
+            //if (_update.ChosenInlineResult.Query.ToLower().Contains("north"))
+            //{
+            //
             //}
         }
 

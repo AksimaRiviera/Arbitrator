@@ -36,6 +36,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         void ChangePosition(Hero.Directions directions, int[] coordinates);
         bool AddDamage(float damage, out float expirience, out int cash);
         bool AddDamage(float damage);
-        void FullAttack(out float baseDamage, out float baseWeaponDamage, out float weapon); 
+        void FullAttack(out float heroDamage, out float weaponDamage, out float weaponBonus);
+        void FullDefence(out float heroDefence, out float armorDefence, out float armorBonus);
     }
 }

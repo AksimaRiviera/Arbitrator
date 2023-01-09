@@ -47,11 +47,11 @@
           "dependencies": {
             "Microsoft.EntityFrameworkCore.SqlServer": {
               "target": "Package",
-              "version": "[6.0.7, )"
+              "version": "[7.0.1, )"
             },
             "Microsoft.EntityFrameworkCore.Sqlite": {
               "target": "Package",
-              "version": "[6.0.10, )"
+              "version": "[7.0.1, )"
             },
             "Microsoft.EntityFrameworkCore.Sqlite.Design": {
               "target": "Package",
@@ -61,11 +61,11 @@
               "include": "Runtime, Build, Native, ContentFiles, Analyzers, BuildTransitive",
               "suppressParent": "All",
               "target": "Package",
-              "version": "[6.0.10, )"
+              "version": "[7.0.1, )"
             },
             "Microsoft.Toolkit.Uwp.Notifications": {
               "target": "Package",
-              "version": "[7.1.2, )"
+              "version": "[7.1.3, )"
             },
             "Telegram.Bot": {
               "target": "Package",
@@ -81,11 +81,11 @@
             },
             "Uno.UI": {
               "target": "Package",
-              "version": "[4.4.13, )"
+              "version": "[4.6.39, )"
             },
             "Xamarin.Forms": {
               "target": "Package",
-              "version": "[5.0.0.2515, )"
+              "version": "[5.0.0.2545, )"
             }
           },
           "imports": [

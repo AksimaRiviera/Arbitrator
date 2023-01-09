@@ -37,47 +37,47 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
 
         protected override void BossSettings()
         {
-            if (_positionX >= Zoo().RED_ZONE_COORDINATES[0] && _positionX < Zoo().RED_ZONE_COORDINATES[1] &&
-                _positionY >= Zoo().RED_ZONE_COORDINATES[2] && _positionY < Zoo().RED_ZONE_COORDINATES[3])
+            if (_positionX >= Zoo.RED_ZONE_COORDINATES[0] && _positionX < Zoo.RED_ZONE_COORDINATES[1] &&
+                _positionY >= Zoo.RED_ZONE_COORDINATES[2] && _positionY < Zoo.RED_ZONE_COORDINATES[3])
             {
                 _bossZoneMod = BossZoneMod.Hot;
                 _zoneMark = Zoo.RED_ZONE;
-                _zoneMark = Zoo.Zones.Red;
+                _bossDirection = Zoo.Zones.Red;
                 
             }
-            else if (_positionX >= Zoo().BLUE_ZONE_COORDINATES[0] && _positionX < Zoo().BLUE_ZONE_COORDINATES[1] &&
-                     _positionY >= Zoo().BLUE_ZONE_COORDINATES[2] && _positionY < Zoo().BLUE_ZONE_COORDINATES[3])
+            else if (_positionX >= Zoo.BLUE_ZONE_COORDINATES[0] && _positionX < Zoo.BLUE_ZONE_COORDINATES[1] &&
+                     _positionY >= Zoo.BLUE_ZONE_COORDINATES[2] && _positionY < Zoo.BLUE_ZONE_COORDINATES[3])
             {
                 _bossZoneMod = BossZoneMod.Cold;
                 _zoneMark = Zoo.BLUE_ZONE;
-                _zoneMark = Zoo.Zones.Blue;
+                _bossDirection = Zoo.Zones.Blue;
             }
-            else if (_positionX >= Zoo().GREEN_ZONE_COORDINATES[0] && _positionX < Zoo().GREEN_ZONE_COORDINATES[1] &&
-                    _positionY >= Zoo().GREEN_ZONE_COORDINATES[2] && _positionY < Zoo().GREEN_ZONE_COORDINATES[3])
+            else if (_positionX >= Zoo.GREEN_ZONE_COORDINATES[0] && _positionX < Zoo.GREEN_ZONE_COORDINATES[1] &&
+                    _positionY >= Zoo.GREEN_ZONE_COORDINATES[2] && _positionY < Zoo.GREEN_ZONE_COORDINATES[3])
             {
                 _bossZoneMod = BossZoneMod.Acid;
                 _zoneMark = Zoo.GREEN_ZONE;
-                _zoneMark = Zoo.Zones.Green;
+                _bossDirection = Zoo.Zones.Green;
             }
-            else if (_positionX >= Zoo().PURPLE_ZONE_COORDINATES[0] && _positionX < Zoo().PURPLE_ZONE_COORDINATES[1] &&
-                    _positionY >= Zoo().PURPLE_ZONE_COORDINATES[2] && _positionY < Zoo().PURPLE_ZONE_COORDINATES[3])
+            else if (_positionX >= Zoo.PURPLE_ZONE_COORDINATES[0] && _positionX < Zoo.PURPLE_ZONE_COORDINATES[1] &&
+                    _positionY >= Zoo.PURPLE_ZONE_COORDINATES[2] && _positionY < Zoo.PURPLE_ZONE_COORDINATES[3])
             {
                 _bossZoneMod = BossZoneMod.Jivex;
                 _zoneMark = Zoo.PURPLE_ZONE;
-                _zoneMark = Zoo.Zones.Purple;
+                _bossDirection = Zoo.Zones.Purple;
             }
-            else if (_positionX >= Zoo().BLACK_ZONE_COORDINATES[0] && _positionX < Zoo().BLACK_ZONE_COORDINATES[1] &&
-                    _positionY >= Zoo().BLACK_ZONE_COORDINATES[2] && _positionY < Zoo().BLACK_ZONE_COORDINATES[3])
+            else if (_positionX >= Zoo.BLACK_ZONE_COORDINATES[0] && _positionX < Zoo.BLACK_ZONE_COORDINATES[1] &&
+                    _positionY >= Zoo.BLACK_ZONE_COORDINATES[2] && _positionY < Zoo.BLACK_ZONE_COORDINATES[3])
             {
                 _bossZoneMod = BossZoneMod.Dark;
                 _zoneMark = Zoo.BLACK_ZONE;
-                _zoneMark = Zoo.Zones.Black;
+                _bossDirection = Zoo.Zones.Black;
             }
             else
             {
                 _bossZoneMod = BossZoneMod.Light;
                 _zoneMark = Zoo.WHITE_ZONE;
-                _zoneMark = Zoo.Zones.White;
+                _bossDirection = Zoo.Zones.White;
             };
             
         }
@@ -85,11 +85,6 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
         public override bool AddDamage(float damage, out LootBox Loot)
         {
 
-            throw new NotImplementedException();
-        }
-
-        public override bool GoCoordinate(int X, int Y)
-        {
             throw new NotImplementedException();
         }
     }
