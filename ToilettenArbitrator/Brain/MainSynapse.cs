@@ -7,6 +7,7 @@ using ToilettenArbitrator.ToilettenWars.Person;
 using ToilettenArbitrator.ToilettenWars.Items;
 using System.ComponentModel;
 using System;
+using ToilettenArbitrator.ToilettenWars.Quests;
 
 namespace ToilettenArbitrator.Brain
 {
@@ -26,6 +27,7 @@ namespace ToilettenArbitrator.Brain
         private DeviceShop Shop;
         private ShitBank Bank;
         private Zoo zoo;
+        private GiveMeQuest giveMeQuest = new GiveMeQuest();
 
         private Hero hero, enemy;
         private List<HeroCard> heroes;
@@ -33,7 +35,6 @@ namespace ToilettenArbitrator.Brain
         private Message answerMessage;
 
         public WhatKeyboardNeed WhatKeyboard { get; }
-        public string Answer => answer;
 
         public long ChatID => chatID;
 
@@ -152,26 +153,59 @@ namespace ToilettenArbitrator.Brain
                     text: Shop.ShopInfo,
                     parseMode: ParseMode.Html,
                     cancellationToken: _cancellationToken);
+            }
 
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
+            if (messageText.ToLower().Contains("/gmq"))
+            {
+                answer = string.Empty;
+                giveMeQuest = new GiveMeQuest();
 
+                answer += $"{giveMeQuest.Hello}{giveMeQuest.AllQuestsInfo}";
+
+                await _botClient.SendTextMessageAsync(
+                    chatId: ChatID,
+                    text: answer,
+                    parseMode: ParseMode.Html,
+                    cancellationToken: _cancellationToken);
+            }
+
+            if (messageText.ToLower().Contains("/quest"))
+            {
+                string questId = string.Empty;
+                answer = string.Empty;
+
+                giveMeQuest = new GiveMeQuest();
+
+                if (messageText.Contains("@ToilettenArbitratorBot"))
+                {
+                    questId = messageText.Replace("@ToilettenArbitratorBot", "");
+                    questId = questId.Replace("/quest", "");
+                }
+                else
+                {
+                    questId = messageText.Replace("/quest", "");
+                }
+
+                answer += $"{giveMeQuest.WhatQuest(questId)}";
+
+                await _botClient.SendTextMessageAsync(
+                    chatId: ChatID,
+                    text: answer,
+                    parseMode: ParseMode.Html,
+                    cancellationToken: _cancellationToken);
             }
 
             if (messageText.ToLower().Contains("/buy"))
             {
+                string itemId = TrimmingMessage(messageText, "buy");
+
                 Bank = new ShitBank();
+
                 heroes = MDC.HeroCards.ToList();
                 
                 Shop = new DeviceShop();
-                if (messageText.Contains("@ToilettenArbitratorBot"))
-                {
-                    string itemID = messageText.Replace("@ToilettenArbitratorBot", "");
-                    Shop.WhatItemBought = itemID.Substring(4);
-                }
-                else
-                {
-                    Shop.WhatItemBought = messageText.Substring(4);
-                }
+
+                Shop.WhatItemBought = itemId;
 
                 hero = new Hero(heroes.Find(name => name.Name.Contains(userName.ToLower())));
 
@@ -182,8 +216,6 @@ namespace ToilettenArbitrator.Brain
                         text: "Нет у тебя ГОВНОТЕНГЕ!!!",
                         parseMode: ParseMode.Html,
                         cancellationToken: _cancellationToken);
-
-                    new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
                 }
                 else
                 {
@@ -191,8 +223,6 @@ namespace ToilettenArbitrator.Brain
 
                     if (hero.AddItem(Shop.PurchasedItem))
                     {
-                        LogsConstructor.WhatInMessage(messageText.Substring(4), "Что вводишь в Hero.AddItem");
-
                         // Не забудь отнять денег у игрока
                         // Так же добавлять вещь через магазин,
                         // а не прикастовывая новый предмет из воздуха
@@ -204,8 +234,6 @@ namespace ToilettenArbitrator.Brain
                             text: "С обновкой!!!",
                             parseMode: ParseMode.Html,
                             cancellationToken: _cancellationToken);
-
-                        new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
                     }
                     else
                     {
@@ -214,7 +242,6 @@ namespace ToilettenArbitrator.Brain
                             text: "Твой рюкзак полон!!!",
                             parseMode: ParseMode.Html,
                             cancellationToken: _cancellationToken);
-
                     }
 
                 }
@@ -231,8 +258,6 @@ namespace ToilettenArbitrator.Brain
                     parseMode: ParseMode.Html,
                     replyMarkup: CharacteristicsUpdateButtons,
                     cancellationToken: _cancellationToken);
-
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
             }
 
             if (messageText.ToLower().Contains("токсичность +1"))
@@ -246,8 +271,6 @@ namespace ToilettenArbitrator.Brain
                     parseMode: ParseMode.Html,
                     replyMarkup: new ReplyKeyboardRemove(),
                     cancellationToken: _cancellationToken);
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
-
             }
 
             if (messageText.ToLower().Contains("жиры +1"))
@@ -261,8 +284,6 @@ namespace ToilettenArbitrator.Brain
                     parseMode: ParseMode.Html,
                     replyMarkup: new ReplyKeyboardRemove(),
                     cancellationToken: _cancellationToken);
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
-
             }
 
             if (messageText.ToLower().Contains("чрево +1"))
@@ -276,8 +297,6 @@ namespace ToilettenArbitrator.Brain
                     parseMode: ParseMode.Html,
                     replyMarkup: new ReplyKeyboardRemove(),
                     cancellationToken: _cancellationToken);
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
-
             }
 
             if (messageText.ToLower().Contains("метаболизм +1"))
@@ -291,8 +310,6 @@ namespace ToilettenArbitrator.Brain
                     parseMode: ParseMode.Html,
                     replyMarkup: new ReplyKeyboardRemove(),
                     cancellationToken: _cancellationToken);
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
-
             }
 
             if (messageText.ToLower().Contains("приве " + botName) || messageText.ToLower().Contains(botName + " " + "здравствуй"))
@@ -308,8 +325,6 @@ namespace ToilettenArbitrator.Brain
                         replyMarkup: new ReplyKeyboardRemove(),
                         cancellationToken: _cancellationToken);
                 }
-
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
             }
 
             if (messageText.ToLower().Contains("атака"))
@@ -333,8 +348,6 @@ namespace ToilettenArbitrator.Brain
                             text: answer,
                             parseMode: ParseMode.Html,
                             cancellationToken: _cancellationToken);
-
-                        new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
                     }
                     else
                     {
@@ -344,8 +357,6 @@ namespace ToilettenArbitrator.Brain
                             text: answer,
                             parseMode: ParseMode.Html,
                             cancellationToken: _cancellationToken);
-
-                        new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
                     }
                 }
                 else
@@ -356,8 +367,6 @@ namespace ToilettenArbitrator.Brain
                         text: answer,
                         parseMode: ParseMode.Html,
                         cancellationToken: _cancellationToken);
-
-                    new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
                 }
             }
 
@@ -371,8 +380,6 @@ namespace ToilettenArbitrator.Brain
                     text: answer,
                     parseMode: ParseMode.Html,
                     cancellationToken: _cancellationToken);
-
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
             }
 
             if (messageText.ToLower().Contains("/go"))
@@ -385,8 +392,6 @@ namespace ToilettenArbitrator.Brain
                     parseMode: ParseMode.Html,
                     replyMarkup: DestinationButtons,
                     cancellationToken: _cancellationToken);
-
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
             }
 
             if (messageText.ToLower().Contains("север"))
@@ -400,8 +405,6 @@ namespace ToilettenArbitrator.Brain
                    parseMode: ParseMode.Html,
                    replyMarkup: new ReplyKeyboardRemove(),
                    cancellationToken: _cancellationToken);
-
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
             }
 
             if (messageText.ToLower().Contains("запад"))
@@ -416,8 +419,6 @@ namespace ToilettenArbitrator.Brain
                     parseMode: ParseMode.Html,
                     replyMarkup: new ReplyKeyboardRemove(),
                     cancellationToken: _cancellationToken);
-
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
             }
 
             if (messageText.ToLower().Contains("восток"))
@@ -431,8 +432,6 @@ namespace ToilettenArbitrator.Brain
                     parseMode: ParseMode.Html,
                     replyMarkup: new ReplyKeyboardRemove(),
                     cancellationToken: _cancellationToken);
-
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
             }
 
             if (messageText.ToLower().Contains("юг"))
@@ -446,8 +445,6 @@ namespace ToilettenArbitrator.Brain
                     parseMode: ParseMode.Html,
                     replyMarkup: new ReplyKeyboardRemove(),
                     cancellationToken: _cancellationToken);
-
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
             }
 
             if (messageText.ToLower().Contains("/inventory"))
@@ -471,23 +468,11 @@ namespace ToilettenArbitrator.Brain
                     text: answer,
                     parseMode: ParseMode.Html,
                     cancellationToken: _cancellationToken);
-
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
             }
 
             if (messageText.ToLower().Contains("/use"))
             {
-                string useItemId = string.Empty;
-
-                if (messageText.Contains("@ToilettenArbitratorBot"))
-                {
-                    useItemId = messageText.Replace("@ToilettenArbitratorBot", "");
-                    useItemId = useItemId.Replace("/use", "");
-                }
-                else
-                {
-                    useItemId = messageText.Replace("/use", "");
-                }
+                string useItemId = TrimmingMessage(messageText, "use");
 
                 hero = new Hero(heroes.Find(person => person.Name.Contains(userName.ToLower())));
 
@@ -505,9 +490,6 @@ namespace ToilettenArbitrator.Brain
                             text: answer,
                             parseMode: ParseMode.Html,
                             cancellationToken: _cancellationToken);
-
-                    new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
-
                 }
                 else
                 {
@@ -518,25 +500,12 @@ namespace ToilettenArbitrator.Brain
                             text: answer,
                             parseMode: ParseMode.Html,
                             cancellationToken: _cancellationToken);
-
-                    new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
-
                 }
             }
 
             if (messageText.ToLower().Contains("/equip"))
             {
-                string equipItemId = string.Empty;
-
-                if (messageText.Contains("@ToilettenArbitratorBot"))
-                {
-                    equipItemId = messageText.Replace("@ToilettenArbitratorBot", "");
-                    equipItemId = equipItemId.Replace("/equip", "");
-                }
-                else
-                {
-                    equipItemId = messageText.Replace("/equip", "");
-                }
+                string equipItemId = TrimmingMessage(messageText, "equip");
 
                 hero = new Hero(heroes.Find(person => person.Name.Contains(userName.ToLower())));
 
@@ -553,8 +522,53 @@ namespace ToilettenArbitrator.Brain
                         text: answer,
                         parseMode: ParseMode.Html,
                         cancellationToken: _cancellationToken);
+            }
 
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
+            if (messageText.ToLower().Contains("/give"))
+            {
+                hero = new Hero(heroes.Find(person => person.Name.Contains(userName.ToLower())));
+
+                string questId = TrimmingMessage(messageText, "give");
+
+                answer = string.Empty;
+
+                bool isQuestTaken = false;
+
+                for (int i = 0; i < hero.Quests.Count; i++)
+                {
+                    if (hero.Quests[i].QuestID == questId)
+                    {
+                        isQuestTaken = true;
+                        break;
+                    }
+                    else
+                    {
+                        isQuestTaken = false;
+                    }
+                }
+
+                if (giveMeQuest.Quests.Find(q => q.QuestID.Contains(questId)) == null)
+                {
+                    answer = "Такого квеста не существует";
+                }
+
+                if (isQuestTaken == true)
+                {
+                    answer = "&#128519 Выполняй выполняй &#128519";
+                }
+                else
+                {
+                    answer += $"<B>{Hi.GreatWords.ToUpper()}!</b>" + Environment.NewLine + Environment.NewLine;
+                    answer += $"Ты взял КВЕСТ:" + Environment.NewLine;
+                    answer += $"<b>{new QuestBox(questId).Title}</b>";
+                    hero.AddQuest(new QuestBox(questId));
+                }
+
+                await _botClient.SendTextMessageAsync(
+                    chatId: ChatID,
+                    text: answer,
+                    parseMode: ParseMode.Html,
+                    cancellationToken: _cancellationToken);
             }
 
             if (messageText.ToLower().Contains("/randomteleport"))
@@ -576,8 +590,6 @@ namespace ToilettenArbitrator.Brain
                         text: answer,
                         parseMode: ParseMode.Html,
                         cancellationToken: _cancellationToken);
-
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
             }
 
             if (messageText.ToLower().Contains("/lookaround"))
@@ -596,8 +608,6 @@ namespace ToilettenArbitrator.Brain
                         text: answer,
                         parseMode: ParseMode.Html,
                         cancellationToken: _cancellationToken);
-
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
             }
 
             if (messageText.ToLower().Contains("/atk"))
@@ -620,12 +630,12 @@ namespace ToilettenArbitrator.Brain
 
                 if (zoo.MobFight(hero, _mobName, out loot, out battleResult))
                 {
-                    answer += $"&#127881 <b>! П О Б Е Д А !</b> &#127881{Environment.NewLine}{Environment.NewLine}";
+                    answer += $"&#127881 <b>! П О Б Е Д А !</b> &#127881{Environment.NewLine}";
+                    answer += $"&#128230 ( " +
+                        $"&#128176 {loot.Cash} | " +
+                        $"&#128167 {string.Format("{0:F3}", loot.Expirience)} | " +
+                        $"&#9884 {string.Format("{0:F3}", loot.RankPoints)} ) {Environment.NewLine}{Environment.NewLine}";
                     answer += battleResult + $"был забит оружием \"{hero.Weapon.Name}\"{Environment.NewLine}";
-                    answer += $"{Environment.NewLine}&#128230 <b>НАГРАДА ИЗ КОРОБКИ</b>{Environment.NewLine}" +
-                        $"{loot.Expirience} <i>ОПЫТА</i>{Environment.NewLine}" +
-                        $"{loot.Cash} &#128169{Environment.NewLine}" +
-                        $"{loot.RankPoints} <i>РАНГОВОГО ОПЫТА</i>";
                     hero.TakeLootBox(loot);
                 }
                 else
@@ -638,40 +648,47 @@ namespace ToilettenArbitrator.Brain
                         text: answer,
                         parseMode: ParseMode.Html,
                         cancellationToken: _cancellationToken);
-
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
             }
 
-            if (messageText.ToLower().Contains("/mobinfo"))
+            if (messageText.ToLower().Contains("/mob"))
             {
-                answer = string.Empty;
-                _mobName = string.Empty;
-                if (messageText.Contains("@ToilettenArbitratorBot"))
-                {
-                    _mobName = messageText.Replace("@ToilettenArbitratorBot", "");
-                    _mobName = _mobName.Replace("/mobinfo", "");
-                }
-                else
-                {
-                    _mobName = messageText.Replace("/mobinfo", "");
-                }
+                hero = new Hero(heroes.Find(hero => hero.Name.Contains(userName.ToLower())));
 
-                answer += zoo.MobInfo(_mobName);
+                answer = string.Empty;
+                
+                _mobName = TrimmingMessage(messageText, "mob");
+                
+                answer += zoo.MobInfo(_mobName, hero);
 
                 await _botClient.SendTextMessageAsync(
                         chatId: chatID,
                         text: answer,
                         parseMode: ParseMode.Html,
                         cancellationToken: _cancellationToken);
+            }
 
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
+            if (messageText.ToLower().Contains("/info"))
+            {
+                string itemId = TrimmingMessage(messageText, "info");
 
+                answer = string.Empty;
+
+                answer += $"{new Item(itemId).Name} ";
+                answer += $"( &#128176 {new Item(itemId).Coast} )" + Environment.NewLine + Environment.NewLine;
+                answer += $"{new Item(itemId).Description}";
+
+                await _botClient.SendTextMessageAsync(
+                        chatId: chatID,
+                        text: answer,
+                        parseMode: ParseMode.Html,
+                        cancellationToken: _cancellationToken);
             }
 
             if (messageText.ToLower().Contains("/abouttoilet"))
             {
                 answer = string.Empty;
                 answer += $"<i><b>Я оставлю это здесь, что-бы ты не забыл</b></i>{Environment.NewLine}" +
+                    $"Существа бегающие" +
                     $"{Environment.NewLine}" +
                     $"{Zoo.RED_ZONE} <b>Red Zone</b> {Environment.NewLine}[ X (0, 80) Y (0, 100) ]{Environment.NewLine}" +
                     $"{Zoo.BLUE_ZONE} <b>Blue Zone</b> {Environment.NewLine}[ X (120, 200) Y (100, 200)]{Environment.NewLine}" +
@@ -700,9 +717,6 @@ namespace ToilettenArbitrator.Brain
                     parseMode: ParseMode.Html,
                     cancellationToken: _cancellationToken
                     );
-
-                new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Nope);
-
             }
             //if (messageText.ToLower().Contains("/cleanroom"))
             //{
@@ -712,6 +726,44 @@ namespace ToilettenArbitrator.Brain
             //{
             //
             //}
+
+
+        }
+
+        public async void Answer(string message)
+        {
+            await _botClient.SendTextMessageAsync(
+                chatId: mainChatID,
+                text: message,
+                parseMode: ParseMode.Html,
+                cancellationToken: _cancellationToken);
+
+            new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
+        }
+
+        public async void Answer(string message, long ChatId)
+        {
+            await _botClient.SendTextMessageAsync(
+                chatId: ChatId,
+                text: message,
+                parseMode: ParseMode.Html,
+                cancellationToken: _cancellationToken);
+
+            new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
+        }
+
+        public string TrimmingMessage(string message, string trimWord)
+        {
+            if (message.Contains($"@{botName}"))
+            {
+                message = message.Replace($"@{botName}", "");
+                message = message.Replace($"/{trimWord}", "");
+            }
+            else
+            {
+                message = message.Replace($"/{trimWord}", "");
+            }
+            return message;
         }
 
         public void GetZooInfo(Zoo zoo)

@@ -132,6 +132,8 @@ namespace ToilettenArbitrator.ToilettenWars
         {
             string _weaponDamageInfo = string.Empty;
             string _heroLocationMark = string.Empty;
+            string _questsInfo = string.Empty;
+
             if (_hero.Weapon.Name.Contains("ничего"))
             {
                 _weaponDamageInfo = $"(0,3 - 0,8)";
@@ -166,14 +168,28 @@ namespace ToilettenArbitrator.ToilettenWars
                     break;
             }
 
+            if (_hero.Quests == null)
+            {
+                _questsInfo += $"У тебя нет квестов, возьми их!";
+            }
+            else
+            {
+                for (int i = 0; i < _hero.Quests.Count; i++)
+                {
+
+                    _questsInfo += $"{i + 1}. <i>{_hero.Quests[i].Title}</i> ({_hero.Quests[i].Progress} > {_hero.Quests[i].Total})" + Environment.NewLine +
+                        $"<b>[ QUEST</b> /quest{_hero.Quests[i].QuestID} <b>]</b>" + Environment.NewLine;
+                }
+            }
+
             _message = "";
 
             _message = $"&#128081 <b>Герой:</b> {_hero.Name}{Environment.NewLine}" +
                 $"&#127793 <b>Уровень:</b> {_hero.Level} " +
-                $"[ <i>{string.Format("{0:f2}", _hero.LevelExpirience, 2)} / {_hero.MaxLevelExpirience}</i> ] {Environment.NewLine}" +
-                $"&#9884 <b>Ранг:</b> {(int)_hero.Rank} " +
-                $"[ {string.Format("{0:F2}", _hero.RankExpirience)} / 500 ]{Environment.NewLine}" +
-                $"{Environment.NewLine}<b>Характеристики:</b>{Environment.NewLine}{Environment.NewLine}" +
+                $"[ <i>{string.Format("{0:f2}", _hero.LevelExpirience, 2)} / {_hero.MaxLevelExpirience}</i> &#128167 ] {Environment.NewLine}" +
+                $"&#127894 <b>Ранг:</b> {(int)_hero.Rank} " +
+                $"[ {string.Format("{0:F2}", _hero.RankExpirience)} / 500 &#9884 ]{Environment.NewLine}" +
+                $"{Environment.NewLine}<b>Характеристики:</b>{Environment.NewLine}" +
                 $"<b>&#129314 Токсичность:</b> {_hero.Toxic}{Environment.NewLine}" +
                 $"<b>&#129480 Жиры:</b> {_hero.Fats}{Environment.NewLine}" +
                 $"<b>&#129325 Чрево:</b> {_hero.Stomach}{Environment.NewLine}" +
@@ -181,9 +197,11 @@ namespace ToilettenArbitrator.ToilettenWars
                 $"<b>Свободных очков:</b> {_hero.FreePoints}{Environment.NewLine}{Environment.NewLine}" +
                 $"&#128481 <b>{_hero.Weapon.Name}{Environment.NewLine} Урон:</b> {_weaponDamageInfo} + {string.Format("{0:f2}", _hero.BaseAttack())}{Environment.NewLine}" +
                 $"&#128737 <b>{_hero.Armor.Name}{Environment.NewLine} Защита:</b> {string.Format("{0:f2}", _hero.Armor.Defence)} + {string.Format("{0:f2}", _hero.BaseDefense())} = {string.Format("{0:f2}", _hero.Defence)}{Environment.NewLine}" +
-                $"{Environment.NewLine}<b>&#128169 Загрязнённость:</b> {string.Format("{0:f2}", (_hero.Dirty / _hero.MaximumDirty) * 100)}%{Environment.NewLine}" +
-                $"&#128176 <b>{_hero.Money} ГовноТенге</b>{Environment.NewLine}" +
-                $"{Environment.NewLine}Координаты {_heroLocationMark}{Environment.NewLine}[ X: {_hero.PositionX} ] [ Y: {_hero.PositionY} ]";
+                $"{Environment.NewLine}{_hero.Heart}<b>Загрязнённость:</b> {string.Format("{0:f2}", (_hero.Dirty / _hero.MaximumDirty) * 100)}%{Environment.NewLine}" +
+                $"&#128176 <b>{_hero.Money} ГовноТенге</b>{Environment.NewLine}" + Environment.NewLine +
+                $"<u>К</u> <u>В</u> <u>Е</u> <u>С</u> <u>Т</u> <u>Ы</u>{Environment.NewLine}" +
+                $"{_questsInfo}" + Environment.NewLine +
+                $"&#128506 _ ( X: {_hero.PositionX} ) ( Y: {_hero.PositionY} ) _ {_heroLocationMark}";
             return _message;
         }
 

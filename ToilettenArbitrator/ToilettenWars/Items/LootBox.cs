@@ -11,21 +11,31 @@ namespace ToilettenArbitrator.ToilettenWars.Items
         private const int STANDART_CASH_FACTOR = 1;
         private const float STANDART_EXP_VALUE = 0.01f;
         private const int STANDART_CASH_VALUE = 1;
-        private const float STANDART_RANK_POINTS = 0.25f;
+        private const float STANDART_RANK_POINTS = 0.01f;
 
-        private readonly string[] _standartWeaponID = { 
+        private readonly string[] _standartWeaponID = {
             "vetosh" };
 
-        private readonly string[] _standartArmorID = { 
+        private readonly string[] _standartArmorID = {
             "rabrob" };
 
-        private float _exp; 
+        private float _exp;
         private float _expFactor;
         private float _rankPoints;
 
         private long _cash;
         private int _cashFactor;
+        private int _totalMobs;
+        private int _ageRank;
+        private int _levelRank;
 
+        // [0] - тип возраста
+        // [1] - тип опытности
+        // [2] - базовый опыт за моба 
+        // [3] - базовые бабки за моба
+        // [4] - базовый ранговый опыт
+        // [5] - кол-во возможных вещей
+        // всё остальное id-шники возможных вещей
         private string[] _mobsArgs;
         private List<Item> _itemsForWin;
 
@@ -49,10 +59,25 @@ namespace ToilettenArbitrator.ToilettenWars.Items
         public List<Item> Items => _items;
         public LootType Type => _type;
 
+        public LootBox(string[] questPrize, int total)
+        {
+            _type = LootType.Standart;
+            _items = new List<Item>();
+            // questPrize
+            // [0] - экспа (float)
+            // [1] - бабло (long)
+            // [2] - ранговая экспа (float)
+            // [3] - колличество мобов
+            _exp = (float.Parse(questPrize[0]) * total);
+            _cash = (long)(float.Parse(questPrize[1]) * total);
+            _rankPoints = (float.Parse(questPrize[2]) * total);
+        }
+
         public LootBox(LootType type, string[] mobArgs)
         {
             _type = type;
-            RandomizeItems(mobArgs);
+            _mobsArgs = mobArgs;
+            RandomizePrize(_mobsArgs);
         }
 
         public LootBox(LootType type)
@@ -122,12 +147,70 @@ namespace ToilettenArbitrator.ToilettenWars.Items
 
         private void RandomizePrize(string[] mobArgs)
         {
-            _exp = float.Parse(mobArgs[0]);
-            _cash = long.Parse(mobArgs[1]);
-            _rankPoints = float.Parse(mobArgs[2]);
-            _items = new List<Item>(int.Parse(mobArgs[3]));
+            _ageRank = int.Parse(mobArgs[0]);
+            _levelRank = int.Parse(mobArgs[1]);
+            _exp = float.Parse(mobArgs[2]);
+            _cash = long.Parse(mobArgs[3]);
+            _rankPoints = float.Parse(mobArgs[4]);
+            _items = new List<Item>(int.Parse(mobArgs[5]));
 
-            for (int i = 0; i < int.Parse(mobArgs[0]); i++)
+            _expFactor = STANDART_EXP_FACTOR;
+            _cashFactor = STANDART_CASH_FACTOR;
+            _rankPoints = STANDART_RANK_POINTS;
+
+            switch (_levelRank)
+            {
+                case 1:
+                    _expFactor += 0.1f;
+                    _cashFactor += 1;
+                    _rankPoints *= 1.1f;
+                    break;
+                case 2:
+                    _expFactor += 0.17f;
+                    _cashFactor += 2;
+                    _rankPoints *= 1.12f;
+                    break;
+                case 3:
+                    _expFactor += 0.2f;
+                    _cashFactor += 3;
+                    _rankPoints *= 1.16f;
+                    break;
+                default:
+                    _expFactor += 0.1f;
+                    _cashFactor += 1;
+                    _rankPoints *= 1.1f;
+
+                    break;
+            }
+
+            switch (_ageRank)
+            {
+                case 1:
+                    _expFactor += 0.2f;
+                    _cashFactor += 2;
+                    _rankPoints *= 1.25f;
+                    break;
+                case 2:
+                    _expFactor += 0.53f;
+                    _cashFactor += 4;
+                    _rankPoints *= 1.35f;
+                    break;
+                case 3:
+                    _expFactor += 0.98f;
+                    _cashFactor += 6;
+                    _rankPoints *= 1.4f;
+                    break;
+                default:
+                    _expFactor += 0.2f;
+                    _cashFactor += 2;
+                    _rankPoints *= 1.25f;
+                    break;
+            }
+
+            _exp *= _expFactor; 
+            _cash *= _cashFactor;
+
+            for (int i = 0; i < _items.Count; i++)
             {
                 switch (mobArgs[i + 1])
                 {
@@ -145,13 +228,13 @@ namespace ToilettenArbitrator.ToilettenWars.Items
             }
         }
 
-        private Item RandomItem(ItemsType type)
+        private Item RandomizeItem(ItemsType type)
         {
             switch (type)
             {
                 case ItemsType.Weapon:
                     return new Item(_standartWeaponID[new Random().Next(_standartWeaponID.Length)]);
-                
+
                 case ItemsType.Armor:
                     return new Item(_standartArmorID[new Random().Next(_standartArmorID.Length)]);
                 case ItemsType.Shield:

@@ -81,7 +81,10 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         public Armor Shield => _shield;
         public Armor Helmet => _helmet;
 
-        public List<Item> Inventory => _inventory; 
+        public List<QuestBox> Quests => _quests;
+
+        public List<Item> Inventory => _inventory;
+
 
         public Hero(HeroCard card) : base(card)
         {
@@ -111,7 +114,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             }
             else
             {
-                _card.Inventory = $"{bag[0]}";
+                _card.Inventory = $"{_bag[0]}";
 
                 for (int i = 0; i < _equipment.Capacity; i++)
                 {
@@ -202,7 +205,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                         break;
                 }
 
-                _card.Inventory = $"{bag[0]}";
+                _card.Inventory = $"{_bag[0]}";
 
                 for (int i = 0; i < _equipment.Count; i++)
                 {
@@ -230,7 +233,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                 if (_inventory.Count < _inventory.Capacity)
                 {
                     _card.Inventory = string.Empty;
-                    _card.Inventory = $"{bag[0]}";
+                    _card.Inventory = $"{_bag[0]}";
 
                     for (int i = 0; i < _equipment.Count; i++)
                     {
@@ -295,7 +298,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                     }
                 }
 
-                _card.Inventory = $"{bag[0]}";
+                _card.Inventory = $"{_bag[0]}";
 
                 for (int i = 0; i < _equipment.Count; i++)
                 {
@@ -323,7 +326,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                 if(_inventory.Count < _inventory.Capacity)
                 {
                     _card.Inventory = string.Empty;
-                    _card.Inventory = $"{bag[0]}";
+                    _card.Inventory = $"{_bag[0]}";
 
                     for (int i = 0; i < _equipment.Count; i++)
                     {
@@ -348,6 +351,76 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                 return true;
             }
         }
+        public bool Gotcha(string questId, string mobId)
+        {
+            _quest = _quests.Find(q => q.QuestID.Contains(questId));
+            int _quest_id_in_list =_quests.FindIndex(q => q.QuestID.Contains(questId));
+            string _qData = string.Empty;
+
+            if (_quest.Managed())
+            {
+                _quests[_quest_id_in_list] = _quest;
+
+
+                for (int i = 0; i < _quests.Count; i++)
+                {
+                    if (i < _quests.Count)
+                    {
+                        _qData += $"{_quests[i].QuestID}.{_quests[i].Progress}|";
+                    }
+                    else
+                    {
+                        _qData += $"{_quests[i].QuestID}.{_quests[i].Progress}";
+                    }
+                }
+
+                QuestComplete(_quest.QuestID);
+                _card.TimersOne = _qData;
+
+                MDC.Update(_card);
+                MDC.SaveChanges();
+
+                return true;
+            }
+            else
+            {
+                _quests[_quest_id_in_list] = _quest;
+
+
+                for (int i = 0; i < _quests.Count; i++)
+                {
+                    if (i < _quests.Count)
+                    {
+                        _qData += $"{_quests[i].QuestID}.{_quests[i].Progress}|";
+                    }
+                    else
+                    {
+                        _qData += $"{_quests[i].QuestID}.{_quests[i].Progress}";
+                    }
+                }
+
+                _card.TimersOne = _qData;
+
+                MDC.Update(_card);
+                MDC.SaveChanges();
+
+                return false;
+            }
+
+        }
+        public void QuestComplete(string questId)
+        {
+            for (int i = 0; i < _quests.Count; i++)
+            {
+                if (_quests[i].QuestID == questId)
+                {
+                    _quests.RemoveAt(i);
+                }
+            }
+            TakeLootBox(new QuestBox(questId).Prize);
+            SaveQuestData();
+        }
+
         protected override float ClearAttack()
         {
             if (Weapon.Name != "ничего") return Weapon.RealDamage + BaseAttack();

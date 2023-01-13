@@ -25,13 +25,12 @@ namespace ToilettenArbitrator.Brain
             }
 
             logStream = new FileStream(logPath, FileMode.Append);
-            logWriter = new StreamWriter(logStream, encoding: Encoding.UTF8, 777000);
+            logWriter = new StreamWriter(logStream, encoding: Encoding.UTF8);
 
-            logWriter.WriteLine($"[ - - - ЛОГ НАЧАТ - - - ]{Environment.NewLine}" +
-                string.Format("[ {0} ] /", DateTime.Now) +
-                $"{Environment.NewLine}[ - - Количество игроков - - ]" +
-                $"{Environment.NewLine}[ >>> {membersValue} <<< ]" +
-                $"{Environment.NewLine}[ - - - - - - - - ]");
+            logWriter.WriteLine($"> > ЛОГ НАЧАТ < <{Environment.NewLine}" +
+                string.Format("[ Дата ] [ {0} ]", DateTime.Now) +
+                $"{Environment.NewLine}[ Количество игроков ] " +
+                $"[ {membersValue} ]{Environment.NewLine}");
 
             logWriter.Close();
             logStream.Close();
@@ -46,20 +45,13 @@ namespace ToilettenArbitrator.Brain
 
         public async void ConsoleEcho(Update update, SaveLogs saveLogs)
         {
-            logLine = $"{Environment.NewLine}[ - - - НОВОЕ СООБЩЕНИЕ - - - ]{Environment.NewLine}" +
-                $"[ - - - - - - - - - - - - - - - - - - - - - - - - - ]{Environment.NewLine}" +
-                $"[ * user name > {update.Message.From.Username} * " +
-                $" * first name > {update.Message.From.FirstName} * ]{Environment.NewLine}" +
-                $"[ - - - - - - - - - - - - - - - - - - - - - - - - - ]{Environment.NewLine}" +
-                $"[ ** text > {update.Message.Text} ** ]{Environment.NewLine}" +
-                $"[ - - - - - - - - - - - - - - - - - - - - - - - - - ]{Environment.NewLine}" +
-                $"[ * user id > {update.Message.From.Id} *  * chat id > {update.Message.Chat.Id} * ]{Environment.NewLine}" +
-                $"[ - - - - - - - - - - - - - - - - - - - - - - - - - ]{Environment.NewLine}" +
-                $"[ < Дата _ Время > " +
-                string.Format(" < {0:d} _ {0:t} > ]", DateTime.Now) + Environment.NewLine +
-                $"[ - - - - - - - - - - - - - - - - - - - - - - - - - ]{Environment.NewLine}";
+            logLine = $"> > СООБЩЕНИЕ #{update.Message.MessageId} - UID #{update.Message.From.Id}{Environment.NewLine}" +
+                $"{string.Format("> > ДАТА [ {0:d} | {0:t} ]", DateTime.Now)}{Environment.NewLine}" +
+                $"> > User Data [ {update.Message.From.Username} * {update.Message.From.FirstName} ]{Environment.NewLine}" +
+                $"> > Message * * * [ {update.Message.Text} ]{Environment.NewLine}" +
+                $"> > КОНЕЦ СООБЩЕНИЯ - CID #{update.Message.Chat.Id}";
 
-            Console.WriteLine($"{logLine}{Environment.NewLine} [ - - - ОЖИДАНИЕ - - - ] ");
+            Console.WriteLine($"{logLine}{Environment.NewLine}{Environment.NewLine}> > О Ж И Д А Н И Е < <");
             Console.WriteLine();
 
             if (saveLogs == SaveLogs.Save)
@@ -67,7 +59,7 @@ namespace ToilettenArbitrator.Brain
                 logStream = new FileStream(logPath, FileMode.Append);
                 logWriter = new StreamWriter(logStream, encoding: Encoding.UTF8, 777000);
 
-                logWriter.WriteLine(logLine);
+                logWriter.WriteLine(logLine + Environment.NewLine);
 
                 logWriter.Close();
                 logStream.Close();

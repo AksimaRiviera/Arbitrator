@@ -10,6 +10,9 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
 {
     public class Boss : Mob
     {
+        protected AgeRanks _ageRank;
+        protected LevelRanks _levelRank;
+
         private Zoo.Zones _bossDirection;
         private string _zoneMark;
         private BossZoneMod _bossZoneMod;
@@ -35,7 +38,7 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
 
         }
 
-        protected override void BossSettings()
+        protected override void MobSettings()
         {
             if (_positionX >= Zoo.RED_ZONE_COORDINATES[0] && _positionX < Zoo.RED_ZONE_COORDINATES[1] &&
                 _positionY >= Zoo.RED_ZONE_COORDINATES[2] && _positionY < Zoo.RED_ZONE_COORDINATES[3])
@@ -80,6 +83,11 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
                 _bossDirection = Zoo.Zones.White;
             };
             
+        }
+
+        protected override void LootSettings()
+        {
+            throw new NotImplementedException();
         }
 
         public override bool AddDamage(float damage, out LootBox Loot)

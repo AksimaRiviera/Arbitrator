@@ -1,15 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace ToilettenArbitrator
+namespace ToilettenArbitrator;
+
+public partial class BankCard
 {
-    public partial class BankCard
-    {
-        public long Id { get; set; }
-        public ulong MainCell { get; set; }
-        public long FirstCell { get; set; }
-        public long SecondCell { get; set; }
-        public long ThirdCell { get; set; }
-        public long FourthCell { get; set; }
-    }
+    public long Id { get; set; }
+
+    public ulong MainCell { get; set; }
+
+    public long FirstCell { get; set; }
+
+    public long SecondCell { get; set; }
+
+    public long ThirdCell { get; set; }
+
+    public long FourthCell { get; set; }
 }

@@ -1,4 +1,6 @@
 ﻿using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Windows.Forms;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Extensions.Polling;
@@ -13,11 +15,13 @@ var Arbitrator = new TelegramBotClient("5146908025:AAE5lkcA_2UqMi2Rl4eiN3f8Z6MgA
 int year, month, day, hour, minute, second, millisecond;
 
 long chatID = 0;
-long userID;
+long userID, mainChatID = -1001719641552;
 string messageText, firstName, lastName, userName, enemyName, botName = "ToilettenArbitratorBot";
+bool startBot = true;
 
 List<string> UserHeroData = new List<string>();
 Zoo zooMain = new Zoo();
+
 
 int messageID;
 Message sentMessage;
@@ -62,6 +66,7 @@ else
 
 async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
 {
+
     if (update.Type != UpdateType.Message)
         return;
     if (update.Message!.Type != MessageType.Text)
@@ -93,7 +98,8 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
     second = update.Message.Date.Second;
     millisecond = update.Message.Date.Millisecond;
 
-    //new LogsConstructor().ConsoleEcho(update, LogsConstructor.SaveLogs.Save);
+
+    new LogsConstructor().ConsoleEcho(update, LogsConstructor.SaveLogs.Save);
 
     if (messageText != null
                 && int.Parse(day.ToString()) >= day
@@ -104,6 +110,12 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
         MainSynapse mainSynapse = new MainSynapse(botClient, update, cancellationToken);
         mainSynapse.GetZooInfo(zooMain);
         mainSynapse.SynapseAnswer();
+        
+    }
+
+    void WalkingMobs(object state)
+    {
+        zooMain.WalkingMobs(botClient, update, cancellationToken);
     }
 }
 
@@ -121,8 +133,6 @@ Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, Cancell
 
 void GetData()
 {
-    Console.WriteLine("{0}-------------------------------------------------------", Environment.NewLine);
-    Console.WriteLine($" >>> >>> Дата [ День . Месяц . Год ] {day} . {month} . {year} ");
-    Console.WriteLine($" >>> >>> Время [ Час : Минута : Секунда ] {hour} : {minute} : {second}");
-    Console.WriteLine("-------------------------------------------------------{0}", Environment.NewLine);
+    Console.WriteLine("###############################################" +
+        "{1}> > > Дата [ {0:d} ] > > > Время [ {0:t} ]{1}", DateTime.Now, Environment.NewLine);
 }

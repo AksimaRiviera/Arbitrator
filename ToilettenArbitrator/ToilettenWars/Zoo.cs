@@ -1,9 +1,14 @@
 ﻿using System.Linq;
+using System.Threading;
+using Telegram.Bot;
+using Telegram.Bot.Types;
+using ToilettenArbitrator.Brain;
 using ToilettenArbitrator.ToilettenWars.Cages;
 using ToilettenArbitrator.ToilettenWars.Items;
 using ToilettenArbitrator.ToilettenWars.Person;
 using Windows.Devices.PointOfService;
 using Windows.System.Profile;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace ToilettenArbitrator.ToilettenWars
 {
@@ -16,11 +21,11 @@ namespace ToilettenArbitrator.ToilettenWars
         // Green Zone   [ X ( 80, 200) Y (  0,  55) ]
         // White Zone   [ X ( 80, 200) Y ( 55, 100) ]
         // Blue Zone    [ X (120, 200) Y (100, 200) ]
-        MembersDataContext MDC = new MembersDataContext();
+
+        private MembersDataContext MDC = new MembersDataContext();
 
         private const float MOBS_POPULATION_FACTOR = 0.68f;
         private const float BOSS_POPULATION_FACTOR = 0.02f;
-
 
         public readonly static int[] RED_ZONE_COORDINATES = new int[5] { 0, 80, 0, 100, 8000 };
         public readonly static int[] BLUE_ZONE_COORDINATES = new int[5] { 120, 200, 100, 200, 8000 };
@@ -28,7 +33,6 @@ namespace ToilettenArbitrator.ToilettenWars
         public readonly static int[] PURPLE_ZONE_COORDINATES = new int[5] { 0, 120, 145, 200, 6600 };
         public readonly static int[] BLACK_ZONE_COORDINATES = new int[5] { 0, 120, 100, 145, 5400 };
         public readonly static int[] WHITE_ZONE_COORDINATES = new int[5] { 80, 200, 55, 100, 5400 };
-
 
         public const string RED_ZONE = "&#128997";
         public const string BLUE_ZONE = "&#128998";
@@ -198,6 +202,8 @@ namespace ToilettenArbitrator.ToilettenWars
             string mobXLine = $"{mobID[0]}{mobID[1]}{mobID[2]}", mobYLine = $"{mobID[3]}{mobID[4]}{mobID[5]}";
             int mobX = int.Parse(mobXLine), mobY = int.Parse(mobYLine);
 
+            string _questCompleteText = string.Empty;
+
             string mobRealID = string.Empty;
             int iDMobInList = 0, idInCards = 0;
 
@@ -296,18 +302,42 @@ namespace ToilettenArbitrator.ToilettenWars
                     default:
                         break;
                 }
+
+                for (int i = 0; i < hero.Quests.Count; i++)
+                {
+                    if (_attackingMob.Id == hero.Quests[i].FirstSuspectID)
+                    {
+                        hero.Gotcha(hero.Quests[i].QuestID, _attackingMob.Id);
+                        if (hero.Quests[i].Total == hero.Quests[i].Progress)
+                        {
+                            string _questID = hero.Quests[i].QuestID;
+                            hero.QuestComplete(hero.Quests[i].QuestID);
+                            _questCompleteText += $"{new HelloSynapse().GreatWords.ToUpper()}" + Environment.NewLine;
+                            _questCompleteText += $"Квест: <u><i>{new QuestBox(_questID).Title}</i></u> ЗАВЕРШЁН!";
+                        }
+                        else
+                        {
+                            hero.Gotcha(hero.Quests[i].QuestID, _attackingMob.Id);
+                            _questCompleteText += $"Квест: {hero.Quests[i].Title}" + Environment.NewLine;
+                            _questCompleteText += $"{_attackingMob.Name} уничтожено {hero.Quests[i].Progress}/{hero.Quests[i].Total}" + Environment.NewLine;
+                        }
+                    } 
+                }
+
+                battleResult += _questCompleteText + Environment.NewLine;
                 battleResult += $"\"{_attackingMob.SubName}\" {_attackingMob.Name}{Environment.NewLine}";
                 return true;
             }
             else
             {
                 battleResult += $"&#9888 <b>A C H T U N G</b> &#9888{Environment.NewLine}" +
-                        $"@{hero.Name} ({string.Format("{0:f3}", hero.Dirty)} / {string.Format("{0:f1}", hero.MaximumDirty)}){Environment.NewLine}&#9876 &#9876 &#9876 &#9876 ";
+                        $"@{hero.Name} ({hero.Heart} {string.Format("{0:f3}", hero.Dirty)} / {string.Format("{0:f1}", hero.MaximumDirty)}){Environment.NewLine}&#9876 &#9876 &#9876 &#9876 ";
                 battleResult += $"{Environment.NewLine}<i>\"{_attackingMob.SubName}\" {_attackingMob.Name}</i>{Environment.NewLine}" +
                     $"({string.Format("{0:f3}", _attackingMob.HitPoints)} / {string.Format("{0:f1}", _attackingMob.MaximumHitPoints)}){Environment.NewLine}{Environment.NewLine}";
                     
                 hero.AddDamage(_attackingMob.Damage);
                 battleResult += $"<b>{_attackingMob.Name}</b> ударил в ответ {string.Format("{0:f2}", _attackingMob.Damage)} - {string.Format("{0:f2}", hero.Defence)}";
+                battleResult += Environment.NewLine + _questCompleteText;
                 return false;
             }
         }
@@ -386,9 +416,11 @@ namespace ToilettenArbitrator.ToilettenWars
                 for (int i = 0; i < 7; i++)
                 {
                     _mobsAroundInfo += $"{i + 1}. <b><i>\"{mobs[i].SubName}\" {mobs[i].Name}</i></b>{Environment.NewLine}" +
-                        $"<i>[ &#10084 ({mobs[i].HitPoints} / {mobs[i].MaximumHitPoints}) ] [ &#129517 ({mobs[i].PositionX} : {mobs[i].PositionY}) ]</i>{Environment.NewLine}" +
+                        $"{mobs[i].Status}{Environment.NewLine}" +
+                        $"{mobs[i].Heart} <b>(</b> <i>{string.Format( "{0:F2}", mobs[i].HitPoints)} / {string.Format("{0:F2}", mobs[i].MaximumHitPoints)}</i> <b>)</b>{Environment.NewLine}" +
+                        $"&#127760 <b>(</b> <i>{mobs[i].PositionX} : {mobs[i].PositionY}</i> <b>)</b>{Environment.NewLine}" +
                         $"<b>[ ATK</b> /atk{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} <b>]</b>{Environment.NewLine}" +
-                        $"<b>[ INFO</b> /mobinfo{mobs[i].Id} <b>]</b>{Environment.NewLine}{Environment.NewLine}";
+                        $"<b>[ MOB</b> /mob{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} <b>]</b>{Environment.NewLine}{Environment.NewLine}";
                 }
                 return _mobsAroundInfo;
             }
@@ -397,9 +429,11 @@ namespace ToilettenArbitrator.ToilettenWars
                 for (int i = 0; i < mobs.Count; i++)
                 {
                     _mobsAroundInfo += $"{i + 1}. <b><i>\"{mobs[i].SubName}\" {mobs[i].Name}</i></b>{Environment.NewLine}" +
-                        $"<i>[ &#10084 ({mobs[i].HitPoints} / {mobs[i].MaximumHitPoints}) ] [ &#129517 ({mobs[i].PositionX} : {mobs[i].PositionY}) ]</i>{Environment.NewLine}" +
+                        $"{mobs[i].Status}{Environment.NewLine}" +
+                        $"{mobs[i].Heart} <b>(</b> <i>{string.Format("{0:F2}", mobs[i].HitPoints)} / {string.Format("{0:F2}", mobs[i].MaximumHitPoints)}</i> <b>)</b>{Environment.NewLine}" +
+                        $"&#127760 <b>(</b> <i>{mobs[i].PositionX} : {mobs[i].PositionY}</i> <b>)</b>{Environment.NewLine}" +
                         $"<b>[ ATK</b> /atk{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} <b>]</b>{Environment.NewLine}" +
-                        $"<b>[ INFO</b> /mobinfo{mobs[i].Id} <b>]</b>{Environment.NewLine}{Environment.NewLine}";
+                        $"<b>[ MOB</b> /mob{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} <b>]</b>{Environment.NewLine}{Environment.NewLine}";
                 }
                 return _mobsAroundInfo;
             }
@@ -513,22 +547,59 @@ namespace ToilettenArbitrator.ToilettenWars
             }
         }
 
-        public string MobInfo(string mobName)
+        public string MobInfo(string mobName, Hero hero)
         {
-            SimpleMob mob = new SimpleMob(_mobsData.Find(mob => mob.Id.Contains(mobName)));
+            string mobXLine = $"{mobName[0]}{mobName[1]}{mobName[2]}", mobYLine = $"{mobName[3]}{mobName[4]}{mobName[5]}";
+            int mobX = int.Parse(mobXLine), mobY = int.Parse(mobYLine);
+
+            string heart = string.Empty;
+            string mobRealID = string.Empty;
+            mobRealID = mobName.Remove(0, 6);
+            int iDMobInList = 0, idInCards = 0;
+
+            MobsSorter(HeroLocated(hero.PositionX, hero.PositionY));
+
+            _attackingMob = _mobsAround.Find(mob => mob.Id.Contains(mobRealID) && 
+                                                    mob.PositionX == mobX && 
+                                                    mob.PositionY == mobY);
+
             _mobInfo = string.Empty;
 
-            _mobInfo += $"{mob.Name}{Environment.NewLine}" +
-                $"Здоровье: {mob.HitPoints}{Environment.NewLine}" +
-                $"Атака: {string.Format("{0:F2}", mob.Damage)}{Environment.NewLine}" +
-                $"Защита: {string.Format("{0:F2}", mob.Defence)}{Environment.NewLine}" +
+            if (_attackingMob == null)
+            {
+                _mobInfo += "В том месте никого НЕТ!";
+                return _mobInfo;
+            }
+
+            _mobInfo += $"\"{_attackingMob.SubName}\" {_attackingMob.Name} {_attackingMob.Status}{Environment.NewLine}" +
+                $"{_attackingMob.Heart} {string.Format("{0:F2}", _attackingMob.HitPoints)}  |  " +
+                $"&#128481 {string.Format("{0:F2}", _attackingMob.Damage)}  |  " +
+                $"&#128737 {string.Format("{0:F2}", _attackingMob.Defence)}{Environment.NewLine}" +
                 $"{Environment.NewLine}" +
                 $"<b>Выдержка из Большого Туалетного Атласа Монстров</b>{Environment.NewLine}{Environment.NewLine}" +
-                $"&#128218 <i>{mob.Description}</i>";
-
+                $"&#128218 <i>{_attackingMob.Description}</i>";
             return _mobInfo;
         }
-        
+
+        public void WalkingMobs(ITelegramBotClient botClient, Telegram.Bot.Types.Update update, CancellationToken cancellationToken)
+        {
+            for (int i = 0; i < RED_ZONE_COORDINATES[4] * MOBS_POPULATION_FACTOR; i++)
+            {
+                _redZoneMobs[i].Step();
+                _blueZoneMobs[i].Step();
+            }
+            for (int i = 0; i < GREEN_ZONE_COORDINATES[4] * MOBS_POPULATION_FACTOR; i++)
+            {
+                _greenZoneMobs[i].Step();
+                _purpleZoneMobs[i].Step();
+            }
+            for (int i = 0; i < WHITE_ZONE_COORDINATES[4] * MOBS_POPULATION_FACTOR; i++)
+            {
+                _blueZoneMobs[i].Step();
+                _whiteZoneMobs[i].Step();
+            }
+            new MainSynapse(botClient, update, cancellationToken).Answer("Смещение");
+        }        
         //private List<SimpleMob> GetNearMobs()
         //{
         //    List<SimpleMob> mobs = new List<SimpleMob>(5);

@@ -4,13 +4,23 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 {
     public abstract class BaseHero
     {
+        private MembersDataContext MDC = new MembersDataContext();
+
+        private readonly Dictionary<string, string> _heart = new Dictionary<string, string>(4) {
+            { "Healthy", "&#128154" },
+            { "Injured", "&#128155" },
+            { "DeathDoor", "&#10084" },
+            { "Dead", "&#128420" }
+        };
+        private bool _demiGod;
+
         internal HeroCard _card;
 
         internal const int EQUIPMENT_VOLUME = 10;
         internal const int INVENTORY_DEFAULT_VOLUME = 4;
         internal const int ROOM_MIN = 0;
         internal const int ROOM_MAX = 200;
-        internal const int HP_FACTOR = 10;
+        internal const int HP_FACTOR = 4;
         internal const int EXPIRIENCE_LEVEL_FACTOR = 10;
         internal const float BASE_DEFENCE_MOD = 0.02f;
         internal const float MAIN_FACTOR = 1.0f;
@@ -29,6 +39,9 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         protected List<Item> _equipment = new List<Item>(EQUIPMENT_VOLUME);
         protected List<Item> _inventory;
 
+        protected QuestBox _quest;
+        protected List<QuestBox> _quests;
+
         protected int _id;
         protected int _level;
         protected int _toxic;
@@ -45,13 +58,17 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         protected string _name;
         protected string _rankDescription;
 
-        protected string[] bag;
+        protected string[] _bag;
+        protected string[] _questList;
 
         protected float _levelExpirience;
         protected float _rankExpirience;
         protected float _dirty;
 
-        public float MaximumDirty => (float)Math.Round((float)((_fats * 5) + (_level * 3)), 2); // Максимальный уровень загрязнения (то есть здоровья)
+        public bool DemiGod => _demiGod;
+        public float MaximumDirty => (float)(Math.Round((float)((_fats * 5) + (_level * 3)), 2)) * HP_FACTOR; // Максимальный уровень загрязнения (то есть здоровья)
+
+        public string Heart => HeartSettings();
 
         public BaseHero(HeroCard Card)
         {
@@ -59,12 +76,14 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
             _card = Card;
 
-            string[] NameArr = Card.Name.Split("|");
-            string[] LRArr = Card.LevelRank.Split(".");
-            string[] AtributesArr = Card.Atributes.Split(".");
-            string[] PosArr = Card.Position.Split(".");
-            string[] ExpArr = Card.Expirience.Split("|");
-            bag = Card.Inventory.Split("|");
+            _demiGod = _card.DemiGod;
+
+            string[] NameArr = _card.Name.Split("|");
+            string[] LRArr = _card.LevelRank.Split(".");
+            string[] AtributesArr = _card.Atributes.Split(".");
+            string[] PosArr = _card.Position.Split(".");
+            string[] ExpArr = _card.Expirience.Split("|");
+            _bag = _card.Inventory.Split("|");
 
             _name = NameArr[0];
 
@@ -73,22 +92,53 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             _levelExpirience = float.Parse(ExpArr[0]);
             _rankExpirience = float.Parse(ExpArr[1]);
 
-            _toxic = int.Parse(AtributesArr[0]);
-            _fats = int.Parse(AtributesArr[1]);
-            _stomach = int.Parse(AtributesArr[2]);
-            _metabolism = int.Parse(AtributesArr[3]);
-            _freePoints = int.Parse(AtributesArr[4]);
-
-
             _dirty = float.Parse(Card.Dirty);
 
             _position[0] = int.Parse(PosArr[0]);
             _position[1] = int.Parse(PosArr[1]);
             _movementPoints = int.Parse(PosArr[2]);
 
-            _money = Card.Money;
+            _money = _card.Money;
 
-            switch (int.Parse(LRArr[1]))
+            _questList = _card.TimersOne.Split("|");
+
+            MainAtributesSet(AtributesArr);
+            RankSorter(LRArr);
+            BagSorter(_bag);
+            QuestSorter(_questList);
+        }
+
+        private string HeartSettings()
+        {
+            if (_dirty >= MaximumDirty * 0.95f)
+            {
+                return _heart["Dead"];
+            }
+            else if (_dirty < MaximumDirty * 0.95f && _dirty >= MaximumDirty * 0.51f)
+            {
+                return _heart["DeathDoor"];
+            }
+            else if (_dirty < MaximumDirty * 0.51f && _dirty >= MaximumDirty * 0.12f)
+            {
+                return _heart["Injured"];
+            }
+            else
+            {
+                return _heart["Healthy"];
+            }
+        }
+        private void MainAtributesSet(string[] AtributesArgs)
+        {
+            _toxic = int.Parse(AtributesArgs[0]);
+            _fats = int.Parse(AtributesArgs[1]);
+            _stomach = int.Parse(AtributesArgs[2]);
+            _metabolism = int.Parse(AtributesArgs[3]);
+            _freePoints = int.Parse(AtributesArgs[4]);
+
+        }
+        private void RankSorter(string[] LRArgs)
+        {
+            switch (int.Parse(LRArgs[1]))
             {
                 case 1:
                     _rank = Ranks.Slap;
@@ -118,7 +168,16 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                     _rank = Ranks.Slap;
                     break;
             }
-            BagSorter(bag);
+        }
+        private void QuestSorter(string[] questList)
+        {            
+            _quests = new List<QuestBox>();
+
+            for (int i = 0; i < questList.Length; i++)
+            {
+                if (questList[i] == string.Empty) continue;
+                _quests.Add(new QuestBox(questList[i]));
+            }
         }
         private void BagSorter(string[] bag)
         {
@@ -162,6 +221,41 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             if (_equipment[3].Name == "ничего") { _helmet = new Armor(); }
             else { _helmet = new Armor(_equipment[3].ItemID); }
         }
+        public void AddQuest(QuestBox quest)
+        {
+            if (_quests.Count > 0)
+            { 
+                _quest = quest;
+                _quests.Add(_quest);
+                _card.TimersOne += $"|{_quest.QuestID}.{_quest.StartCount}";
+            }
+            else
+            {
+                _quest = quest;
+                _quests.Add(_quest);
+                _card.TimersOne += $"{_quest.QuestID}.{_quest.StartCount}";
+            }
+
+            MDC.Update(_card);
+            MDC.SaveChanges();
+        }
+
+        internal void SaveQuestData()
+        {
+            string _qData = string.Empty;
+            if (_quests.Count > 0)
+            {
+                for (int i = 0; i < _quests.Count; i++)
+                {
+                    if (_quests[i].QuestID == string.Empty || _quests[i].QuestID == "E" ) continue;
+                    _qData += $"{_quests[i].QuestID}.{_quests[i].Progress}|";
+                }
+            }
+            _card.TimersOne = _qData;
+            MDC.Update(_card);
+            MDC.SaveChanges();
+        }
+
         internal float BaseAttack()
         {
             switch (_rank)

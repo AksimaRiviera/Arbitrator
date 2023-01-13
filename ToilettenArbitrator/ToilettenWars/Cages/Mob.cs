@@ -5,6 +5,13 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
 {
     public abstract class Mob
     {
+        private readonly Dictionary<string, string> _heart = new Dictionary<string, string>(4) {
+            { "Healthy", "&#128154" },
+            { "Injured", "&#128155" },
+            { "DeathDoor", "&#10084" },
+            { "Dead", "&#128420" }
+        };
+
         private SilverDice _dice = new SilverDice();
         private MembersDataContext MDC = new MembersDataContext();
         private MobCard _card;
@@ -25,11 +32,10 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
         // [5] - базовые бабки за моба
         // [6] - базовый ранговый опыт
         // [7] - количество предметов в луте
-        private string[] _arguments;
-        internal string[] _lootArgs;
+        internal string[] _arguments;
 
-        private int _ageArg;
-        private int _levelArg;
+        internal int _ageArg;
+        internal int _levelArg;
 
         protected float _damage;
         protected float _defence;
@@ -43,13 +49,12 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
 
         protected LootBox _lootBox;
         protected MobTypes.MobType _mobType;
-        protected AgeRanks _ageRank;
-        protected LevelRanks _levelRank;
 
         public string Id => _id;
         public string Name => _name;
         public string SubName => _subName;
         public string Description => _description;
+        public string Heart => HeartSettings();
 
         public Mob(MobCard card)
         {
@@ -63,7 +68,8 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
             ApplySettings(_card);
         }
 
-        protected abstract void BossSettings();
+        protected abstract void MobSettings();
+        protected abstract void LootSettings();
 
         public abstract bool AddDamage(float damage, out LootBox Loot);
         public bool GoCoordinate(int X, int Y)
@@ -103,28 +109,29 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
             _mobType = (MobTypes.MobType)int.Parse(_arguments[0]);
             _ageArg = int.Parse(_arguments[1]);
             _levelArg = int.Parse(_arguments[2]);
-            _lootChance = int.Parse(_arguments[3]);
 
-            for (int i = 4; i < _arguments.Length; i++)
-            {
-                _lootArgs[i] = _arguments[i];
-            }
         }
 
-        private void RankForced()
+        private string HeartSettings()
         {
-            switch (_ageRank)
+            if (_hitPoints >= _maximumHitPoints * 0.88f)
             {
-                case AgeRanks.Young:
-                    break;
-                case AgeRanks.Acient:
-                    break;
-                case AgeRanks.Relict:
-                    break;
-                default:
-                    break;
+                return _heart["Healthy"];
+            }
+            else if (_hitPoints < _maximumHitPoints * 0.88f && _hitPoints >= _maximumHitPoints * 0.51f)
+            {
+                return _heart["Injured"];
+            }
+            else if (_hitPoints < _maximumHitPoints * 0.51f && _hitPoints >= _maximumHitPoints * 0.06f)
+            {
+                return _heart["DeathDoor"];
+            }
+            else
+            {
+                return _heart["Dead"];
             }
         }
+
         public void Step()
         {
             int _side = _dice.D4;
@@ -152,7 +159,5 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
                     break;
             }
         }
-
-
     }
 }
