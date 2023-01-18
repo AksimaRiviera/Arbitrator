@@ -24,7 +24,7 @@ Zoo zooMain = new Zoo();
 
 
 int messageID;
-Message sentMessage;
+Telegram.Bot.Types.Message sentMessage;
 
 year = int.Parse(DateTime.Now.Year.ToString());
 month = int.Parse(DateTime.Now.Month.ToString());
@@ -66,7 +66,6 @@ else
 
 async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
 {
-
     if (update.Type != UpdateType.Message)
         return;
     if (update.Message!.Type != MessageType.Text)
@@ -97,7 +96,6 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
     minute = update.Message.Date.Minute;
     second = update.Message.Date.Second;
     millisecond = update.Message.Date.Millisecond;
-
 
     new LogsConstructor().ConsoleEcho(update, LogsConstructor.SaveLogs.Save);
 

@@ -17,8 +17,10 @@ namespace ToilettenArbitrator.ToilettenWars
 
         private HelloSynapse helloSynapse = new HelloSynapse();
         private string attackNotification;
+        private string cleanNotification;
 
         public string AttackNotification => Attack();
+        public string CleanUpNotification => Clean();
 
         public Arena(string heroName, string enemyName)
         {
@@ -28,6 +30,38 @@ namespace ToilettenArbitrator.ToilettenWars
             }
             this.heroName = heroName.ToLower();
             this.enemyName = enemyName.ToLower();
+        }
+
+        private string Clean()
+        {
+            hero = new Hero(heroes.Find(name => name.Name.Contains(heroName)));
+            float rankExpirience;
+
+            if (heroes.Find(person => person.Name.Contains(enemyName)) != null)
+            {
+                enemy = new Hero(heroes.Find(name => name.Name.Contains(enemyName)));
+
+                if (string.IsNullOrEmpty(attackNotification) || string.IsNullOrWhiteSpace(attackNotification)) attackNotification = "";
+
+                float atk = hero.Attack;
+
+                enemy.CleanUp(atk, out rankExpirience);
+
+                hero.ChangeRankExpirience((float)Math.Round(rankExpirience, 2));
+
+                cleanNotification = @$"&#9888 <b>A C H T U N G</b> &#9888{Environment.NewLine}" +
+                    $"@{hero.Name} " + "почистил" + $" {enemy.Name}{Environment.NewLine}{Environment.NewLine}" +
+                    $"<i><b>Статистика чистки</b></i>{Environment.NewLine}" +
+                    $"@{enemy.Name} {helloSynapse.GettingVerb} " +
+                    $"{string.Format("{0:f2}", atk)} чистоты{Environment.NewLine}" +
+                    $"@{hero.Name} получает {string.Format("{0:f2}", rankExpirience)} рангового опыта";
+                return cleanNotification;
+            }
+            else
+            {
+                return "Твоего противника не существует";
+            }
+
         }
 
         private string Attack()

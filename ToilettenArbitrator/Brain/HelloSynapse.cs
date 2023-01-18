@@ -1,4 +1,6 @@
-﻿namespace ToilettenArbitrator.Brain
+﻿using System.Security.AccessControl;
+
+namespace ToilettenArbitrator.Brain
 {
     internal class HelloSynapse
     {
@@ -15,6 +17,8 @@
             "&#129321","&#128521","&#129303","&#128075",
             "&#128400","&#9996","&#128080","&#10024","&#127881"
         };
+
+        private string _attackSmile = "&#9889";
 
         private string[] _gettingVerbs = {
             "получил", "всосал", "сожрал",
@@ -66,6 +70,7 @@
         public string ScreemWords => GetScreemWords();
         public string ScreemModulateWords => GetScreemModulateWords();
         public string GreatWords => GetGreatWords();
+        public string AttackSmile => _attackSmile;
 
         private string GetHello()
         {

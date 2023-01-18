@@ -305,19 +305,19 @@ namespace ToilettenArbitrator.ToilettenWars
 
                 for (int i = 0; i < hero.Quests.Count; i++)
                 {
+                    string _questID = hero.Quests[i].QuestID;
+
+                    if (_questID.Contains("E")) break;
+
                     if (_attackingMob.Id == hero.Quests[i].FirstSuspectID)
-                    {
-                        hero.Gotcha(hero.Quests[i].QuestID, _attackingMob.Id);
-                        if (hero.Quests[i].Total == hero.Quests[i].Progress)
+                    {                        
+                        if (hero.Gotcha(hero.Quests[i].QuestID, _attackingMob.Id))
                         {
-                            string _questID = hero.Quests[i].QuestID;
-                            hero.QuestComplete(hero.Quests[i].QuestID);
                             _questCompleteText += $"{new HelloSynapse().GreatWords.ToUpper()}" + Environment.NewLine;
                             _questCompleteText += $"Квест: <u><i>{new QuestBox(_questID).Title}</i></u> ЗАВЕРШЁН!";
                         }
                         else
                         {
-                            hero.Gotcha(hero.Quests[i].QuestID, _attackingMob.Id);
                             _questCompleteText += $"Квест: {hero.Quests[i].Title}" + Environment.NewLine;
                             _questCompleteText += $"{_attackingMob.Name} уничтожено {hero.Quests[i].Progress}/{hero.Quests[i].Total}" + Environment.NewLine;
                         }
@@ -337,7 +337,8 @@ namespace ToilettenArbitrator.ToilettenWars
                     
                 hero.AddDamage(_attackingMob.Damage);
                 battleResult += $"<b>{_attackingMob.Name}</b> ударил в ответ {string.Format("{0:f2}", _attackingMob.Damage)} - {string.Format("{0:f2}", hero.Defence)}";
-                battleResult += Environment.NewLine + _questCompleteText;
+                battleResult += Environment.NewLine + _questCompleteText + Environment.NewLine;
+                if (hero.AddIll(_attackingMob.Infect())) battleResult += "+";
                 return false;
             }
         }
@@ -418,9 +419,8 @@ namespace ToilettenArbitrator.ToilettenWars
                     _mobsAroundInfo += $"{i + 1}. <b><i>\"{mobs[i].SubName}\" {mobs[i].Name}</i></b>{Environment.NewLine}" +
                         $"{mobs[i].Status}{Environment.NewLine}" +
                         $"{mobs[i].Heart} <b>(</b> <i>{string.Format( "{0:F2}", mobs[i].HitPoints)} / {string.Format("{0:F2}", mobs[i].MaximumHitPoints)}</i> <b>)</b>{Environment.NewLine}" +
-                        $"&#127760 <b>(</b> <i>{mobs[i].PositionX} : {mobs[i].PositionY}</i> <b>)</b>{Environment.NewLine}" +
-                        $"<b>[ ATK</b> /atk{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} <b>]</b>{Environment.NewLine}" +
-                        $"<b>[ MOB</b> /mob{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} <b>]</b>{Environment.NewLine}{Environment.NewLine}";
+                        $"<code>[ A ] [</code> /atk{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} <code>]</code>{Environment.NewLine}" +
+                        $"<code>[ M ] [</code> /mob{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} <code>]</code>{Environment.NewLine}{Environment.NewLine}";
                 }
                 return _mobsAroundInfo;
             }
@@ -431,9 +431,8 @@ namespace ToilettenArbitrator.ToilettenWars
                     _mobsAroundInfo += $"{i + 1}. <b><i>\"{mobs[i].SubName}\" {mobs[i].Name}</i></b>{Environment.NewLine}" +
                         $"{mobs[i].Status}{Environment.NewLine}" +
                         $"{mobs[i].Heart} <b>(</b> <i>{string.Format("{0:F2}", mobs[i].HitPoints)} / {string.Format("{0:F2}", mobs[i].MaximumHitPoints)}</i> <b>)</b>{Environment.NewLine}" +
-                        $"&#127760 <b>(</b> <i>{mobs[i].PositionX} : {mobs[i].PositionY}</i> <b>)</b>{Environment.NewLine}" +
-                        $"<b>[ ATK</b> /atk{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} <b>]</b>{Environment.NewLine}" +
-                        $"<b>[ MOB</b> /mob{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} <b>]</b>{Environment.NewLine}{Environment.NewLine}";
+                        $"<code>[ A ] [</code> /atk{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} <code>]</code>{Environment.NewLine}" +
+                        $"<code>[ M ] [</code> /mob{string.Format("{0:d3}", mobs[i].PositionX)}{string.Format("{0:d3}", mobs[i].PositionY)}{mobs[i].Id} <code>]</code>{Environment.NewLine}{Environment.NewLine}";
                 }
                 return _mobsAroundInfo;
             }
@@ -600,24 +599,5 @@ namespace ToilettenArbitrator.ToilettenWars
             }
             new MainSynapse(botClient, update, cancellationToken).Answer("Смещение");
         }        
-        //private List<SimpleMob> GetNearMobs()
-        //{
-        //    List<SimpleMob> mobs = new List<SimpleMob>(5);
-        //    int counter = 0;
-        //    for (int i = 0; counter < mobs.Count; i++)
-        //    {
-        //        if (i > _simples.Count) break;
-        //
-        //        if (_simples[i].PositionX < _heroPositionX + 5 &&
-        //            _simples[i].PositionX > _heroPositionX - 5 &&
-        //            _simples[i].PositionY < _heroPositionY + 5 &&
-        //            _simples[i].PositionY > _heroPositionY - 5)
-        //        {
-        //            mobs.Add(_simples[i]);
-        //            counter++;
-        //        } 
-        //    }
-        //    return mobs;
-        //}
     }
 }

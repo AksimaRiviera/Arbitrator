@@ -1,5 +1,6 @@
 ﻿using Microsoft.Toolkit.Uwp.UI.Controls;
 using System.Security.Cryptography;
+using System.Security.Policy;
 using ToilettenArbitrator.ToilettenWars.Items;
 using ToilettenArbitrator.ToilettenWars.Items.Types;
 
@@ -75,6 +76,8 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         public long Money => _money;
 
         public int MaxLevelExpirience => (Toxic + Fats + Stomach + Metabolism + Level + FreePoints) * EXPIRIENCE_LEVEL_FACTOR;
+
+        public int MaxRankExpirience => (int)_rank * EXPIRIENCE_RANK_FACTOR;
 
         public Weapon Weapon => _weapon;
         public Armor Armor => _armor;
@@ -359,23 +362,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
             if (_quest.Managed())
             {
-                _quests[_quest_id_in_list] = _quest;
-
-
-                for (int i = 0; i < _quests.Count; i++)
-                {
-                    if (i < _quests.Count)
-                    {
-                        _qData += $"{_quests[i].QuestID}.{_quests[i].Progress}|";
-                    }
-                    else
-                    {
-                        _qData += $"{_quests[i].QuestID}.{_quests[i].Progress}";
-                    }
-                }
-
                 QuestComplete(_quest.QuestID);
-                _card.TimersOne = _qData;
 
                 MDC.Update(_card);
                 MDC.SaveChanges();
@@ -386,21 +373,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             {
                 _quests[_quest_id_in_list] = _quest;
 
-
-                for (int i = 0; i < _quests.Count; i++)
-                {
-                    if (i < _quests.Count)
-                    {
-                        _qData += $"{_quests[i].QuestID}.{_quests[i].Progress}|";
-                    }
-                    else
-                    {
-                        _qData += $"{_quests[i].QuestID}.{_quests[i].Progress}";
-                    }
-                }
-
-                _card.TimersOne = _qData;
-
+                SaveQuestData();
                 MDC.Update(_card);
                 MDC.SaveChanges();
 
@@ -428,12 +401,16 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         }
         protected override float ClearDefence()
         {
-            if (Armor.Name != "ничего") return Armor.Defence + BaseDefense();
-            else return BaseDefense();
+            float fullDefence = 0.0f;
+            if (Armor.Name != "ничего") fullDefence += Armor.Defence;
+            if (Shield.Name != "ничего") fullDefence += Shield.Defence;
+            if (Helmet.Name != "ничего") fullDefence += Helmet.Defence;
+
+            return fullDefence + BaseDefense();
         }
         public void ChangeLevelExpirience(float expirience)
         {
-            if (_levelExpirience + expirience > MaxLevelExpirience)
+            if (_levelExpirience + expirience >= MaxLevelExpirience)
             {
                 _levelExpirience = (_levelExpirience + expirience) - MaxLevelExpirience;
                 _level += 1;
@@ -458,10 +435,26 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         }
         public void ChangeRankExpirience(float expirience)
         {
-            _card.Expirience = $"{LevelExpirience}|{RankExpirience}";
+            if (_rankExpirience + expirience >= MaxRankExpirience)
+            {
+                _rankExpirience = (_rankExpirience + expirience) - MaxRankExpirience;
+                _rank += 1;
 
-            MDC.Update(_card);
-            MDC.SaveChanges();
+                _card.Expirience = $"{LevelExpirience}|{RankExpirience}";
+                _card.LevelRank = $"{Level}.{(int)Rank}";
+                _card.Atributes = $"{Toxic}.{Fats}.{Stomach}.{Metabolism}.{FreePoints}";
+
+                MDC.Update(_card);
+                MDC.SaveChanges();
+            }
+            else
+            {
+                _rankExpirience += expirience;
+                _card.Expirience = $"{LevelExpirience}|{RankExpirience}";
+
+                MDC.Update(_card);
+                MDC.SaveChanges();
+            }
         }
         public void ChangePosition(Directions directions, int[] coordinates)
         {
@@ -499,6 +492,29 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
             MDC.Update(_card);
             MDC.SaveChanges();
+        }
+        public bool CleanUp(float clean, out float rankPoints)
+        {
+            rankPoints = clean * CLEAN_FACTOR;
+
+            if (_dirty - clean < 0)
+            {
+                _dirty = 0.0f;
+                _card.Dirty = $"{_dirty}";
+
+                MDC.Update(_card);
+                MDC.SaveChanges();
+                return true;
+            }
+            else
+            {
+                _dirty -= clean;
+                _card.Dirty = $"{_dirty}";
+
+                MDC.Update(_card);
+                MDC.SaveChanges();
+                return false;
+            }
         }
         public bool AddDamage(float damage, out float expirience, out int cash)
         {
@@ -676,12 +692,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             return data;
         }
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="baseDamage"></param>
-        /// <param name="baseWeaponDamage"></param>
-        /// <param name="bonusWeaponDamage"></param>
         public void FullAttack(out float heroDamage, out float weaponDamage, out float weaponBonus)
         {
             heroDamage = ClearAttack();

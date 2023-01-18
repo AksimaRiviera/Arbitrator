@@ -1,4 +1,5 @@
 ﻿using ToilettenArbitrator.ToilettenWars.Items;
+using Windows.UI.Composition.Interactions;
 
 namespace ToilettenArbitrator.ToilettenWars.Person
 {
@@ -12,6 +13,9 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             { "DeathDoor", "&#10084" },
             { "Dead", "&#128420" }
         };
+        private const int BASE_FIELD_OF_WIEV = 3;
+        private const int BASE_ATTACK_RANGE = 1;
+
         private bool _demiGod;
 
         internal HeroCard _card;
@@ -22,12 +26,15 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         internal const int ROOM_MAX = 200;
         internal const int HP_FACTOR = 4;
         internal const int EXPIRIENCE_LEVEL_FACTOR = 10;
-        internal const float BASE_DEFENCE_MOD = 0.02f;
-        internal const float MAIN_FACTOR = 1.0f;
-        internal const float BASE_RANK_ATK_FACTOR = 0.9f;
-        internal const float BASE_RANK_ATK_BIAS = 0.2f;
+        internal const int EXPIRIENCE_RANK_FACTOR = 150;
+
+        internal const float BASE_DEFENCE_MOD = 0.032f;
+        internal const float MAIN_FACTOR = 1.1f;
+        internal const float BASE_RANK_ATK_FACTOR = 1.0f;
+        internal const float BASE_RANK_ATK_BIAS = 0.4f;
         internal const float BASE_ACCUMULATION_MOD = 0.2f;
         internal const float EXPIRIENCE_FACTOR = 0.1f;
+        internal const float CLEAN_FACTOR = 0.3f;
         internal const float GUANO_METABOLISM_FACTOR = 0.18f;
         internal const float GUANO_STOMACH_FACTOR = 0.25f;
 
@@ -38,6 +45,10 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
         protected List<Item> _equipment = new List<Item>(EQUIPMENT_VOLUME);
         protected List<Item> _inventory;
+
+        protected Ill _parasite = new Ill();
+        protected Ill _phisical = new Ill();
+        protected Ill _mental = new Ill();
 
         protected QuestBox _quest;
         protected List<QuestBox> _quests;
@@ -50,6 +61,8 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         protected int _metabolism;
         protected int _freePoints;
         protected int _movementPoints;
+        protected int _fieldOfWiev = BASE_FIELD_OF_WIEV;
+        protected int _attackRange = BASE_ATTACK_RANGE;
 
         protected int[] _position = new int[3];
 
@@ -106,6 +119,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             RankSorter(LRArr);
             BagSorter(_bag);
             QuestSorter(_questList);
+            IllSettings();
         }
 
         private string HeartSettings()
@@ -127,6 +141,16 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                 return _heart["Healthy"];
             }
         }
+        private void IllSettings()
+        {
+
+            string[] illdata = _card.TimersTwo.Split('|');
+
+            _parasite = new Ill(illdata[0]);
+            _phisical = new Ill(illdata[1]);
+            _mental = new Ill(illdata[2]);
+        }
+
         private void MainAtributesSet(string[] AtributesArgs)
         {
             _toxic = int.Parse(AtributesArgs[0]);
@@ -134,7 +158,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             _stomach = int.Parse(AtributesArgs[2]);
             _metabolism = int.Parse(AtributesArgs[3]);
             _freePoints = int.Parse(AtributesArgs[4]);
-
+            _demiGod = _card.DemiGod;
         }
         private void RankSorter(string[] LRArgs)
         {
@@ -221,6 +245,13 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             if (_equipment[3].Name == "ничего") { _helmet = new Armor(); }
             else { _helmet = new Armor(_equipment[3].ItemID); }
         }
+        private void IllSave()
+        {
+            _card.TimersTwo = $"{_parasite.ID}.{_parasite.Step}|{_phisical.ID}.{_phisical.Step}|{_mental.ID}.{_mental.Step}";
+
+            MDC.Update(_card);
+            MDC.SaveChanges();
+        }
         public void AddQuest(QuestBox quest)
         {
             if (_quests.Count > 0)
@@ -238,6 +269,40 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
             MDC.Update(_card);
             MDC.SaveChanges();
+        }
+        public bool AddIll(Ill ill)
+        {
+            if (ill.ID != "E")
+            {
+                switch (ill.Type)
+                {
+                    case IllTypes.IllType.Parasite:
+                        _parasite = ill;
+                        IllSave();
+                        return true;
+
+                    case IllTypes.IllType.Phisical:
+                        _phisical = ill;
+                        IllSave();
+                        return true;
+
+                    case IllTypes.IllType.Mental:
+                        _mental = ill;
+                        IllSave();
+                        return true;
+
+                    default:
+                        _parasite = new Ill();
+                        _phisical = new Ill();
+                        _mental = new Ill();
+                        IllSave();
+                        return false;
+                }
+            }
+            else
+            {
+                return false;
+            }
         }
 
         internal void SaveQuestData()
@@ -313,8 +378,20 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         {
             return MAIN_FACTOR + ((_metabolism * GUANO_METABOLISM_FACTOR) * (_stomach * GUANO_STOMACH_FACTOR));
         }
+        protected int GetFieldOfWiev()
+        {
+            return _fieldOfWiev;// + _helmet.WievBonus;
+        }
         protected abstract float ClearAttack();
         protected abstract float ClearDefence();
         public abstract bool AddItem(Item item);
+
+        public void IllsTick()
+        {
+            if (!_parasite.ID.Contains('E')) _parasite.IllProcess();
+            if (!_phisical.ID.Contains('E')) _phisical.IllProcess();
+            if (!_mental.ID.Contains('E')) _mental.IllProcess();
+            IllSave();
+        }
     }
 }

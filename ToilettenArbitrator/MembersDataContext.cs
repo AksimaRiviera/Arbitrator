@@ -19,6 +19,8 @@ public partial class MembersDataContext : DbContext
 
     public virtual DbSet<HeroCard> HeroCards { get; set; }
 
+    public virtual DbSet<IllCard> IllCards { get; set; }
+
     public virtual DbSet<ItemCard> ItemCards { get; set; }
 
     public virtual DbSet<MobCard> MobCards { get; set; }
@@ -47,6 +49,15 @@ public partial class MembersDataContext : DbContext
             entity.ToTable("HeroCard");
 
             entity.HasIndex(e => e.Id, "IX_HeroCard_Id").IsUnique();
+        });
+
+        modelBuilder.Entity<IllCard>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("IllCard");
+
+            entity.HasIndex(e => e.IllId, "IX_IllCard_IllId").IsUnique();
         });
 
         modelBuilder.Entity<ItemCard>(entity =>

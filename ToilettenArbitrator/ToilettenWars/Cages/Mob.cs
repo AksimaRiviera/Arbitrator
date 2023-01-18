@@ -1,5 +1,6 @@
 ﻿using ToilettenArbitrator.ToilettenWars.Items;
 using ToilettenArbitrator.Brain;
+using ToilettenArbitrator.ToilettenWars.Person;
 
 namespace ToilettenArbitrator.ToilettenWars.Cages
 {
@@ -159,5 +160,7 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
                     break;
             }
         }
+
+        public abstract Ill Infect();
     }
 }

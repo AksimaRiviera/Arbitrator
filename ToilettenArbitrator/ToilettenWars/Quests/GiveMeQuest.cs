@@ -44,8 +44,8 @@ namespace ToilettenArbitrator.ToilettenWars.Quests
             for (int i = 0; i < _questBoxes.Count; i++)
             {
                 _questInfo += Environment.NewLine + $"<b><u>{_questBoxes[i].Title}</u></b>" + Environment.NewLine;
-                _questInfo += $"<b>[ GIVE /give{_questBoxes[i].QuestID} ]</b>" + Environment.NewLine;
-                _questInfo += $"<b>[ QUEST /quest{_questBoxes[i].QuestID} ]</b>" + Environment.NewLine;
+                _questInfo += $"<b>[ G ] [</b> /give{_questBoxes[i].QuestID} <b>]</b>" + Environment.NewLine;
+                _questInfo += $"<b>[ Q ] [</b> /quest{_questBoxes[i].QuestID} <b>]</b>" + Environment.NewLine;
             }
 
             return _questInfo;

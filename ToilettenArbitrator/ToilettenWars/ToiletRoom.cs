@@ -24,7 +24,13 @@ namespace ToilettenArbitrator.ToilettenWars
             "Дополз ", "Дотошнил ", "Переместился ",
             "Прошлёпал ", "Прошаркал " };
 
+        private string[] _heroStatusIco = new string[] {
+            "&#128081", "&#128519"
+        };
+
         private string[] _dataMass = new string[2];
+
+        
 
         private const int X_MAXIMUM = 200;
         private const int X_MINIMUM = 0;
@@ -33,6 +39,11 @@ namespace ToilettenArbitrator.ToilettenWars
         private const int Y_MINIMUM = 0;
 
         private int[] _coordinates = new int[2];
+
+        public ToiletRoom()
+        {
+
+        }
 
         public ToiletRoom(string userName, string firstName, string secondName)
         {
@@ -67,7 +78,7 @@ namespace ToilettenArbitrator.ToilettenWars
             _message = $"@{_hero.Name} {_startMessageConstruct[random.Next(_startMessageConstruct.Length)].ToLower()}" +
                 $"{_goVerbs[random.Next(_goVerbs.Length)].ToLower()}";
 
-            if (_hero.Dirty > _hero.MaximumDirty)
+            if (_hero.Dirty >= _hero.MaximumDirty)
             {
                 return "Ты слишком грязный что бы ходить";
             }
@@ -130,9 +141,12 @@ namespace ToilettenArbitrator.ToilettenWars
 
         public string HeroInfo()
         {
+            if (_hero.Name == null) return "Такого героя не существует!";
+
             string _weaponDamageInfo = string.Empty;
             string _heroLocationMark = string.Empty;
             string _questsInfo = string.Empty;
+            string _heroMark = string.Empty;
 
             if (_hero.Weapon.Name.Contains("ничего"))
             {
@@ -178,41 +192,64 @@ namespace ToilettenArbitrator.ToilettenWars
                 {
 
                     _questsInfo += $"{i + 1}. <i>{_hero.Quests[i].Title}</i> ({_hero.Quests[i].Progress} > {_hero.Quests[i].Total})" + Environment.NewLine +
-                        $"<b>[ QUEST</b> /quest{_hero.Quests[i].QuestID} <b>]</b>" + Environment.NewLine;
+                        $"<b>[ Q ] [</b> /quest{_hero.Quests[i].QuestID} <b>]</b>" + Environment.NewLine;
                 }
+            }
+
+            if (_hero.DemiGod)
+            {
+                _heroMark = _heroStatusIco[1];
+            }
+            else
+            {
+                _heroMark = _heroStatusIco[0];
             }
 
             _message = "";
 
-            _message = $"&#128081 <b>Герой:</b> {_hero.Name}{Environment.NewLine}" +
-                $"&#127793 <b>Уровень:</b> {_hero.Level} " +
-                $"[ <i>{string.Format("{0:f2}", _hero.LevelExpirience, 2)} / {_hero.MaxLevelExpirience}</i> &#128167 ] {Environment.NewLine}" +
-                $"&#127894 <b>Ранг:</b> {(int)_hero.Rank} " +
-                $"[ {string.Format("{0:F2}", _hero.RankExpirience)} / 500 &#9884 ]{Environment.NewLine}" +
-                $"{Environment.NewLine}<b>Характеристики:</b>{Environment.NewLine}" +
-                $"<b>&#129314 Токсичность:</b> {_hero.Toxic}{Environment.NewLine}" +
-                $"<b>&#129480 Жиры:</b> {_hero.Fats}{Environment.NewLine}" +
-                $"<b>&#129325 Чрево:</b> {_hero.Stomach}{Environment.NewLine}" +
-                $"<b>&#129516 Метаболизм:</b> {_hero.Metabolism}{Environment.NewLine}" +
-                $"<b>Свободных очков:</b> {_hero.FreePoints}{Environment.NewLine}{Environment.NewLine}" +
-                $"&#128481 <b>{_hero.Weapon.Name}{Environment.NewLine} Урон:</b> {_weaponDamageInfo} + {string.Format("{0:f2}", _hero.BaseAttack())}{Environment.NewLine}" +
-                $"&#128737 <b>{_hero.Armor.Name}{Environment.NewLine} Защита:</b> {string.Format("{0:f2}", _hero.Armor.Defence)} + {string.Format("{0:f2}", _hero.BaseDefense())} = {string.Format("{0:f2}", _hero.Defence)}{Environment.NewLine}" +
-                $"{Environment.NewLine}{_hero.Heart}<b>Загрязнённость:</b> {string.Format("{0:f2}", (_hero.Dirty / _hero.MaximumDirty) * 100)}%{Environment.NewLine}" +
-                $"&#128176 <b>{_hero.Money} ГовноТенге</b>{Environment.NewLine}" + Environment.NewLine +
+            _message = $"{_heroMark} <b><u>{_hero.Name.ToUpper()}</u></b> [ {_hero.Level} | {(int)_hero.Rank} ] " +
+                $"{Environment.NewLine}" +
+                $"&#127793 <b>Опыт:</b>  " +
+                $"[ <i>{string.Format("{0:f2}", _hero.LevelExpirience, 2)} / {_hero.MaxLevelExpirience}</i> &#128167 ]" +
+                $"{Environment.NewLine}" +
+                $"&#127894 <b>Ранг:</b> " +
+                $"[ <i>{string.Format("{0:F2}", _hero.RankExpirience)} / {_hero.MaxRankExpirience}</i> &#9884 ]" +
+                $"{Environment.NewLine}" +
+                $"{_hero.Heart} <b>Грязь:</b> ( <i>{string.Format("{0:p2}", (decimal)(_hero.Dirty / _hero.MaximumDirty))}</i> )" +
+                $"{Environment.NewLine}" +
+                $"&#128176 <b>ГовноТенге:</b> <i>{_hero.Money} </i>" +
+                $"{Environment.NewLine}" +
+                $"{Environment.NewLine}" +
+                $"<b>&#129314 Токсичность:</b> {_hero.Toxic}" +
+                $"{Environment.NewLine}" +
+                $"<b>&#129480 Жиры:</b> {_hero.Fats}" +
+                $"{Environment.NewLine}" +
+                $"<b>&#129325 Чрево:</b> {_hero.Stomach}" +
+                $"{Environment.NewLine}" +
+                $"<b>&#129516 Метаболизм:</b> {_hero.Metabolism}" +
+                $"{Environment.NewLine}" +
+                $"&#9876 <b>Урон:</b> {string.Format("{0:f2}", _hero.Weapon.MinDamage + _hero.BaseAttack())} - {string.Format("{0:f2}", _hero.Weapon.MaxDamage + _hero.BaseAttack())}" +
+                $"{Environment.NewLine}" +
+                $"&#128737 <b>Защита:</b> {string.Format("{0:f2}", _hero.Defence)}" +
+                $"{Environment.NewLine}" +
+                $"<b>Свободных очков:</b> {_hero.FreePoints}" +
+                $"{Environment.NewLine}{Environment.NewLine}" +
+                $"&#128481 <b>{_hero.Weapon.Name}</b> <i>{_weaponDamageInfo}</i>{Environment.NewLine}" +
+                $"&#129686 <b>{_hero.Helmet.Name}</b> ( <i>{string.Format("{0:f2}", _hero.Helmet.Defence)}</i> ){Environment.NewLine}" +
+                $"&#129355 <b>{_hero.Armor.Name}</b> ( <i>{string.Format("{0:f2}", _hero.Armor.Defence)}</i> ){Environment.NewLine}" +
+                $"&#128737 <b>{_hero.Shield.Name}</b> ( <i>{string.Format("{0:f2}", _hero.Shield.Defence)}</i> ){Environment.NewLine}" +
+                $"" +                
                 $"<u>К</u> <u>В</u> <u>Е</u> <u>С</u> <u>Т</u> <u>Ы</u>{Environment.NewLine}" +
                 $"{_questsInfo}" + Environment.NewLine +
                 $"&#128506 _ ( X: {_hero.PositionX} ) ( Y: {_hero.PositionY} ) _ {_heroLocationMark}";
+            
             return _message;
         }
 
-        //public string HeroBagInfo()
-        //{
-        //    _message = "";
-        //
-        //    _message = $"{_hero.}";
-        //    return _message;
-        //
-        //}
+        public void PlayerInfo(Hero hero)
+        {
+            _hero = hero;
+        }
 
         public string HeroStatUpdate(Hero.Characteristics characteristics)
         {

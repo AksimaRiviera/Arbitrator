@@ -19,12 +19,12 @@ namespace ToilettenArbitrator.Brain
 
         private int year, month, day, hour, minute, second, millisecond, messageID;
 
-        private long chatID = 0, userID, mainChatID = -1001719641552;
+        private long chatID = 0, userID, mainChatID = -1001719641552; 
         private string answer, messageText, firstName, lastName, userName, enemyName, botName = "ToilettenArbitratorBot", _mobName = string.Empty;
 
         private Arena arena, botArena;
         private ToiletRoom Room;
-        private DeviceShop Shop;
+        private DeviceShop Shop = new DeviceShop();
         private ShitBank Bank;
         private Zoo zoo;
         private GiveMeQuest giveMeQuest = new GiveMeQuest();
@@ -71,20 +71,18 @@ namespace ToilettenArbitrator.Brain
             userID = update.Message.From.Id;
 
             heroes = MDC.HeroCards.ToList();
+            hero = new Hero(heroes.Find(h => h.Name.Contains(userName)));
         }
 
         public async void SynapseAnswer()
         {
             if(new ToiletRoom(userName, firstName, lastName).SuchHeroExist())
             {
-                await _botClient.SendTextMessageAsync(
-                    chatId: chatID,
-                    text: "Ты кто такой ЕСТЬ?" + Environment.NewLine + Environment.NewLine +
+                answer = string.Empty;
+                answer += $"Ты кто такой ЕСТЬ?" + Environment.NewLine + Environment.NewLine +
                     $"Создай героя!{Environment.NewLine}" +
-                    $"[ /createhero ]",
-                    parseMode: ParseMode.Html,
-                    cancellationToken: _cancellationToken);
-                
+                    $"[ /createhero ]";
+                Answer(answer, chatID);                
                 return;
             }
 
@@ -100,13 +98,7 @@ namespace ToilettenArbitrator.Brain
 
                     if (card != null)
                     {
-                        answer = "Такой персонаж уже есть";
-                        await _botClient.SendTextMessageAsync(
-                            chatId: chatID,
-                            text: answer,
-                            parseMode: ParseMode.Html,
-                            replyMarkup: new ReplyKeyboardRemove(),
-                            cancellationToken: _cancellationToken);
+                        Answer("Такой персонаж уже есть!", chatID);
                     }
                     else
                     {
@@ -123,36 +115,45 @@ namespace ToilettenArbitrator.Brain
                             Dirty = "0",
                             Inventory = "5|E|E|E|E|E|E|E|E|E|E|E|E|E|E|E",
                             EntryDate = $"{year}.{month}.{day}/{hour}:{minute}:{second}",
-                            TimersOne = $"E",
-                            TimersTwo = $"E",
+                            TimersOne = $"",
+                            TimersTwo = $"E|E|E",
                             Skills = $"E",
                             Talents = $"E",
-                            Money = money.JustRandom(7, 14)
+                            Money = money.JustRandom(100, 300)
                         };
 
                         answer = "Персонаж создан";
                         MDC.HeroCards.Add(NewHero);
                         MDC.SaveChanges();
 
-                        await _botClient.SendTextMessageAsync(
-                            chatId: chatID,
-                            text: answer,
-                            parseMode: ParseMode.Html,
-                            replyMarkup: new ReplyKeyboardRemove(),
-                            cancellationToken: _cancellationToken);
+                        Answer(answer, chatID);
                     }
                 }
             }
 
             if (messageText.ToLower().Contains("/shitshop"))
             {
-                Shop = new DeviceShop();
+                Answer(Shop.ShopInfo, chatID);
+            }
 
-                await _botClient.SendTextMessageAsync(
-                    chatId: ChatID,
-                    text: Shop.ShopInfo,
-                    parseMode: ParseMode.Html,
-                    cancellationToken: _cancellationToken);
+            if (messageText.ToLower().Contains(DeviceShop.WSHOP))
+            {
+                Answer(Shop.WeaponBar, chatID);
+            }
+
+            if (messageText.ToLower().Contains(DeviceShop.ASHOP))
+            {
+                Answer(Shop.ArmorBar, chatID);
+            }
+
+            if (messageText.ToLower().Contains(DeviceShop.HSHOP))
+            {
+                Answer(Shop.HelmetBar, chatID);
+            }
+
+            if (messageText.ToLower().Contains(DeviceShop.PSHOP))
+            {
+                Answer(Shop.PotionBar, chatID);
             }
 
             if (messageText.ToLower().Contains("/gmq"))
@@ -162,11 +163,7 @@ namespace ToilettenArbitrator.Brain
 
                 answer += $"{giveMeQuest.Hello}{giveMeQuest.AllQuestsInfo}";
 
-                await _botClient.SendTextMessageAsync(
-                    chatId: ChatID,
-                    text: answer,
-                    parseMode: ParseMode.Html,
-                    cancellationToken: _cancellationToken);
+                Answer(answer, chatID);
             }
 
             if (messageText.ToLower().Contains("/quest"))
@@ -180,19 +177,17 @@ namespace ToilettenArbitrator.Brain
                 {
                     questId = messageText.Replace("@ToilettenArbitratorBot", "");
                     questId = questId.Replace("/quest", "");
+
                 }
                 else
                 {
                     questId = messageText.Replace("/quest", "");
+
                 }
 
                 answer += $"{giveMeQuest.WhatQuest(questId)}";
 
-                await _botClient.SendTextMessageAsync(
-                    chatId: ChatID,
-                    text: answer,
-                    parseMode: ParseMode.Html,
-                    cancellationToken: _cancellationToken);
+                Answer(answer, chatID);
             }
 
             if (messageText.ToLower().Contains("/buy"))
@@ -211,11 +206,7 @@ namespace ToilettenArbitrator.Brain
 
                 if(hero.Money < Shop.PurchasedItem.Coast)
                 {
-                    await _botClient.SendTextMessageAsync(
-                        chatId: ChatID,
-                        text: "Нет у тебя ГОВНОТЕНГЕ!!!",
-                        parseMode: ParseMode.Html,
-                        cancellationToken: _cancellationToken);
+                    Answer("У тебя нет ГОВНОТЕНГЕ!", chatID);
                 }
                 else
                 {
@@ -223,27 +214,12 @@ namespace ToilettenArbitrator.Brain
 
                     if (hero.AddItem(Shop.PurchasedItem))
                     {
-                        // Не забудь отнять денег у игрока
-                        // Так же добавлять вещь через магазин,
-                        // а не прикастовывая новый предмет из воздуха
-                        // Так же не забудь записывать деньги в Банк
-                        // Который тоже необходимо создать
-
-                        await _botClient.SendTextMessageAsync(
-                            chatId: ChatID,
-                            text: "С обновкой!!!",
-                            parseMode: ParseMode.Html,
-                            cancellationToken: _cancellationToken);
+                        Answer("С обновкой!!!", chatID);
                     }
                     else
                     {
-                        await _botClient.SendTextMessageAsync(
-                            chatId: ChatID,
-                            text: "Твой рюкзак полон!!!",
-                            parseMode: ParseMode.Html,
-                            cancellationToken: _cancellationToken);
+                        Answer("Твоя сумка полна!", chatID);
                     }
-
                 }
             }
 
@@ -312,19 +288,9 @@ namespace ToilettenArbitrator.Brain
                     cancellationToken: _cancellationToken);
             }
 
-            if (messageText.ToLower().Contains("приве " + botName) || messageText.ToLower().Contains(botName + " " + "здравствуй"))
+            if (messageText.ToLower().Contains("привет @" + botName.ToLower()))
             {
-                for (int i = 0; i < 2; i++)
-                {
-                    answer = Hi.HelloSmile;
-
-                    await _botClient.SendTextMessageAsync(
-                        chatId: chatID,
-                        text: answer,
-                        parseMode: ParseMode.Html,
-                        replyMarkup: new ReplyKeyboardRemove(),
-                        cancellationToken: _cancellationToken);
-                }
+                Answer(Hi.HelloSmile, chatID);
             }
 
             if (messageText.ToLower().Contains("атака"))
@@ -343,31 +309,19 @@ namespace ToilettenArbitrator.Brain
                             "ПРЕДУПРЕЖДЕНИЕ" + Environment.NewLine +
                             "Арбитр всегда атакует в ответ" + Environment.NewLine +
                             botArena.AttackNotification;
-                        await _botClient.SendTextMessageAsync(
-                            chatId: chatID,
-                            text: answer,
-                            parseMode: ParseMode.Html,
-                            cancellationToken: _cancellationToken);
                     }
                     else
                     {
                         answer = arena.AttackNotification;
-                        await _botClient.SendTextMessageAsync(
-                            chatId: chatID,
-                            text: answer,
-                            parseMode: ParseMode.Html,
-                            cancellationToken: _cancellationToken);
                     }
                 }
                 else
                 {
                     answer = $"А кого ты пытаешься бить...? @{userName}";
-                    await _botClient.SendTextMessageAsync(
-                        chatId: chatID,
-                        text: answer,
-                        parseMode: ParseMode.Html,
-                        cancellationToken: _cancellationToken);
                 }
+                Answer(Hi.AttackSmile, chatID);
+                Answer(answer, chatID);
+                
             }
 
             if (messageText.ToLower().Contains("/heroinfo"))
@@ -375,11 +329,7 @@ namespace ToilettenArbitrator.Brain
                 Room = new ToiletRoom(userName, firstName, lastName);
                 answer = Room.HeroInfo();
 
-                await _botClient.SendTextMessageAsync(
-                    chatId: chatID,
-                    text: answer,
-                    parseMode: ParseMode.Html,
-                    cancellationToken: _cancellationToken);
+                Answer(answer, chatID);
             }
 
             if (messageText.ToLower().Contains("/go"))
@@ -463,11 +413,7 @@ namespace ToilettenArbitrator.Brain
                     answer += hero.InventoryData();
                 }
 
-                await _botClient.SendTextMessageAsync(
-                    chatId: chatID,
-                    text: answer,
-                    parseMode: ParseMode.Html,
-                    cancellationToken: _cancellationToken);
+                Answer(answer, chatID);
             }
 
             if (messageText.ToLower().Contains("/use"))
@@ -482,25 +428,13 @@ namespace ToilettenArbitrator.Brain
 
                 if (hero.UsePotion(useItemId))
                 {
-
                     answer += $"Ты стал чище на: {new HealingPotion(useItemId).EffectValue}";
-
-                    await _botClient.SendTextMessageAsync(
-                            chatId: chatID,
-                            text: answer,
-                            parseMode: ParseMode.Html,
-                            cancellationToken: _cancellationToken);
                 }
                 else
                 {
                     answer = $"У тебя нет такого предмета";
-
-                    await _botClient.SendTextMessageAsync(
-                            chatId: chatID,
-                            text: answer,
-                            parseMode: ParseMode.Html,
-                            cancellationToken: _cancellationToken);
                 }
+                Answer(answer, chatID);
             }
 
             if (messageText.ToLower().Contains("/equip"))
@@ -517,11 +451,7 @@ namespace ToilettenArbitrator.Brain
 
                 answer += $"Ты стал чище на: {new HealingPotion(equipItemId).EffectValue}";
 
-                await _botClient.SendTextMessageAsync(
-                        chatId: chatID,
-                        text: answer,
-                        parseMode: ParseMode.Html,
-                        cancellationToken: _cancellationToken);
+                Answer(answer, chatID);
             }
 
             if (messageText.ToLower().Contains("/give"))
@@ -564,11 +494,7 @@ namespace ToilettenArbitrator.Brain
                     hero.AddQuest(new QuestBox(questId));
                 }
 
-                await _botClient.SendTextMessageAsync(
-                    chatId: ChatID,
-                    text: answer,
-                    parseMode: ParseMode.Html,
-                    cancellationToken: _cancellationToken);
+                Answer(answer, chatID);
             }
 
             if (messageText.ToLower().Contains("/randomteleport"))
@@ -585,11 +511,7 @@ namespace ToilettenArbitrator.Brain
                     $"в точку:{Environment.NewLine}" +
                     $"Координаты [ X: {hero.PositionX} ] [ Y: {hero.PositionY} ]";
 
-                await _botClient.SendTextMessageAsync(
-                        chatId: chatID,
-                        text: answer,
-                        parseMode: ParseMode.Html,
-                        cancellationToken: _cancellationToken);
+                Answer(answer, chatID);
             }
 
             if (messageText.ToLower().Contains("/lookaround"))
@@ -603,11 +525,7 @@ namespace ToilettenArbitrator.Brain
                 answer += $"Ты находишься в {zoo.LocationMark} области{Environment.NewLine}Вокруг тебя:{Environment.NewLine}{Environment.NewLine}";
                 answer += zoo.MobsAround;
 
-                await _botClient.SendTextMessageAsync(
-                        chatId: chatID,
-                        text: answer,
-                        parseMode: ParseMode.Html,
-                        cancellationToken: _cancellationToken);
+                Answer(answer, chatID);
             }
 
             if (messageText.ToLower().Contains("/atk"))
@@ -618,15 +536,7 @@ namespace ToilettenArbitrator.Brain
                 answer = string.Empty;
                 string battleResult;
 
-                if (messageText.Contains("@ToilettenArbitratorBot"))
-                {
-                    _mobName = messageText.Replace("@ToilettenArbitratorBot", "");
-                    _mobName = _mobName.Replace("/atk", "");
-                }
-                else
-                {
-                    _mobName = messageText.Replace("/atk", "");
-                }
+                _mobName = TrimmingMessage(messageText, "atk");
 
                 if (zoo.MobFight(hero, _mobName, out loot, out battleResult))
                 {
@@ -642,12 +552,8 @@ namespace ToilettenArbitrator.Brain
                 {
                     answer += battleResult;
                 }
-
-                await _botClient.SendTextMessageAsync(
-                        chatId: chatID,
-                        text: answer,
-                        parseMode: ParseMode.Html,
-                        cancellationToken: _cancellationToken);
+                Answer(Hi.AttackSmile, chatID);
+                Answer(answer, chatID);
             }
 
             if (messageText.ToLower().Contains("/mob"))
@@ -660,11 +566,7 @@ namespace ToilettenArbitrator.Brain
                 
                 answer += zoo.MobInfo(_mobName, hero);
 
-                await _botClient.SendTextMessageAsync(
-                        chatId: chatID,
-                        text: answer,
-                        parseMode: ParseMode.Html,
-                        cancellationToken: _cancellationToken);
+                Answer(answer, chatID);
             }
 
             if (messageText.ToLower().Contains("/info"))
@@ -677,18 +579,14 @@ namespace ToilettenArbitrator.Brain
                 answer += $"( &#128176 {new Item(itemId).Coast} )" + Environment.NewLine + Environment.NewLine;
                 answer += $"{new Item(itemId).Description}";
 
-                await _botClient.SendTextMessageAsync(
-                        chatId: chatID,
-                        text: answer,
-                        parseMode: ParseMode.Html,
-                        cancellationToken: _cancellationToken);
+                Answer(answer, chatID);
             }
 
             if (messageText.ToLower().Contains("/abouttoilet"))
             {
                 answer = string.Empty;
                 answer += $"<i><b>Я оставлю это здесь, что-бы ты не забыл</b></i>{Environment.NewLine}" +
-                    $"Существа бегающие" +
+                    $"" +
                     $"{Environment.NewLine}" +
                     $"{Zoo.RED_ZONE} <b>Red Zone</b> {Environment.NewLine}[ X (0, 80) Y (0, 100) ]{Environment.NewLine}" +
                     $"{Zoo.BLUE_ZONE} <b>Blue Zone</b> {Environment.NewLine}[ X (120, 200) Y (100, 200)]{Environment.NewLine}" +
@@ -703,12 +601,26 @@ namespace ToilettenArbitrator.Brain
                     $"/go - Прогуляться{Environment.NewLine}" +
                     $"/lookaround - Поглядеть по сторонам{Environment.NewLine}" +
                     $"/randomteleport - Прыгни куда-нибудь{Environment.NewLine}" +
-                    $"/upstat - Раскачать характеристики{Environment.NewLine}" +
                     $"/shitshop - Говномагаз{Environment.NewLine}" +
+                    $"/gmq - ГивМиЭКвэст{Environment.NewLine}" +
+                    $"/upstat - Раскачать характеристики{Environment.NewLine}" +
                     $"/createhero - Создать героя{Environment.NewLine}" +
                     $"/abouttoilet - Про туалет{Environment.NewLine}" +
                     $"{Environment.NewLine}" +
-                    $"<b>ХОРОШЕЙ ИГРЫ</b> v.0.1a";
+                    $"Сокращения команд{Environment.NewLine}" +
+                    $"<i>Квесты</i>{Environment.NewLine}" +
+                    $"<code>[ Q ]</code> - инфа о квестах{Environment.NewLine}" +
+                    $"<code>[ G ]</code> - взять квест{Environment.NewLine}" +
+                    $"<i>Бой с мобами</i>{Environment.NewLine}" +
+                    $"<code>[ А ]</code> - атака по выбранному мобу{Environment.NewLine}" +
+                    $"<code>[ M ]</code> - инфа о выбранном мобе{Environment.NewLine}" +
+                    $"<i>Магазин</i>{Environment.NewLine}" +
+                    $"<code>[ B ]</code> - купить предмет{Environment.NewLine}" +
+                    $"<code>[ E ]</code> - экипировать предмет{Environment.NewLine}" +
+                    $"<code>[ U ]</code> - использовать предмет{Environment.NewLine}" +
+                    $"<code>[ I ]</code> - инфа о предмете{Environment.NewLine}" +
+                    $"<b>ХОРОШЕЙ ИГРЫ</b>{Environment.NewLine}" +
+                    $"<b>Helmut Schlosser</b> <i>v.0.1b</i>";
 
                 await _botClient.SendPhotoAsync(
                     chatId: chatID,
@@ -718,16 +630,45 @@ namespace ToilettenArbitrator.Brain
                     cancellationToken: _cancellationToken
                     );
             }
-            //if (messageText.ToLower().Contains("/cleanroom"))
-            //{
-            //    Bank.;
-            //}
-            //if (_update.ChosenInlineResult.Query.ToLower().Contains("north"))
-            //{
-            //
-            //}
 
+            if (messageText.ToLower().Contains("чистить"))
+            {
+                if (messageText.Contains("@"))
+                {
+                    string[] messageAttackArr = messageText.Split('@');
+                    enemyName = messageAttackArr[1];
 
+                    if (userName == enemyName)
+                    {
+                        Answer($"Себя можно почистить Чистящим средством!{Environment.NewLine}" +
+                            $"Оно есть в магазине{Environment.NewLine}" +
+                            $"[ /shitshop ]", chatID);
+                        return;
+                    }
+
+                    arena = new Arena(userName, enemyName);
+                    botArena = new Arena(botName, userName);
+
+                    if (enemyName.ToLower() == botName.ToLower())
+                    {
+                        answer = arena.AttackNotification + Environment.NewLine + Environment.NewLine +
+                            "ПРЕДУПРЕЖДЕНИЕ" + Environment.NewLine +
+                            "Арбитр всегда чистит ответ!!" + Environment.NewLine +
+                            botArena.CleanUpNotification;
+                    }
+                    else
+                    {
+                        answer = arena.CleanUpNotification;
+                    }
+                }
+                else
+                {
+                    answer = $"А кого ты пытаешься чистить...? @{userName}";
+                }
+                Answer(answer, chatID);
+            }
+
+            DemiGodSpells();
         }
 
         public async void Answer(string message)
@@ -748,8 +689,70 @@ namespace ToilettenArbitrator.Brain
                 text: message,
                 parseMode: ParseMode.Html,
                 cancellationToken: _cancellationToken);
+        }
 
-            new LogsConstructor().ConsoleEcho(_update, LogsConstructor.SaveLogs.Save);
+        private void ChanceSick()
+        {
+
+        }
+
+        public async void DemiGodSpells()
+        {
+            if (messageText.ToLower().Contains("/hcw@"))
+            {
+                if (hero.DemiGod)
+                {
+                    Room = new ToiletRoom();
+                    string playerId = TrimmingMessage(messageText, "hcw@");
+                    hero = new Hero(MDC.HeroCards.ToList().Find(player => player.Name.Contains(playerId.ToLower())));
+                    Room.PlayerInfo(hero);
+                    Answer(Room.HeroInfo(), chatID);
+                }
+                else
+                {
+                    Answer("Хозяин! Тут кто не поподя, руки свои засовывает туда, куда не стоит! Может его ТОКОМ?!", chatID);
+                }
+            }
+
+            if (messageText.ToLower().Contains("/ham@"))
+            {
+                if (hero.DemiGod)
+                {
+                    long coins = 0;
+                    string[] data = TrimmingMessage(messageText, "ham@").Split('.');
+                    string playerId = data[0];
+                    coins = long.Parse(data[1]);
+
+                    hero = new Hero(MDC.HeroCards.ToList().Find(player => player.Name.Contains(playerId.ToLower())));
+                    hero.TakeMoney(coins);
+                    Answer($"Озолотили {hero.Name.ToUpper()} на {coins} ГовноТенге", chatID);
+                }
+                else
+                {
+                    Answer("Хозяин! Тут кто не поподя, руки свои засовывает туда, куда не стоит! Может его ТОКОМ?!", chatID);
+                }
+            }
+
+            if (messageText.ToLower().Contains("/hrt@"))
+            {
+                if (hero.DemiGod)
+                {
+                    int x = 0;
+                    int y = 0;
+                    string[] data = TrimmingMessage(messageText, "hrt@").Split('.');
+                    string playerId = data[0];
+                    x = int.Parse(data[1]);
+                    y = int.Parse(data[2]);
+                    hero = new Hero(MDC.HeroCards.ToList().Find(player => player.Name.Contains(playerId.ToLower())));
+                    hero.ChangePosition(default, new int[] { x, y });
+                    Answer($"Переместили {hero.Name.ToUpper()} [ {x} : {y} ]", chatID);
+                }
+                else
+                {
+                    Answer("Хозяин! Тут кто не поподя, руки свои засовывает туда, куда не стоит! Может его ТОКОМ?!", chatID);
+                }
+            }
+
         }
 
         public string TrimmingMessage(string message, string trimWord)

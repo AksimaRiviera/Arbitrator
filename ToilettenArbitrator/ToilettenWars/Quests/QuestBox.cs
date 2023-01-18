@@ -98,7 +98,7 @@ namespace ToilettenArbitrator.ToilettenWars
         public bool Managed()
         {
             _progressCount += 1;
-            if (_progressCount == _totalCount)
+            if (_totalCount == _progressCount)
             {
                 return true;
             }

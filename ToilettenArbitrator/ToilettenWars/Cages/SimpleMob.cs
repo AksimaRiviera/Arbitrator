@@ -1,4 +1,5 @@
 ﻿using ToilettenArbitrator.ToilettenWars.Items;
+using ToilettenArbitrator.ToilettenWars.Person;
 
 namespace ToilettenArbitrator.ToilettenWars.Cages
 {
@@ -8,6 +9,9 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
         private float _levelFactor;
 
         private string _status;
+        private string[] _illData = new string[] {
+            "golova", "zlato"
+        };
 
         // _lootArgs
         // [0] - тип возраста
@@ -243,6 +247,12 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
                     _status += $"{Icons["A_Brain"]} ]";
                     break;
             }
+        }
+
+        public override Ill Infect()
+        {
+            if (new SilverDice().Luck(8)) return new Ill(_illData[new Random().Next(_illData.Length)]);
+            else return new Ill();
         }
     }
 }

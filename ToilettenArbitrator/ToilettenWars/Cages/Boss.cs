@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ToilettenArbitrator.ToilettenWars.Items;
+using ToilettenArbitrator.ToilettenWars.Person;
 using Windows.UI.Xaml.Controls;
 
 namespace ToilettenArbitrator.ToilettenWars.Cages
@@ -15,6 +16,7 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
 
         private Zoo.Zones _bossDirection;
         private string _zoneMark;
+        private string[] _illData;
         private BossZoneMod _bossZoneMod;
 
         protected enum BossZoneMod
@@ -94,6 +96,12 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
         {
 
             throw new NotImplementedException();
+        }
+
+        public override Ill Infect()
+        {
+            if (new SilverDice().Luck(15)) return new Ill(_illData[new Random().Next(_illData.Length)]);
+            else return new Ill();
         }
     }
 }
