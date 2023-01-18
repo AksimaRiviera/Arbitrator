@@ -149,12 +149,11 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         }
         public void TakeLootBox(LootBox lootBox)
         {
-            _levelExpirience += lootBox.Expirience;
-            _money += lootBox.Cash;
-            _rankExpirience += lootBox.RankPoints;
+            ChangeLevelExpirience(lootBox.Expirience);
+            TakeMoney(lootBox.Cash);
+            ChangeRankExpirience(lootBox.RankPoints);
 
             _card.Money = _money;
-
             _card.Expirience = $"{LevelExpirience}|{RankExpirience}";
             _card.LevelRank = $"{Level}.{(int)Rank}";
             _card.Atributes = $"{Toxic}.{Fats}.{Stomach}.{Metabolism}.{FreePoints}";
@@ -570,8 +569,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         public void TakeMoney(long cash)
         {
             _money += cash;
-
-            
 
             _card.Money = _money;
 

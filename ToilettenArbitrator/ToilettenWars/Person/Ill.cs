@@ -63,6 +63,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
         private void MainSettings()
         {
+            if (_card == null) return;
             _grade = IllGrade.Incubation;
 
             _title = _card.Title;
