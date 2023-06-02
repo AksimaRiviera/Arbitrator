@@ -75,9 +75,13 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
         public long Money => _money;
 
-        public int MaxLevelExpirience => (Toxic + Fats + Stomach + Metabolism + Level + FreePoints) * EXPIRIENCE_LEVEL_FACTOR;
+        public int MaxLevelExpirience => ((Toxic + Fats + Stomach + Metabolism + Level + FreePoints) * EXPIRIENCE_LEVEL_FACTOR) * LevelCorrection;
 
         public int MaxRankExpirience => (int)_rank * EXPIRIENCE_RANK_FACTOR;
+
+        public Ill Parasite => _parasite;
+        public Ill Phisical => _phisical;
+        public Ill Mental => _mental;
 
         public Weapon Weapon => _weapon;
         public Armor Armor => _armor;
@@ -265,8 +269,10 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                 return false;
             }
         }
-        public bool UsePotion(string ItemId)
+        public bool UsePotion(string ItemId, out string CureInfo)
         {
+            CureInfo = string.Empty;
+
             if (_inventory.Exists(item => item.ItemID.Contains(ItemId)) == false)
             {
                 return false;
@@ -347,9 +353,20 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                     }
                 }
 
+                string parasiteInfo, phisicalInfo, mentalInfo;
+
+                parasiteInfo = $"{_parasite.Title}";
+                phisicalInfo = $"{_phisical.Title}";
+                mentalInfo = $"{_mental.Title}";
+
+                if (_parasite.Cure(ItemId)) CureInfo = $"Болезнь {parasiteInfo} вылечена!";
+                if (_phisical.Cure(ItemId)) CureInfo = $"Болезнь {phisicalInfo} вылечена!";
+                if (_mental.Cure(ItemId)) CureInfo = $"Болезнь {mentalInfo} вылечена!";
+
                 _card.Dirty = $"{_dirty}";
                 MDC.Update(_card);
                 MDC.SaveChanges();
+                IllSave();
                 return true;
             }
         }

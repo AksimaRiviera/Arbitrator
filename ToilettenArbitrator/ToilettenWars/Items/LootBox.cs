@@ -1,5 +1,6 @@
 ﻿using ToilettenArbitrator.ToilettenWars.Items.Interfaces;
 using ToilettenArbitrator.ToilettenWars.Items.Types;
+using Uno.UI.DataBinding;
 
 namespace ToilettenArbitrator.ToilettenWars.Items
 {
@@ -142,7 +143,6 @@ namespace ToilettenArbitrator.ToilettenWars.Items
                     _cash = STANDART_CASH_FACTOR;
                     break;
             }
-
         }
 
         private void RandomizePrize(string[] mobArgs)
@@ -237,20 +237,37 @@ namespace ToilettenArbitrator.ToilettenWars.Items
 
                 case ItemsType.Armor:
                     return new Item(_standartArmorID[new Random().Next(_standartArmorID.Length)]);
+
                 case ItemsType.Shield:
                     return new Item(_standartArmorID[new Random().Next(_standartArmorID.Length)]);
+
                 case ItemsType.Helmet:
                     return new Item(_standartArmorID[new Random().Next(_standartArmorID.Length)]);
+
                 case ItemsType.Boots:
                     return new Item(_standartArmorID[new Random().Next(_standartArmorID.Length)]);
+
                 case ItemsType.Gloves:
                     return new Item(_standartArmorID[new Random().Next(_standartArmorID.Length)]);
+
                 case ItemsType.HealPotion:
                     return new Item(_standartArmorID[new Random().Next(_standartArmorID.Length)]);
+
                 case ItemsType.OtherPotion:
                     return new Item(_standartArmorID[new Random().Next(_standartArmorID.Length)]);
+
                 default:
                     return new Item(_standartArmorID[new Random().Next(_standartArmorID.Length)]);
+            }
+        }
+
+        private void ItemBox(string[] Ids)
+        {
+            if (Ids == null) _items.Add(new Item());
+
+            for (int i = 0; i < Ids.Length; i++)
+            {
+                _items.Add(new Item(Ids[i]));
             }
         }
     }

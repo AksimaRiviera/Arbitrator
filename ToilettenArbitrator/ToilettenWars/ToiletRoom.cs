@@ -28,6 +28,10 @@ namespace ToilettenArbitrator.ToilettenWars
             "&#128081", "&#128519"
         };
 
+        private string[] _heroIllsMark = new string[] {
+            "&#129712 &#128315", "&#128170 &#128315", "&#129504 &#128315",
+        };
+
         private string[] _dataMass = new string[2];
 
         
@@ -142,11 +146,16 @@ namespace ToilettenArbitrator.ToilettenWars
         public string HeroInfo()
         {
             if (_hero.Name == null) return "Такого героя не существует!";
+            if (!_hero.Parasite.ID.Contains("E")) _hero.IllsTick();
+            if (!_hero.Phisical.ID.Contains("E")) _hero.IllsTick();
+            if (!_hero.Mental.ID.Contains("E")) _hero.IllsTick();
+
 
             string _weaponDamageInfo = string.Empty;
             string _heroLocationMark = string.Empty;
             string _questsInfo = string.Empty;
             string _heroMark = string.Empty;
+            string _heroIllInfo = string.Empty;
 
             if (_hero.Weapon.Name.Contains("ничего"))
             {
@@ -196,6 +205,10 @@ namespace ToilettenArbitrator.ToilettenWars
                 }
             }
 
+            if (_hero.Parasite.ID != "E") _heroIllInfo += _heroIllsMark[0] + " ";
+            if (_hero.Phisical.ID != "E") _heroIllInfo += _heroIllsMark[1] + " ";
+            if (_hero.Mental.ID != "E") _heroIllInfo += _heroIllsMark[2] + " ";
+
             if (_hero.DemiGod)
             {
                 _heroMark = _heroStatusIco[1];
@@ -215,10 +228,12 @@ namespace ToilettenArbitrator.ToilettenWars
                 $"&#127894 <b>Ранг:</b> " +
                 $"[ <i>{string.Format("{0:F2}", _hero.RankExpirience)} / {_hero.MaxRankExpirience}</i> &#9884 ]" +
                 $"{Environment.NewLine}" +
-                $"{_hero.Heart} <b>Грязь:</b> ( <i>{string.Format("{0:p2}", (decimal)(_hero.Dirty / _hero.MaximumDirty))}</i> )" +
+                $"{_hero.Heart} <b>Грязь:</b> ( <i>{string.Format("{0:p2}", (decimal)(_hero.Dirty / _hero.MaximumDirty))} | " +
+                $"{string.Format("{0:f2}", _hero.MaximumDirty)}</i> )" +
                 $"{Environment.NewLine}" +
                 $"&#128176 <b>ГовноТенге:</b> <i>{_hero.Money} </i>" +
                 $"{Environment.NewLine}" +
+                $"{_heroIllInfo}" +
                 $"{Environment.NewLine}" +
                 $"<b>&#129314 Токсичность:</b> {_hero.Toxic}" +
                 $"{Environment.NewLine}" +

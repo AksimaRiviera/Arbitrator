@@ -426,9 +426,11 @@ namespace ToilettenArbitrator.Brain
                 answer = $"Ты применил{Environment.NewLine}{new Item(useItemId).Name}{Environment.NewLine}" +
                     $"{new Item(useItemId).Description}{Environment.NewLine}";
 
-                if (hero.UsePotion(useItemId))
+                if (hero.UsePotion(useItemId, out string CureInfo))
                 {
-                    answer += $"Ты стал чище на: {new HealingPotion(useItemId).EffectValue}";
+                    answer += $"Ты стал чище на: {new HealingPotion(useItemId).EffectValue}" +
+                        $"{Environment.NewLine}" +
+                        $"{CureInfo}";
                 }
                 else
                 {
@@ -444,7 +446,7 @@ namespace ToilettenArbitrator.Brain
                 hero = new Hero(heroes.Find(person => person.Name.Contains(userName.ToLower())));
 
                 answer = string.Empty;
-                answer = $"Ты применил{Environment.NewLine}{new Item(equipItemId).Name}{Environment.NewLine}" +
+                answer = $"Экипировано:{Environment.NewLine}{new Item(equipItemId).Name}{Environment.NewLine}" +
                     $"{new Item(equipItemId).Description}{Environment.NewLine}";
 
                 hero.EquipItem(equipItemId);
@@ -544,7 +546,8 @@ namespace ToilettenArbitrator.Brain
                     answer += $"&#128230 ( " +
                         $"&#128176 {loot.Cash} | " +
                         $"&#128167 {string.Format("{0:F3}", loot.Expirience)} | " +
-                        $"&#9884 {string.Format("{0:F3}", loot.RankPoints)} ) {Environment.NewLine}{Environment.NewLine}";
+                        $"&#9884 {string.Format("{0:F3}", loot.RankPoints)} ) {Environment.NewLine}" +
+                        $"{Environment.NewLine}";
                     answer += battleResult + $"был забит оружием \"{hero.Weapon.Name}\"{Environment.NewLine}";
                     hero.TakeLootBox(loot);
                 }

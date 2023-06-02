@@ -4,6 +4,7 @@ using Telegram.Bot;
 using Telegram.Bot.Types;
 using ToilettenArbitrator.Brain;
 using ToilettenArbitrator.ToilettenWars.Cages;
+using ToilettenArbitrator.ToilettenWars.Cages.MobTypes;
 using ToilettenArbitrator.ToilettenWars.Items;
 using ToilettenArbitrator.ToilettenWars.Person;
 using Windows.Devices.PointOfService;
@@ -24,7 +25,7 @@ namespace ToilettenArbitrator.ToilettenWars
 
         private MembersDataContext MDC = new MembersDataContext();
 
-        private const float MOBS_POPULATION_FACTOR = 0.68f;
+        private const float MOBS_POPULATION_FACTOR = 0.28f;
         private const float BOSS_POPULATION_FACTOR = 0.02f;
 
         public readonly static int[] RED_ZONE_COORDINATES = new int[5] { 0, 80, 0, 100, 8000 };
@@ -43,13 +44,15 @@ namespace ToilettenArbitrator.ToilettenWars
 
         private List<MobCard> _mobsData = new List<MobCard>();
 
-        private List<SimpleMob> _mobsAround = new List<SimpleMob>();
-        private List<SimpleMob> _blueZoneMobs = new List<SimpleMob>();
-        private List<SimpleMob> _redZoneMobs = new List<SimpleMob>();
-        private List<SimpleMob> _greenZoneMobs = new List<SimpleMob>();
-        private List<SimpleMob> _purpleZoneMobs = new List<SimpleMob>();
-        private List<SimpleMob> _blackZoneMobs = new List<SimpleMob>();
-        private List<SimpleMob> _whiteZoneMobs = new List<SimpleMob>();
+        private List<MobCard> _bossData = new List<MobCard>();
+
+        private List<Mob> _mobsAround = new List<Mob>();
+        private List<Mob> _blueZoneMobs = new List<Mob>();
+        private List<Mob> _redZoneMobs = new List<Mob>();
+        private List<Mob> _greenZoneMobs = new List<Mob>();
+        private List<Mob> _purpleZoneMobs = new List<Mob>();
+        private List<Mob> _blackZoneMobs = new List<Mob>();
+        private List<Mob> _whiteZoneMobs = new List<Mob>();
 
         private List<Boss> _redBosses = new List<Boss>();
         private List<Boss> _blueBosses = new List<Boss>();
@@ -58,10 +61,11 @@ namespace ToilettenArbitrator.ToilettenWars
         private List<Boss> _blackBosess = new List<Boss>();
         private List<Boss> _whiteBosess = new List<Boss>();
 
-        private SimpleMob _attackingMob;
+        private Mob _attackingMob;
         private Boss _attackingBoss;
 
         private int _heroPositionX, _heroPositionY;
+        private int[] _mobsTypeData;
         private string _locationMark, _mobsAroundInfo, _mobInfo, _bossAroundInfo, _bossInfo;
         private Zones _heroLocated;
 
@@ -85,66 +89,72 @@ namespace ToilettenArbitrator.ToilettenWars
 
         public Zoo()
         {
-            _mobsData = MDC.MobCards.ToList();
+            for (int i = 0; i < MDC.MobCards.ToList().Count; i++)
+            {
+                if (new Mob(MDC.MobCards.ToList()[i]).Type == MobType.Boss)
+                {
+                    _bossData.Add(MDC.MobCards.ToList()[i]);            
+                }
+                else
+                {
+                    _mobsData.Add(MDC.MobCards.ToList()[i]);
+                }
+            }
+
+            _mobsTypeData = new int[_mobsData.Count];
 
             for (int i = 0; i < RED_ZONE_COORDINATES[4] * MOBS_POPULATION_FACTOR; i++)
             {
-                _redZoneMobs.Add(new SimpleMob(_mobsData[new Random().Next(_mobsData.Count)]));
+                _redZoneMobs.Add(new Mob(_mobsData[new Random().Next(_mobsData.Count)]));
                 _redZoneMobs[i].GoCoordinate(
-                    new SilverDice().JustRandom(
-                        new Random().Next(RED_ZONE_COORDINATES[0]), new Random().Next(RED_ZONE_COORDINATES[1])),
-                    new SilverDice().JustRandom(
-                        new Random().Next(RED_ZONE_COORDINATES[2]), new Random().Next(RED_ZONE_COORDINATES[3])));
+                    new SilverDice().JustRandom(RED_ZONE_COORDINATES[0], RED_ZONE_COORDINATES[1]),
+                    new SilverDice().JustRandom(RED_ZONE_COORDINATES[2], RED_ZONE_COORDINATES[3]));
+                WhatMobsCounter(_redZoneMobs[i]);
             }
 
             for (int i = 0; i < BLUE_ZONE_COORDINATES[4] * MOBS_POPULATION_FACTOR; i++)
             {
-                _blueZoneMobs.Add(new SimpleMob(_mobsData[new Random().Next(_mobsData.Count)]));
+                _blueZoneMobs.Add(new Mob(_mobsData[new Random().Next(_mobsData.Count)]));
                 _blueZoneMobs[i].GoCoordinate(
-                    new SilverDice().JustRandom(
-                        new Random().Next(BLUE_ZONE_COORDINATES[0]), new Random().Next(BLUE_ZONE_COORDINATES[1])),
-                    new SilverDice().JustRandom(
-                        new Random().Next(BLUE_ZONE_COORDINATES[2]), new Random().Next(BLUE_ZONE_COORDINATES[3])));
+                    new SilverDice().JustRandom(BLUE_ZONE_COORDINATES[0], BLUE_ZONE_COORDINATES[1]),
+                    new SilverDice().JustRandom(BLUE_ZONE_COORDINATES[2], BLUE_ZONE_COORDINATES[3]));
+                WhatMobsCounter(_blueZoneMobs[i]);
             }
 
             for (int i = 0; i < GREEN_ZONE_COORDINATES[4] * MOBS_POPULATION_FACTOR; i++)
             {
-                _greenZoneMobs.Add(new SimpleMob(_mobsData[new Random().Next(_mobsData.Count)]));
+                _greenZoneMobs.Add(new Mob(_mobsData[new Random().Next(_mobsData.Count)]));
                 _greenZoneMobs[i].GoCoordinate(
-                    new SilverDice().JustRandom(
-                        new Random().Next(GREEN_ZONE_COORDINATES[0]), new Random().Next(GREEN_ZONE_COORDINATES[1])),
-                    new SilverDice().JustRandom(
-                        new Random().Next(GREEN_ZONE_COORDINATES[2]), new Random().Next(GREEN_ZONE_COORDINATES[3])));
+                    new SilverDice().JustRandom(GREEN_ZONE_COORDINATES[0], GREEN_ZONE_COORDINATES[1]),
+                    new SilverDice().JustRandom(GREEN_ZONE_COORDINATES[2], GREEN_ZONE_COORDINATES[3]));
+                WhatMobsCounter(_greenZoneMobs[i]);
             }
 
             for (int i = 0; i < PURPLE_ZONE_COORDINATES[4] * MOBS_POPULATION_FACTOR; i++)
             {
-                _purpleZoneMobs.Add(new SimpleMob(_mobsData[new Random().Next(_mobsData.Count)]));
+                _purpleZoneMobs.Add(new Mob(_mobsData[new Random().Next(_mobsData.Count)]));
                 _purpleZoneMobs[i].GoCoordinate(
-                    new SilverDice().JustRandom(
-                        new Random().Next(PURPLE_ZONE_COORDINATES[0]), new Random().Next(PURPLE_ZONE_COORDINATES[1])),
-                    new SilverDice().JustRandom(
-                        new Random().Next(PURPLE_ZONE_COORDINATES[2]), new Random().Next(PURPLE_ZONE_COORDINATES[3])));
+                    new SilverDice().JustRandom(PURPLE_ZONE_COORDINATES[0], PURPLE_ZONE_COORDINATES[1]),
+                    new SilverDice().JustRandom(PURPLE_ZONE_COORDINATES[2], PURPLE_ZONE_COORDINATES[3]));
+                WhatMobsCounter(_purpleZoneMobs[i]);
             }
 
             for (int i = 0; i < BLACK_ZONE_COORDINATES[4] * MOBS_POPULATION_FACTOR; i++)
             {
-                _blackZoneMobs.Add(new SimpleMob(_mobsData[new Random().Next(_mobsData.Count)]));
+                _blackZoneMobs.Add(new Mob(_mobsData[new Random().Next(_mobsData.Count)]));
                 _blackZoneMobs[i].GoCoordinate(
-                    new SilverDice().JustRandom(
-                        new Random().Next(BLACK_ZONE_COORDINATES[0]), new Random().Next(BLACK_ZONE_COORDINATES[1])),
-                    new SilverDice().JustRandom(
-                        new Random().Next(BLACK_ZONE_COORDINATES[2]), new Random().Next(BLACK_ZONE_COORDINATES[3])));
+                    new SilverDice().JustRandom(BLACK_ZONE_COORDINATES[0], BLACK_ZONE_COORDINATES[1]),
+                    new SilverDice().JustRandom(BLACK_ZONE_COORDINATES[2], BLACK_ZONE_COORDINATES[3]));
+                WhatMobsCounter(_blackZoneMobs[i]);
             }
 
             for (int i = 0; i < WHITE_ZONE_COORDINATES[4] * MOBS_POPULATION_FACTOR; i++)
             {
-                _whiteZoneMobs.Add(new SimpleMob(_mobsData[new Random().Next(_mobsData.Count)]));
+                _whiteZoneMobs.Add(new Mob(_mobsData[new Random().Next(_mobsData.Count)]));
                 _whiteZoneMobs[i].GoCoordinate(
-                    new SilverDice().JustRandom(
-                        new Random().Next(WHITE_ZONE_COORDINATES[0]), new Random().Next(WHITE_ZONE_COORDINATES[1])),
-                    new SilverDice().JustRandom(
-                        new Random().Next(WHITE_ZONE_COORDINATES[2]), new Random().Next(WHITE_ZONE_COORDINATES[3])));
+                    new SilverDice().JustRandom(WHITE_ZONE_COORDINATES[0], WHITE_ZONE_COORDINATES[1]),
+                    new SilverDice().JustRandom(WHITE_ZONE_COORDINATES[2], WHITE_ZONE_COORDINATES[3]));
+                WhatMobsCounter(_whiteZoneMobs[i]);
             }
 
         }
@@ -267,7 +277,7 @@ namespace ToilettenArbitrator.ToilettenWars
                     break;
 
                 default:
-                    _attackingMob = new SimpleMob(_mobsData[_mobsData.Count]);
+                    _attackingMob = new Mob(_mobsData[_mobsData.Count]);
                     break;
             }
 
@@ -314,7 +324,10 @@ namespace ToilettenArbitrator.ToilettenWars
                         if (hero.Gotcha(hero.Quests[i].QuestID, _attackingMob.Id))
                         {
                             _questCompleteText += $"{new HelloSynapse().GreatWords.ToUpper()}" + Environment.NewLine;
-                            _questCompleteText += $"Квест: <u><i>{new QuestBox(_questID).Title}</i></u> ЗАВЕРШЁН!";
+                            _questCompleteText += $"Квест: <u><i>{new QuestBox(_questID).Title}</i></u> ЗАВЕРШЁН!" + Environment.NewLine;
+                            _questCompleteText += $"&#128230 ( &#128176 {new QuestBox(_questID).Prize.Cash} | " +
+                                $"&#128167 {string.Format("{0:f2}", new QuestBox(_questID).Prize.Expirience)} | " +
+                                $"&#9884 {string.Format("{0:f2}", new QuestBox(_questID).Prize.RankPoints)} )" + Environment.NewLine;
                         }
                         else
                         {
@@ -331,9 +344,9 @@ namespace ToilettenArbitrator.ToilettenWars
             else
             {
                 battleResult += $"&#9888 <b>A C H T U N G</b> &#9888{Environment.NewLine}" +
-                        $"@{hero.Name} ({hero.Heart} {string.Format("{0:f3}", hero.Dirty)} / {string.Format("{0:f1}", hero.MaximumDirty)}){Environment.NewLine}&#9876 &#9876 &#9876 &#9876 ";
-                battleResult += $"{Environment.NewLine}<i>\"{_attackingMob.SubName}\" {_attackingMob.Name}</i>{Environment.NewLine}" +
-                    $"({string.Format("{0:f3}", _attackingMob.HitPoints)} / {string.Format("{0:f1}", _attackingMob.MaximumHitPoints)}){Environment.NewLine}{Environment.NewLine}";
+                        $"@{hero.Name} ( {hero.Heart} | {string.Format("{0:f2}", hero.Dirty)} ){Environment.NewLine}&#9876 &#9876 &#9876 &#9876 ";
+                battleResult += $"{Environment.NewLine}<i>\"{_attackingMob.SubName}\" {_attackingMob.Name}</i> " + Environment.NewLine +
+                    $"({string.Format("{0:f2}", _attackingMob.HitPoints)} / {string.Format("{0:f1}", _attackingMob.MaximumHitPoints)}){Environment.NewLine}{Environment.NewLine}";
                     
                 hero.AddDamage(_attackingMob.Damage);
                 battleResult += $"<b>{_attackingMob.Name}</b> ударил в ответ {string.Format("{0:f2}", _attackingMob.Damage)} - {string.Format("{0:f2}", hero.Defence)}";
@@ -409,7 +422,7 @@ namespace ToilettenArbitrator.ToilettenWars
             }
         }
 
-        private string InfoSorter(List<SimpleMob> mobs)
+        private string InfoSorter(List<Mob> mobs)
         {
             _mobsAroundInfo = string.Empty;
             if (mobs.Count > 7)
@@ -533,7 +546,7 @@ namespace ToilettenArbitrator.ToilettenWars
             }
         }
 
-        private bool NearPosition(SimpleMob mob, int heroX, int heroY)
+        private bool NearPosition(Mob mob, int heroX, int heroY)
         {
             if (mob.PositionX <= heroX + 5 && mob.PositionX >= heroX - 5 &&
                 mob.PositionY <= heroY + 5 && mob.PositionY >= heroY - 5)
@@ -580,24 +593,73 @@ namespace ToilettenArbitrator.ToilettenWars
             return _mobInfo;
         }
 
-        public void WalkingMobs(ITelegramBotClient botClient, Telegram.Bot.Types.Update update, CancellationToken cancellationToken)
+        public void CagesData()
         {
-            for (int i = 0; i < RED_ZONE_COORDINATES[4] * MOBS_POPULATION_FACTOR; i++)
+            //List<string, int> MobsSeparator = new List<string, int>();
+            //for (int i = 0; i < _mobsData.Count; i++)
+            //{
+            //    MobsSeparator.Add(_mobsData[i].Id, 0);
+            //}
+        
+            string infoLine = string.Empty;
+            int redMobs = _redZoneMobs.Count;
+            int blueMobs = _blueZoneMobs.Count;
+            int greenMobs = _greenZoneMobs.Count;
+            int purpleMobs = _purpleZoneMobs.Count;
+            int blackMobs = _blackZoneMobs.Count;
+            int whiteMobs = _whiteZoneMobs.Count;
+            
+            infoLine += $"> Красная зона: {redMobs}" + Environment.NewLine;
+            infoLine += $"> Синяя зона: {blueMobs}" + Environment.NewLine;
+            infoLine += $"> Зелёная зона: {greenMobs}" + Environment.NewLine;
+            infoLine += $"> Фиолетовая зона: {purpleMobs}" + Environment.NewLine;
+            infoLine += $"> Чёрная зона: {blackMobs}" + Environment.NewLine;
+            infoLine += $"> Белая зона: {whiteMobs}" + Environment.NewLine + Environment.NewLine;
+            
+            for (int i = 0; i < _mobsData.Count; i++)
             {
-                _redZoneMobs[i].Step();
-                _blueZoneMobs[i].Step();
+                infoLine += $"> {i + 1}. " + _mobsData[i].Name + ": " + _mobsTypeData[i] + Environment.NewLine;
             }
-            for (int i = 0; i < GREEN_ZONE_COORDINATES[4] * MOBS_POPULATION_FACTOR; i++)
+            infoLine += Environment.NewLine;
+            infoLine += $"> Всего мобов: {redMobs + blueMobs + greenMobs + purpleMobs + blackMobs + whiteMobs}" + Environment.NewLine;
+
+
+            Console.WriteLine(infoLine);
+        }
+
+
+        private void WhatMobsCounter(Mob mob)
+        {
+            for (int i = 0; i < _mobsData.Count; i++)
             {
-                _greenZoneMobs[i].Step();
-                _purpleZoneMobs[i].Step();
+                if (mob.Id == _mobsData[i].Id)
+                {
+                    _mobsTypeData[i] += 1;
+                }
+                else
+                {
+                    continue;
+                }
             }
-            for (int i = 0; i < WHITE_ZONE_COORDINATES[4] * MOBS_POPULATION_FACTOR; i++)
-            {
-                _blueZoneMobs[i].Step();
-                _whiteZoneMobs[i].Step();
-            }
-            new MainSynapse(botClient, update, cancellationToken).Answer("Смещение");
-        }        
+        }
+        //public void WalkingMobs(ITelegramBotClient botClient, Telegram.Bot.Types.Update update, CancellationToken cancellationToken)
+        //{
+        //    for (int i = 0; i < RED_ZONE_COORDINATES[4] * MOBS_POPULATION_FACTOR; i++)
+        //    {
+        //        _redZoneMobs[i].Step();
+        //        _blueZoneMobs[i].Step();
+        //    }
+        //    for (int i = 0; i < GREEN_ZONE_COORDINATES[4] * MOBS_POPULATION_FACTOR; i++)
+        //    {
+        //        _greenZoneMobs[i].Step();
+        //        _purpleZoneMobs[i].Step();
+        //    }
+        //    for (int i = 0; i < WHITE_ZONE_COORDINATES[4] * MOBS_POPULATION_FACTOR; i++)
+        //    {
+        //        _blueZoneMobs[i].Step();
+        //        _whiteZoneMobs[i].Step();
+        //    }
+        //    new MainSynapse(botClient, update, cancellationToken).Answer("Смещение");
+        //}        
     }
 }

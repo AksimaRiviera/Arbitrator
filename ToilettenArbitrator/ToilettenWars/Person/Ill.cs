@@ -10,6 +10,9 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 {
     public class Ill
     {
+        //private int[] _parasiteGradeLevels = new int[3] { 
+        //    
+        //};
         private MembersDataContext MDC = new MembersDataContext();
         private IllCard _card = new IllCard();
 
@@ -17,6 +20,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         private string _title;
         private string _description;
         private string _medicine;
+        private string _sufferingParameter;
         private string[] _factorsData;
         private string[] _data;
         private string[] _icoMass = { "&#129439", "", "" };
@@ -27,6 +31,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
         private int _stepTotal;
         private int _step;
+        
 
         private StringBuilder _info = new StringBuilder();
         private IllType _type;
@@ -36,7 +41,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         public string Title => _title;
         public string Description => _description;
         public string Info => _info.ToString();
-
+        public string SufferingParameter => _sufferingParameter;
         public int Step => _step;
         //public int 
 
@@ -70,6 +75,9 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             _description = _card.Description;
             _medicine = _card.Medicine;
             _data = _card.Data.Split('|');
+
+            _sufferingParameter = _data[1];
+
             TypeSettings();
             GetInfo();
         }
@@ -101,6 +109,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
                     _minimumFactor = float.Parse(_factorsData[0]);
                     _maximumFactor = float.Parse(_factorsData[0]);
                     _mainFactor = float.Parse(_factorsData[0]);
+                    _stepTotal = int.Parse(_factorsData[1]);
                     break;
                 case "phisical":
                     _type = IllType.Phisical;
@@ -244,26 +253,36 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             _mainFactor = 0;
             _minimumFactor = 0;
             _maximumFactor = 0;
+            _step = 0;
             _type = default;
             _grade = default;
         }
 
-        public void Cure(string itemId)
+        public bool Cure(string itemId)
         {
             if (itemId == _medicine)
             {
                 BaseSettings();
+                return true;
             }
             else
             {
-                return;
+                return false;
             }
         }
 
-        public void IllProcess()
+        public bool IllProcess()
         {
-            _step++;
+            if(_step % _stepTotal == 0)
+            {
+                _step++;
+                return true;
+            }
+            else
+            {
+                _step++;
+                return false;
+            }
         }
-
     }
 }

@@ -11,13 +11,47 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
 {
     public class Boss : Mob
     {
+        private float _ageFactor;
+        private float _levelFactor;
         protected AgeRanks _ageRank;
         protected LevelRanks _levelRank;
 
+        private string _status;
+        private string[] _illData = new string[] {
+            "golova", "zlato"
+        };
+
+        // _lootArgs
+        // [0] - тип возраста
+        // [1] - тип опытности
+        // [2] - базовый опыт за моба 
+        // [3] - базовые бабки за моба
+        // [4] - базовый ранговый опыт
+        // [5] - кол-во возможных вещей
+        // всё остальное id-шники возможных вещей
+        private string[] _lootArgs;
+
         private Zoo.Zones _bossDirection;
         private string _zoneMark;
-        private string[] _illData;
         private BossZoneMod _bossZoneMod;
+
+        private readonly Dictionary<string, float> Factors = new Dictionary<string, float>(6) {
+            { "Young", 2.3f },
+            { "Acient", 3.0f },
+            { "Relict", 3.9f },
+            { "Ordinary", 1.9f },
+            { "Experienced", 2.3f },
+            { "Mature", 2.8f }
+        };
+
+        private readonly Dictionary<string, string> Icons = new Dictionary<string, string>(6) {
+            { "A_Brain", "&#129504" },
+            { "B_Brain", "&#129504 &#129504" },
+            { "C_Brain", "&#129504 &#129504 &#129504" },
+            { "Young", "&#128118" },
+            { "Acient", "&#128104" },
+            { "Relict", "&#128116" }
+        };
 
         protected enum BossZoneMod
         {
@@ -30,78 +64,21 @@ namespace ToilettenArbitrator.ToilettenWars.Cages
 
         }
 
+        public string Status => _status;
+        public float Damage => _damage;
+        public float Defence => _defence;
+        public float HitPoints => _hitPoints;
+        public int PositionX => _positionX;
+        public int PositionY => _positionY;
+        public float MaximumHitPoints => _maximumHitPoints;
+
         public Boss(MobCard Card) : base(Card)
         {
-
         }
 
         public Boss(string id) : base(id)
         {
 
-        }
-
-        protected override void MobSettings()
-        {
-            if (_positionX >= Zoo.RED_ZONE_COORDINATES[0] && _positionX < Zoo.RED_ZONE_COORDINATES[1] &&
-                _positionY >= Zoo.RED_ZONE_COORDINATES[2] && _positionY < Zoo.RED_ZONE_COORDINATES[3])
-            {
-                _bossZoneMod = BossZoneMod.Hot;
-                _zoneMark = Zoo.RED_ZONE;
-                _bossDirection = Zoo.Zones.Red;
-                
-            }
-            else if (_positionX >= Zoo.BLUE_ZONE_COORDINATES[0] && _positionX < Zoo.BLUE_ZONE_COORDINATES[1] &&
-                     _positionY >= Zoo.BLUE_ZONE_COORDINATES[2] && _positionY < Zoo.BLUE_ZONE_COORDINATES[3])
-            {
-                _bossZoneMod = BossZoneMod.Cold;
-                _zoneMark = Zoo.BLUE_ZONE;
-                _bossDirection = Zoo.Zones.Blue;
-            }
-            else if (_positionX >= Zoo.GREEN_ZONE_COORDINATES[0] && _positionX < Zoo.GREEN_ZONE_COORDINATES[1] &&
-                    _positionY >= Zoo.GREEN_ZONE_COORDINATES[2] && _positionY < Zoo.GREEN_ZONE_COORDINATES[3])
-            {
-                _bossZoneMod = BossZoneMod.Acid;
-                _zoneMark = Zoo.GREEN_ZONE;
-                _bossDirection = Zoo.Zones.Green;
-            }
-            else if (_positionX >= Zoo.PURPLE_ZONE_COORDINATES[0] && _positionX < Zoo.PURPLE_ZONE_COORDINATES[1] &&
-                    _positionY >= Zoo.PURPLE_ZONE_COORDINATES[2] && _positionY < Zoo.PURPLE_ZONE_COORDINATES[3])
-            {
-                _bossZoneMod = BossZoneMod.Jivex;
-                _zoneMark = Zoo.PURPLE_ZONE;
-                _bossDirection = Zoo.Zones.Purple;
-            }
-            else if (_positionX >= Zoo.BLACK_ZONE_COORDINATES[0] && _positionX < Zoo.BLACK_ZONE_COORDINATES[1] &&
-                    _positionY >= Zoo.BLACK_ZONE_COORDINATES[2] && _positionY < Zoo.BLACK_ZONE_COORDINATES[3])
-            {
-                _bossZoneMod = BossZoneMod.Dark;
-                _zoneMark = Zoo.BLACK_ZONE;
-                _bossDirection = Zoo.Zones.Black;
-            }
-            else
-            {
-                _bossZoneMod = BossZoneMod.Light;
-                _zoneMark = Zoo.WHITE_ZONE;
-                _bossDirection = Zoo.Zones.White;
-            };
-            
-        }
-
-        protected override void LootSettings()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override bool AddDamage(float damage, out LootBox Loot)
-        {
-
-            throw new NotImplementedException();
-        }
-
-        public override Ill Infect()
-        {
-            if (new SilverDice().Luck(15)) return new Ill(_illData[new Random().Next(_illData.Length)]);
-            else return new Ill();
         }
     }
 }

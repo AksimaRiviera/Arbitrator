@@ -23,20 +23,8 @@
 
         public int JustRandom(int minValue, int maxValue)
         {
-            int num = new int();
-
-            if (minValue > maxValue)
-            {
-                num = Dice.Next(maxValue, minValue);
-            }
-            else
-            {
-                num = Dice.Next(minValue, maxValue);
-            }
-            return num;
+            return new Random().Next(minValue, maxValue);
         }
-
-        
 
         public bool Luck(int Chance)
         {
@@ -47,6 +35,19 @@
             if (maxChange - chance < 0.0f) maxChange = chance + 0.02f;
 
             minChange = maxChange - chance;
+            theShot = new Random().NextDouble();
+
+            if (theShot > minChange && theShot < maxChange) return true;
+            else return false;
+        }
+
+        public bool Luck(decimal Chance)
+        {
+            maxChange = new Random().NextDouble();
+
+            if (maxChange - (double)Chance < 0.0f) maxChange = (double)(Chance + 0.02m);
+
+            minChange = maxChange - (double)Chance;
             theShot = new Random().NextDouble();
 
             if (theShot > minChange && theShot < maxChange) return true;

@@ -6,7 +6,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
     public abstract class BaseHero
     {
         private MembersDataContext MDC = new MembersDataContext();
-
         private readonly Dictionary<string, string> _heart = new Dictionary<string, string>(4) {
             { "Healthy", "&#128154" },
             { "Injured", "&#128155" },
@@ -15,6 +14,8 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         };
         private const int BASE_FIELD_OF_WIEV = 3;
         private const int BASE_ATTACK_RANGE = 1;
+
+        private int _levelCorrection;
 
         private bool _demiGod;
 
@@ -78,6 +79,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
         protected float _rankExpirience;
         protected float _dirty;
 
+        protected int LevelCorrection => _levelCorrection;
         public bool DemiGod => _demiGod;
         public float MaximumDirty => (float)(Math.Round((float)((_fats * 5) + (_level * 3)), 2)) * HP_FACTOR; // Максимальный уровень загрязнения (то есть здоровья)
 
@@ -150,7 +152,6 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             _phisical = new Ill(illdata[1]);
             _mental = new Ill(illdata[2]);
         }
-
         private void MainAtributesSet(string[] AtributesArgs)
         {
             _toxic = int.Parse(AtributesArgs[0]);
@@ -159,7 +160,17 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             _metabolism = int.Parse(AtributesArgs[3]);
             _freePoints = int.Parse(AtributesArgs[4]);
             _demiGod = _card.DemiGod;
+
+            if (_level >= 5)
+            {
+                _levelCorrection = (_level / 5) + 1;
+            }
+            else
+            {
+                _levelCorrection = 1;
+            }
         }
+
         private void RankSorter(string[] LRArgs)
         {
             switch (int.Parse(LRArgs[1]))
@@ -245,7 +256,7 @@ namespace ToilettenArbitrator.ToilettenWars.Person
             if (_equipment[3].Name == "ничего") { _helmet = new Armor(); }
             else { _helmet = new Armor(_equipment[3].ItemID); }
         }
-        private void IllSave()
+        protected void IllSave()
         {
             _card.TimersTwo = $"{_parasite.ID}.{_parasite.Step}|{_phisical.ID}.{_phisical.Step}|{_mental.ID}.{_mental.Step}";
 
@@ -388,7 +399,27 @@ namespace ToilettenArbitrator.ToilettenWars.Person
 
         public void IllsTick()
         {
-            if (!_parasite.ID.Contains('E')) _parasite.IllProcess();
+            if (!_parasite.ID.Contains('E'))
+            {
+                switch (_parasite.SufferingParameter)
+                {
+                    case "money":
+                        if (_parasite.IllProcess()) _money = (long)(_money - _parasite.MainFactor);
+                        _card.Money = _money;
+                        break;
+                    case "exp":
+                        if (_parasite.IllProcess()) _levelExpirience -= _parasite.MainFactor;
+                        _card.Expirience = $"{_levelExpirience}|{_rankExpirience}";
+                        break;
+                    case "rank":
+                        if (_parasite.IllProcess()) _rankExpirience -= _parasite.MainFactor;
+                        _card.Expirience = $"{_levelExpirience}|{_rankExpirience}";
+                        break;
+                    default:
+                        break;
+                }
+            }
+
             if (!_phisical.ID.Contains('E')) _phisical.IllProcess();
             if (!_mental.ID.Contains('E')) _mental.IllProcess();
             IllSave();

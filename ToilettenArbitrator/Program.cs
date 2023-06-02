@@ -51,6 +51,7 @@ Arbitrator.StartReceiving(
 
 var me = await Arbitrator.GetMeAsync();
 Console.WriteLine(new HelloSynapse().Hello + $"я {me.Username}. Запущен! Ожидаю!{Environment.NewLine}");
+zooMain.CagesData();
 
 string command = Console.ReadLine();
 Console.WriteLine();
@@ -111,10 +112,10 @@ async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, Cancel
         
     }
 
-    void WalkingMobs(object state)
-    {
-        zooMain.WalkingMobs(botClient, update, cancellationToken);
-    }
+    //void WalkingMobs(object state)
+    //{
+    //    zooMain.WalkingMobs(botClient, update, cancellationToken);
+    //}
 }
 
 Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
